@@ -271,13 +271,22 @@ const Admin = () => {
     // Esta função existe para manter compatibilidade
   };
 
-  // Carregar dados automaticamente ao autenticar
+  // Carregar dados automaticamente ao autenticar e atualizar a cada 15 segundos
   useEffect(() => {
     if (isAuthenticated && storedPassword) {
+      // Carregar dados imediatamente
       Promise.all([
         carregarPedidosDireto(),
         carregarConfiguracao(),
       ]);
+
+      // Configurar polling para atualizar a cada 15 segundos
+      const interval = setInterval(() => {
+        carregarPedidosDireto();
+      }, 15000);
+
+      // Limpar interval ao desmontar ou desautenticar
+      return () => clearInterval(interval);
     }
   }, [isAuthenticated, storedPassword]);
 

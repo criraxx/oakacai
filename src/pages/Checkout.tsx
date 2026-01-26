@@ -46,28 +46,23 @@ const Checkout = () => {
   const isWhatsApp = gatewayAtivo === "whatsapp";
   const isPix = formData.formaPagamento === "pix";
 
-  // Buscar configuração do gateway ativo
+  // Buscar configuração via edge function segura
   useEffect(() => {
     const fetchConfig = async () => {
-      const { data } = await supabase
-        .from("configuracoes")
-        .select("gateway_pix")
-        .eq("id", "global")
-        .maybeSingle();
-      
-      if (data?.gateway_pix) {
-        setGatewayAtivo(data.gateway_pix);
-      }
-
-      // Buscar número de WhatsApp ativo
-      const { data: whatsappData } = await supabase
-        .from("numeros_whatsapp")
-        .select("numero")
-        .eq("ativo", true)
-        .maybeSingle();
-
-      if (whatsappData?.numero) {
-        setNumeroWhatsAppAtivo(whatsappData.numero);
+      try {
+        const response = await fetch(
+          "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/buscar-config"
+        );
+        const data = await response.json();
+        
+        if (data?.gateway_pix) {
+          setGatewayAtivo(data.gateway_pix);
+        }
+        if (data?.whatsapp_numero) {
+          setNumeroWhatsAppAtivo(data.whatsapp_numero);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar config:", error);
       }
     };
     fetchConfig();

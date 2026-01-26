@@ -155,16 +155,23 @@ const Admin = () => {
   };
 
   const carregarConfiguracao = async () => {
+    if (!storedPassword) return;
     try {
-      const { data, error } = await supabase
-        .from("configuracoes")
-        .select("gateway_pix")
-        .eq("id", "global")
-        .maybeSingle();
+      const response = await fetch(
+        "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/admin-config",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "listar", password: storedPassword }),
+        }
+      );
+      const data = await response.json();
 
-      if (error) throw error;
       if (data?.gateway_pix) {
         setGatewayAtivo(data.gateway_pix);
+      }
+      if (data?.numeros_whatsapp) {
+        setNumerosWhatsApp(data.numeros_whatsapp);
       }
     } catch (error) {
       console.error("Erro ao carregar configuração:", error);
@@ -172,14 +179,24 @@ const Admin = () => {
   };
 
   const salvarGateway = async (novoGateway: string) => {
+    if (!storedPassword) return;
     setSalvandoGateway(true);
     try {
-      const { error } = await supabase
-        .from("configuracoes")
-        .update({ gateway_pix: novoGateway, updated_at: new Date().toISOString() })
-        .eq("id", "global");
+      const response = await fetch(
+        "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/admin-config",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "atualizar_gateway",
+            password: storedPassword,
+            gateway_pix: novoGateway,
+          }),
+        }
+      );
+      const data = await response.json();
 
-      if (error) throw error;
+      if (data.error) throw new Error(data.error);
 
       setGatewayAtivo(novoGateway);
       const gatewayNomes: Record<string, string> = {
@@ -187,6 +204,7 @@ const Admin = () => {
         evopay: "EvoPay",
         blackcat: "BlackCat",
         whatsapp: "WhatsApp",
+        whatsapp2: "WhatsApp 2",
       };
       toast({
         title: "Sucesso",
@@ -205,40 +223,32 @@ const Admin = () => {
   };
 
   const carregarPedidosDireto = async () => {
+    if (!storedPassword) return;
     setLoading(true);
     try {
-      // Buscar pedidos diretamente do Supabase
-      const { data: pedidosData, error: pedidosError } = await supabase
-        .from("pedidos")
-        .select("*")
-        .order("created_at", { ascending: false });
+      // Buscar pedidos via edge function (com service role)
+      const { data, error } = await supabase.functions.invoke("admin-pedidos", {
+        body: { action: "listar", password: storedPassword },
+      });
 
-      if (pedidosError) throw pedidosError;
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
 
-      // Buscar itens para cada pedido
-      const pedidosComItens = await Promise.all(
-        (pedidosData || []).map(async (pedido) => {
-          const { data: itens, error: itensError } = await supabase
-            .from("pedido_itens")
-            .select("*")
-            .eq("pedido_id", pedido.id);
+      // Parse adicionais de JSON para objeto
+      const pedidosFormatados = (data.pedidos || []).map((pedido: Pedido) => ({
+        ...pedido,
+        itens: (pedido.itens || []).map((item) => ({
+          ...item,
+          adicionais: typeof item.adicionais === "string" ? JSON.parse(item.adicionais) : item.adicionais || {},
+        })),
+      }));
 
-          if (itensError) {
-            console.error(`Erro ao buscar itens do pedido ${pedido.id}:`, itensError);
-            return { ...pedido, itens: [] };
-          }
-
-          // Parse adicionais de JSON para objeto
-          const itensFormatados = (itens || []).map((item) => ({
-            ...item,
-            adicionais: typeof item.adicionais === "string" ? JSON.parse(item.adicionais) : item.adicionais || {},
-          }));
-
-          return { ...pedido, itens: itensFormatados };
-        }),
-      );
-
-      setPedidos(pedidosComItens as Pedido[]);
+      setPedidos(pedidosFormatados as Pedido[]);
+      
+      // Também carregar vales presente retornados pela mesma chamada
+      if (data.vales_presente) {
+        setValesPresente(data.vales_presente as ValePresente[]);
+      }
     } catch (error) {
       console.error("Erro ao carregar pedidos:", error);
       toast({
@@ -252,32 +262,13 @@ const Admin = () => {
   };
 
   const carregarValesPresente = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("vales_presente")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      setValesPresente((data || []) as ValePresente[]);
-    } catch (error) {
-      console.error("Erro ao carregar vales presente:", error);
-    }
+    // Vales são carregados junto com os pedidos via edge function
+    // Esta função existe para manter compatibilidade
   };
 
   const carregarNumerosWhatsApp = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("numeros_whatsapp")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setNumerosWhatsApp(data || []);
-    } catch (error) {
-      console.error("Erro ao carregar números WhatsApp:", error);
-    }
+    // Números são carregados junto com a configuração
+    // Esta função existe para manter compatibilidade
   };
 
   const adicionarNumeroWhatsApp = async () => {
@@ -292,13 +283,24 @@ const Admin = () => {
       return;
     }
 
+    if (!storedPassword) return;
     setAdicionandoNumero(true);
     try {
-      const { error } = await supabase
-        .from("numeros_whatsapp")
-        .insert({ numero: numeroLimpo, ativo: false });
+      const response = await fetch(
+        "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/admin-config",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "adicionar_numero",
+            password: storedPassword,
+            numero: numeroLimpo,
+          }),
+        }
+      );
+      const data = await response.json();
 
-      if (error) throw error;
+      if (data.error) throw new Error(data.error);
 
       toast({
         title: "Sucesso",
@@ -306,7 +308,7 @@ const Admin = () => {
       });
 
       setNovoNumero("");
-      await carregarNumerosWhatsApp();
+      await carregarConfiguracao();
     } catch (error) {
       console.error("Erro ao adicionar número:", error);
       toast({
@@ -320,20 +322,30 @@ const Admin = () => {
   };
 
   const ativarNumeroWhatsApp = async (id: string) => {
+    if (!storedPassword) return;
     try {
-      const { error } = await supabase
-        .from("numeros_whatsapp")
-        .update({ ativo: true })
-        .eq("id", id);
+      const response = await fetch(
+        "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/admin-config",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "ativar_numero",
+            password: storedPassword,
+            numero_id: id,
+          }),
+        }
+      );
+      const data = await response.json();
 
-      if (error) throw error;
+      if (data.error) throw new Error(data.error);
 
       toast({
         title: "Sucesso",
         description: "Número ativado com sucesso",
       });
 
-      await carregarNumerosWhatsApp();
+      await carregarConfiguracao();
     } catch (error) {
       console.error("Erro ao ativar número:", error);
       toast({
@@ -345,20 +357,30 @@ const Admin = () => {
   };
 
   const excluirNumeroWhatsApp = async (id: string) => {
+    if (!storedPassword) return;
     try {
-      const { error } = await supabase
-        .from("numeros_whatsapp")
-        .delete()
-        .eq("id", id);
+      const response = await fetch(
+        "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/admin-config",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "excluir_numero",
+            password: storedPassword,
+            numero_id: id,
+          }),
+        }
+      );
+      const data = await response.json();
 
-      if (error) throw error;
+      if (data.error) throw new Error(data.error);
 
       toast({
         title: "Sucesso",
         description: "Número excluído com sucesso",
       });
 
-      await carregarNumerosWhatsApp();
+      await carregarConfiguracao();
     } catch (error) {
       console.error("Erro ao excluir número:", error);
       toast({

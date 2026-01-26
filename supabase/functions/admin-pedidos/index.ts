@@ -91,9 +91,19 @@ Deno.serve(async (req) => {
         })
       )
 
+      // Buscar vales presente
+      const { data: valesPresente, error: valesError } = await supabase
+        .from('vales_presente')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (valesError) {
+        console.error('Erro ao buscar vales presente:', valesError)
+      }
+
       console.log(`Retornando ${pedidosComItens.length} pedidos`)
       return new Response(
-        JSON.stringify({ pedidos: pedidosComItens }),
+        JSON.stringify({ pedidos: pedidosComItens, vales_presente: valesPresente || [] }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }

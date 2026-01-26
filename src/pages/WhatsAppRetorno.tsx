@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { MessageCircle, ArrowLeft, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 
 const WhatsAppRetorno = () => {
   const navigate = useNavigate();
@@ -10,14 +9,17 @@ const WhatsAppRetorno = () => {
 
   useEffect(() => {
     const fetchNumeroAtivo = async () => {
-      const { data } = await supabase
-        .from("numeros_whatsapp")
-        .select("numero")
-        .eq("ativo", true)
-        .maybeSingle();
+      try {
+        const response = await fetch(
+          "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/buscar-config"
+        );
+        const data = await response.json();
 
-      if (data?.numero) {
-        setNumeroWhatsAppAtivo(data.numero);
+        if (data?.whatsapp_numero) {
+          setNumeroWhatsAppAtivo(data.whatsapp_numero);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar número WhatsApp:", error);
       }
     };
     fetchNumeroAtivo();

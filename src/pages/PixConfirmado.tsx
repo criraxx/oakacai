@@ -20,23 +20,17 @@ const PixConfirmado = () => {
 
   const purchaseTracked = useRef(false);
 
-  // Carregar número de WhatsApp ativo
+  // Carregar número de WhatsApp ativo via edge function segura
   useEffect(() => {
     const carregarNumeroWhatsApp = async () => {
       try {
-        const { data, error } = await supabase
-          .from("numeros_whatsapp")
-          .select("numero")
-          .eq("ativo", true)
-          .maybeSingle();
+        const response = await fetch(
+          "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/buscar-config"
+        );
+        const data = await response.json();
 
-        if (error) {
-          console.error("Erro ao carregar número WhatsApp:", error);
-          return;
-        }
-
-        if (data?.numero) {
-          setNumeroWhatsAppAtivo(data.numero);
+        if (data?.whatsapp_numero) {
+          setNumeroWhatsAppAtivo(data.whatsapp_numero);
         }
       } catch (error) {
         console.error("Erro ao buscar número WhatsApp:", error);

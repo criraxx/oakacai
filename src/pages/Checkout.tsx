@@ -286,46 +286,51 @@ const Checkout = () => {
           return;
         }
 
-        // Salvar pedido no banco primeiro
-        const { data: pedidoDB, error: pedidoError } = await supabase
-          .from("pedidos")
-          .insert({
-            numero_pedido: numeroPedido,
-            cliente_nome: dadosCliente?.nome || "",
-            cliente_telefone: dadosCliente?.telefone || "",
-            cliente_cpf: dadosCliente?.cpf || "",
-            endereco_completo: enderecoCompleto,
-            bairro: formData.bairro,
-            cidade: formData.cidade,
-            cep: formData.cep.replace(/\D/g, ""),
-            tipo_entrega: tipoEntrega,
-            forma_pagamento: "pix",
-            status_pagamento: "pendente",
-            status_pedido: "pendente",
-            subtotal: getSubtotal(),
-            desconto_pix: getDescontoPix(),
-            total: getTotalComDesconto(),
-          })
-          .select()
-          .single();
-
-        if (pedidoError) {
-          console.error("[Checkout] Erro ao salvar pedido:", pedidoError);
-          throw new Error("Erro ao salvar pedido");
-        }
-
-        // Salvar itens do pedido
+        // Salvar pedido via edge function segura
         const itensParaSalvar = itens.map((item) => ({
-          pedido_id: pedidoDB.id,
           produto_nome: item.produtoNome,
           produto_preco: item.produtoPreco,
           adicionais: item.complementos,
           total_adicionais: item.totalAdicionais,
           total_item: item.produtoPreco + item.totalAdicionais,
-          observacoes: item.observacoes,
+          observacoes: item.observacoes || "",
         }));
 
-        await supabase.from("pedido_itens").insert(itensParaSalvar);
+        const pedidoResponse = await fetch(
+          "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/criar-pedido",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              numero_pedido: numeroPedido,
+              cliente_nome: dadosCliente?.nome || "",
+              cliente_telefone: dadosCliente?.telefone || "",
+              cliente_cpf: dadosCliente?.cpf || "",
+              endereco_completo: enderecoCompleto,
+              bairro: formData.bairro,
+              cidade: formData.cidade,
+              cep: formData.cep.replace(/\D/g, ""),
+              tipo_entrega: tipoEntrega,
+              forma_pagamento: "pix",
+              status_pagamento: "pendente",
+              status_pedido: "pendente",
+              subtotal: getSubtotal(),
+              desconto_pix: getDescontoPix(),
+              total: getTotalComDesconto(),
+              payment_id: null,
+              pix_copia_e_cola: null,
+              pix_expires_at: null,
+              itens: itensParaSalvar,
+            }),
+          }
+        );
+
+        const pedidoResult = await pedidoResponse.json();
+
+        if (!pedidoResult.success) {
+          console.error("[Checkout] Erro ao salvar pedido:", pedidoResult.error);
+          throw new Error("Erro ao salvar pedido");
+        }
 
         // Montar mensagem do WhatsApp
         const itensTexto = itens.map(i => `- ${i.produtoNome}: R$ ${(i.produtoPreco + i.totalAdicionais).toFixed(2).replace(".", ",")}`).join("\n");
@@ -342,11 +347,11 @@ const Checkout = () => {
 
         const urlWhatsApp = `https://wa.me/55${numeroWhatsAppAtivo}?text=${encodeURIComponent(mensagem)}`;
         
-        // Redirecionar para WhatsApp
         window.open(urlWhatsApp, "_blank");
         
         // Navegar para página de retorno
         navigate("/whatsapp-retorno");
+        setLoading(false);
         return;
       }
 

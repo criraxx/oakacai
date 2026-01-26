@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import BottomNavigation from "@/components/BottomNavigation";
 import PedidoCard from "@/components/PedidoCard";
-import { supabase } from "@/integrations/supabase/client";
 import { useCart } from "@/contexts/CartContext";
 
 interface PedidoDB {
@@ -52,19 +51,29 @@ const Pedidos = () => {
       }
 
       try {
-        const { data, error } = await supabase
-          .from("pedidos")
-          .select("*")
-          .ilike("cliente_telefone", `%${telefoneAtivo.trim()}%`)
-          .order("created_at", { ascending: false });
+        // Usar edge function segura para buscar pedidos
+        const response = await fetch(
+          "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/buscar-pedidos",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ telefone: telefoneAtivo.trim() }),
+          }
+        );
 
-        if (error) {
-          console.error("Erro ao buscar pedidos:", error);
+        const result = await response.json();
+
+        if (result.error) {
+          console.error("Erro ao buscar pedidos:", result.error);
+          setPedidos([]);
         } else {
-          setPedidos(data || []);
+          setPedidos(result.pedidos || []);
         }
       } catch (error) {
         console.error("Erro ao buscar pedidos:", error);
+        setPedidos([]);
       } finally {
         setLoading(false);
       }

@@ -1,0 +1,373 @@
+import { createClient } from "npm:@supabase/supabase-js@2";
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+// Gateway URLs
+const UMBRELLAPAG_BASE_URL = 'https://api-gateway.umbrellapag.com/api';
+const EVOPAY_URL = 'https://pix.evopay.cash/v1/pix';
+const BLACKCAT_URL = 'https://api.blackcatpagamentos.online/api';
+
+interface CreatePixRequest {
+  valor: number;
+  descricao: string;
+  nome: string;
+  telefone: string;
+  cpf: string;
+  email?: string;
+  pedidoId?: string;
+}
+
+// Função para sanitizar nome (EvoPay só aceita A-Z e espaços)
+const sanitizeName = (name: string): string => {
+  return name
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z\s]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim() || 'Cliente';
+};
+
+// Criar PIX via UmbrellaPag
+// deno-lint-ignore no-explicit-any
+async function createUmbrellaPagPix(body: CreatePixRequest, supabase: any, supabaseUrl: string) {
+  const UMBRELLAPAG_API_KEY = Deno.env.get('UMBRELLAPAG_API_KEY');
+  
+  if (!UMBRELLAPAG_API_KEY) {
+    throw new Error('UMBRELLAPAG_API_KEY não configurada');
+  }
+
+  const { valor, descricao, nome, telefone, cpf, email, pedidoId } = body;
+  const valorCentavos = Math.round(valor * 100);
+
+  const webhookUrl = `${supabaseUrl}/functions/v1/umbrellapag-webhook`;
+
+  const transactionResponse = await fetch(`${UMBRELLAPAG_BASE_URL}/user/transactions`, {
+    method: 'POST',
+    headers: {
+      'x-api-key': UMBRELLAPAG_API_KEY,
+      'User-Agent': 'AtivoB2B/1.0',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      amount: valorCentavos,
+      currency: 'BRL',
+      paymentMethod: 'pix',
+      installments: 1,
+      customer: {
+        name: nome,
+        email: email || `${telefone.replace(/\D/g, '')}@cliente.local`,
+        document: {
+          number: cpf.replace(/\D/g, ''),
+          type: 'CPF',
+        },
+        phone: telefone.replace(/\D/g, ''),
+        address: {
+          street: 'Rua não informada',
+          streetNumber: '0',
+          complement: '',
+          zipCode: '00000000',
+          neighborhood: 'Centro',
+          city: 'São Paulo',
+          state: 'SP',
+          country: 'BR',
+        },
+      },
+      items: [
+        {
+          title: descricao || 'Pedido Vibe Açaí',
+          unitPrice: valorCentavos,
+          quantity: 1,
+          tangible: false,
+          externalRef: pedidoId || `pedido-${Date.now()}`,
+        },
+      ],
+      pix: {
+        expiresInDays: 1,
+      },
+      postbackUrl: webhookUrl,
+      metadata: JSON.stringify({ pedidoId }),
+      traceable: true,
+    }),
+  });
+
+  const transactionText = await transactionResponse.text();
+  console.log('[create-pix-payment] UmbrellaPag response:', transactionText);
+
+  if (!transactionResponse.ok) {
+    throw new Error(`Erro UmbrellaPag: ${transactionResponse.status} - ${transactionText}`);
+  }
+
+  const transactionData = JSON.parse(transactionText);
+  const transactionId = transactionData.data?.id || transactionData.id;
+  const pixCopiaECola = transactionData.data?.pix?.qrcode || 
+                        transactionData.data?.qrCode ||
+                        transactionData.data?.pix?.qrCode;
+  const expiresAt = transactionData.data?.pix?.expirationDate || 
+                    transactionData.data?.expiresAt || 
+                    new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+  if (!pixCopiaECola) {
+    throw new Error('QR Code PIX não retornado pela API UmbrellaPag');
+  }
+
+  // Atualizar pedido com payment_id
+  if (pedidoId) {
+    await supabase
+      .from('pedidos')
+      .update({ payment_id: transactionId, forma_pagamento: 'pix' })
+      .eq('id', pedidoId);
+  }
+
+  return {
+    success: true,
+    paymentId: transactionId,
+    pixCopiaECola,
+    expiresAt,
+    gateway: 'umbrellapag',
+  };
+}
+
+// Criar PIX via EvoPay
+// deno-lint-ignore no-explicit-any
+async function createEvoPayPix(body: CreatePixRequest, supabase: any) {
+  const EVOPAY_API_KEY = Deno.env.get('EVOPAY_API_KEY');
+  
+  if (!EVOPAY_API_KEY) {
+    throw new Error('EVOPAY_API_KEY não configurada');
+  }
+
+  const { valor, nome, cpf, pedidoId } = body;
+  const cleanName = sanitizeName(nome);
+  const cleanCpf = cpf?.replace(/\D/g, '') || '';
+  const randomId = Math.floor(Math.random() * 999999);
+  const tempEmail = `cliente${randomId}@moraiaacai.com.br`;
+
+  const response = await fetch(EVOPAY_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'API-Key': EVOPAY_API_KEY,
+    },
+    body: JSON.stringify({
+      amount: valor,
+      callbackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/evopay-webhook`,
+      payerName: cleanName,
+      payerDocument: cleanCpf,
+      payerEmail: tempEmail,
+    }),
+  });
+
+  const responseText = await response.text();
+  console.log('[create-pix-payment] EvoPay response:', responseText);
+
+  if (!response.ok) {
+    throw new Error(`Erro EvoPay: ${response.status} - ${responseText}`);
+  }
+
+  const data = JSON.parse(responseText);
+  const pixCode = data.qrCodeText;
+  const paymentId = data.id;
+
+  if (!pixCode || !paymentId) {
+    throw new Error('Código PIX não encontrado na resposta EvoPay');
+  }
+
+  // Atualizar pedido com payment_id
+  if (pedidoId) {
+    await supabase
+      .from('pedidos')
+      .update({ payment_id: String(paymentId), forma_pagamento: 'pix' })
+      .eq('id', pedidoId);
+  }
+
+  return {
+    success: true,
+    paymentId: String(paymentId),
+    pixCopiaECola: pixCode,
+    qrCodeBase64: data.qrCodeBase64,
+    expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+    gateway: 'evopay',
+  };
+}
+
+// Lista de produtos fake para BlackCat
+const BLACKCAT_PRODUCT_NAMES = [
+  // Netflix
+  "Plano Netflix Básico",
+  "Plano Netflix Padrão",
+  "Plano Netflix Premium",
+  // Amazon Prime
+  "Plano Prime Básico",
+  "Plano Prime Padrão",
+  "Plano Prime Completo",
+  // Disney+
+  "Plano Disney+ Básico",
+  "Plano Disney+ Padrão",
+  "Plano Disney+ Premium",
+  // HBO Max
+  "Plano Max Básico",
+  "Plano Max Padrão",
+  "Plano Max Ultimate",
+  // Spotify
+  "Plano Spotify Free",
+  "Plano Spotify Individual",
+  "Plano Spotify Duo",
+  "Plano Spotify Família",
+  // Lovable
+  "Plano Lovable Starter — 100 créditos",
+  "Plano Lovable Basic — 300 créditos",
+  "Plano Lovable Pro — 1.000 créditos",
+  "Plano Lovable Unlimited — créditos ilimitados",
+  // Bolt
+  "Plano Bolt Free — 50 créditos",
+  "Plano Bolt Basic — 200 créditos",
+  "Plano Bolt Pro — 800 créditos",
+  "Plano Bolt Team — 2.000 créditos",
+  // v0
+  "Plano v0 Free — 25 créditos",
+  "Plano v0 Starter — 100 créditos",
+  "Plano v0 Pro — 500 créditos",
+  "Plano v0 Advanced — 1.500 créditos",
+];
+
+// Função para selecionar produto fake baseado no valor
+const getRandomBlackcatProduct = (): string => {
+  const randomIndex = Math.floor(Math.random() * BLACKCAT_PRODUCT_NAMES.length);
+  return BLACKCAT_PRODUCT_NAMES[randomIndex];
+};
+
+// Criar PIX via BlackCat
+// deno-lint-ignore no-explicit-any
+async function createBlackCatPix(body: CreatePixRequest, supabase: any, supabaseUrl: string) {
+  const BLACKCAT_API_KEY = Deno.env.get('BLACKCAT_API_KEY');
+  
+  if (!BLACKCAT_API_KEY) {
+    throw new Error('BLACKCAT_API_KEY não configurada');
+  }
+
+  const { valor, descricao, nome, telefone, cpf, email, pedidoId } = body;
+  const valorCentavos = Math.round(valor * 100);
+  const webhookUrl = `${supabaseUrl}/functions/v1/blackcat-webhook`;
+
+  // Usar nome fake de produto para BlackCat
+  const fakeProductName = getRandomBlackcatProduct();
+
+  const response = await fetch(`${BLACKCAT_URL}/sales/create-sale`, {
+    method: 'POST',
+    headers: {
+      'X-API-Key': BLACKCAT_API_KEY,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      amount: valorCentavos,
+      paymentMethod: 'pix',
+      items: [
+        {
+          title: fakeProductName,
+          unitPrice: valorCentavos,
+          quantity: 1,
+          tangible: false,
+        },
+      ],
+      customer: {
+        name: nome,
+        email: email || `${telefone.replace(/\D/g, '')}@cliente.local`,
+        phone: telefone.replace(/\D/g, ''),
+        document: {
+          number: cpf.replace(/\D/g, ''),
+          type: 'CPF',
+        },
+      },
+      postbackUrl: webhookUrl,
+      externalReference: pedidoId || `pedido-${Date.now()}`,
+    }),
+  });
+
+  const responseText = await response.text();
+  console.log('[create-pix-payment] BlackCat response:', responseText);
+
+  if (!response.ok) {
+    throw new Error(`Erro BlackCat: ${response.status} - ${responseText}`);
+  }
+
+  const data = JSON.parse(responseText);
+  const transactionId = data.data?.transactionId;
+  const pixCopiaECola = data.data?.paymentData?.copyPaste || data.data?.paymentData?.qrCode;
+  const expiresAt = data.data?.paymentData?.expiresAt || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+  if (!pixCopiaECola) {
+    throw new Error('QR Code PIX não retornado pela API BlackCat');
+  }
+
+  // Atualizar pedido com payment_id
+  if (pedidoId) {
+    await supabase
+      .from('pedidos')
+      .update({ payment_id: transactionId, forma_pagamento: 'pix' })
+      .eq('id', pedidoId);
+  }
+
+  return {
+    success: true,
+    paymentId: transactionId,
+    pixCopiaECola,
+    qrCodeBase64: data.data?.paymentData?.qrCodeBase64,
+    expiresAt,
+    gateway: 'blackcat',
+  };
+}
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    const body: CreatePixRequest = await req.json();
+    console.log('[create-pix-payment] Request:', { ...body, cpf: '***' });
+
+    // Buscar configuração do gateway ativo
+    const { data: config, error: configError } = await supabase
+      .from('configuracoes')
+      .select('gateway_pix')
+      .eq('id', 'global')
+      .maybeSingle();
+
+    if (configError) {
+      console.error('[create-pix-payment] Erro ao buscar config:', configError);
+    }
+
+    const gateway = config?.gateway_pix || 'umbrellapag';
+    console.log('[create-pix-payment] Gateway ativo:', gateway);
+
+    let result;
+    if (gateway === 'evopay') {
+      result = await createEvoPayPix(body, supabase);
+    } else if (gateway === 'blackcat') {
+      result = await createBlackCatPix(body, supabase, supabaseUrl);
+    } else {
+      result = await createUmbrellaPagPix(body, supabase, supabaseUrl);
+    }
+
+    return new Response(
+      JSON.stringify(result),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+    console.error('[create-pix-payment] Erro:', errorMessage);
+    
+    return new Response(
+      JSON.stringify({ success: false, error: errorMessage }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+});

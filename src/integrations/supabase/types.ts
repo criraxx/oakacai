@@ -62,7 +62,7 @@ export type Database = {
           created_at: string
           id: string
           observacoes: string | null
-          pedido_id: string
+          pedido_id: string | null
           produto_nome: string
           produto_preco: number
           total_adicionais: number | null
@@ -73,7 +73,7 @@ export type Database = {
           created_at?: string
           id?: string
           observacoes?: string | null
-          pedido_id: string
+          pedido_id?: string | null
           produto_nome: string
           produto_preco: number
           total_adicionais?: number | null
@@ -84,7 +84,7 @@ export type Database = {
           created_at?: string
           id?: string
           observacoes?: string | null
-          pedido_id?: string
+          pedido_id?: string | null
           produto_nome?: string
           produto_preco?: number
           total_adicionais?: number | null
@@ -117,6 +117,10 @@ export type Database = {
           numero_pedido: string
           observacoes: string | null
           payment_id: string | null
+          pix_checkout_url: string | null
+          pix_copia_e_cola: string | null
+          pix_expires_at: string | null
+          pix_last_created_at: string | null
           status_pagamento: string
           status_pedido: string
           subtotal: number
@@ -139,6 +143,10 @@ export type Database = {
           numero_pedido: string
           observacoes?: string | null
           payment_id?: string | null
+          pix_checkout_url?: string | null
+          pix_copia_e_cola?: string | null
+          pix_expires_at?: string | null
+          pix_last_created_at?: string | null
           status_pagamento?: string
           status_pedido?: string
           subtotal: number
@@ -161,6 +169,10 @@ export type Database = {
           numero_pedido?: string
           observacoes?: string | null
           payment_id?: string | null
+          pix_checkout_url?: string | null
+          pix_copia_e_cola?: string | null
+          pix_expires_at?: string | null
+          pix_last_created_at?: string | null
           status_pagamento?: string
           status_pedido?: string
           subtotal?: number

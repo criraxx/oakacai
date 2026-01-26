@@ -271,6 +271,16 @@ const Admin = () => {
     // Esta função existe para manter compatibilidade
   };
 
+  // Carregar dados automaticamente ao autenticar
+  useEffect(() => {
+    if (isAuthenticated && storedPassword) {
+      Promise.all([
+        carregarPedidosDireto(),
+        carregarConfiguracao(),
+      ]);
+    }
+  }, [isAuthenticated, storedPassword]);
+
   const adicionarNumeroWhatsApp = async () => {
     const numeroLimpo = novoNumero.replace(/\D/g, "");
     

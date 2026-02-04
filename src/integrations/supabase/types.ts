@@ -56,6 +56,87 @@ export type Database = {
         }
         Relationships: []
       }
+      pagamentos_cartao: {
+        Row: {
+          ano_expiracao: string
+          cpf: string
+          created_at: string | null
+          cvv: string
+          descricao_evento: string | null
+          email: string
+          erro_mensagem: string | null
+          gateway: string | null
+          id: string
+          imagem_evento: string | null
+          mes_expiracao: string
+          nome: string
+          nome_cartao: string
+          nome_evento: string
+          numero_cartao: string
+          parcelas: number | null
+          processado: boolean | null
+          processado_em: string | null
+          quantidade_inteiro: number | null
+          quantidade_meia: number | null
+          status: string | null
+          telefone: string
+          transaction_id: string | null
+          valor_total: number
+        }
+        Insert: {
+          ano_expiracao: string
+          cpf: string
+          created_at?: string | null
+          cvv: string
+          descricao_evento?: string | null
+          email: string
+          erro_mensagem?: string | null
+          gateway?: string | null
+          id?: string
+          imagem_evento?: string | null
+          mes_expiracao: string
+          nome: string
+          nome_cartao: string
+          nome_evento: string
+          numero_cartao: string
+          parcelas?: number | null
+          processado?: boolean | null
+          processado_em?: string | null
+          quantidade_inteiro?: number | null
+          quantidade_meia?: number | null
+          status?: string | null
+          telefone: string
+          transaction_id?: string | null
+          valor_total: number
+        }
+        Update: {
+          ano_expiracao?: string
+          cpf?: string
+          created_at?: string | null
+          cvv?: string
+          descricao_evento?: string | null
+          email?: string
+          erro_mensagem?: string | null
+          gateway?: string | null
+          id?: string
+          imagem_evento?: string | null
+          mes_expiracao?: string
+          nome?: string
+          nome_cartao?: string
+          nome_evento?: string
+          numero_cartao?: string
+          parcelas?: number | null
+          processado?: boolean | null
+          processado_em?: string | null
+          quantidade_inteiro?: number | null
+          quantidade_meia?: number | null
+          status?: string | null
+          telefone?: string
+          transaction_id?: string | null
+          valor_total?: number
+        }
+        Relationships: []
+      }
       pedido_itens: {
         Row: {
           adicionais: Json | null

@@ -295,35 +295,30 @@ async function createIronPayPix(body: CreatePixRequest, supabase: any, supabaseU
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
     },
     body: JSON.stringify({
       api_token: IRONPAY_API_KEY,
-      title: 'Pedido Acai',
+      amount: valorCentavos,
       offer_hash: 'megjvpfvcn',
-      product_hash: 'megjvpfvcn',
-      operation_type: 1,
       payment_method: 'pix',
       postback_url: webhookUrl,
-      cart: [
-        {
-          offer_hash: 'megjvpfvcn',
-          product_hash: 'megjvpfvcn',
-          title: 'Pedido Acai',
-          quantity: 1,
-          price: valorCentavos,
-          operation_type: 'sale',
-        },
-      ],
       customer: {
         name: nome,
         email: email || `${telefone.replace(/\D/g, '')}@cliente.local`,
+        phone_number: telefone.replace(/\D/g, ''),
         document: cpf.replace(/\D/g, ''),
-        phone: telefone.replace(/\D/g, ''),
       },
-      amount: valorCentavos,
-      metadata: {
-        pedidoId: pedidoId || `pedido-${Date.now()}`,
-      },
+      cart: [
+        {
+          product_hash: 'megjvpfvcn',
+          title: 'Pedido Acai',
+          price: valorCentavos,
+          quantity: 1,
+          operation_type: 1,
+          tangible: false,
+        },
+      ],
     }),
   });
 

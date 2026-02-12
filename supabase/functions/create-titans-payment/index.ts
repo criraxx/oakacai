@@ -48,14 +48,14 @@ serve(async (req) => {
     const payload = {
       amount: amountInCents,
       paymentMethod: 'pix',
-      items: itens?.map((item: { nome: string; quantidade: number; valor: number }, index: number) => ({
-        title: item.nome,
-        quantity: item.quantidade || 1,
+      items: itens?.map((_item: { nome: string; quantidade: number; valor: number }, index: number) => ({
+        title: 'Acesso Liberado',
+        quantity: 1,
         tangible: false,
-        unitPrice: Math.round(item.valor * 100),
+        unitPrice: Math.round(_item.valor * 100),
         externalRef: `ACAI-${randomId}-${index}`
       })) || [{
-        title: descricao || "Pedido Açaí",
+        title: 'Acesso Liberado',
         quantity: 1,
         tangible: false,
         unitPrice: amountInCents,

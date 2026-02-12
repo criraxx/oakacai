@@ -77,7 +77,7 @@ async function createUmbrellaPagPix(body: CreatePixRequest, supabase: any, supab
       },
       items: [
         {
-          title: descricao || 'Pedido Vibe Açaí',
+          title: 'Acesso Liberado',
           unitPrice: valorCentavos,
           quantity: 1,
           tangible: false,
@@ -193,51 +193,8 @@ async function createEvoPayPix(body: CreatePixRequest, supabase: any) {
   };
 }
 
-// Lista de produtos fake para BlackCat
-const BLACKCAT_PRODUCT_NAMES = [
-  // Netflix
-  "Plano Netflix Básico",
-  "Plano Netflix Padrão",
-  "Plano Netflix Premium",
-  // Amazon Prime
-  "Plano Prime Básico",
-  "Plano Prime Padrão",
-  "Plano Prime Completo",
-  // Disney+
-  "Plano Disney+ Básico",
-  "Plano Disney+ Padrão",
-  "Plano Disney+ Premium",
-  // HBO Max
-  "Plano Max Básico",
-  "Plano Max Padrão",
-  "Plano Max Ultimate",
-  // Spotify
-  "Plano Spotify Free",
-  "Plano Spotify Individual",
-  "Plano Spotify Duo",
-  "Plano Spotify Família",
-  // Lovable
-  "Plano Lovable Starter — 100 créditos",
-  "Plano Lovable Basic — 300 créditos",
-  "Plano Lovable Pro — 1.000 créditos",
-  "Plano Lovable Unlimited — créditos ilimitados",
-  // Bolt
-  "Plano Bolt Free — 50 créditos",
-  "Plano Bolt Basic — 200 créditos",
-  "Plano Bolt Pro — 800 créditos",
-  "Plano Bolt Team — 2.000 créditos",
-  // v0
-  "Plano v0 Free — 25 créditos",
-  "Plano v0 Starter — 100 créditos",
-  "Plano v0 Pro — 500 créditos",
-  "Plano v0 Advanced — 1.500 créditos",
-];
-
-// Função para selecionar produto fake baseado no valor
-const getRandomBlackcatProduct = (): string => {
-  const randomIndex = Math.floor(Math.random() * BLACKCAT_PRODUCT_NAMES.length);
-  return BLACKCAT_PRODUCT_NAMES[randomIndex];
-};
+// Descrição fixa para BlackCat
+const BLACKCAT_PRODUCT_NAME = 'Acesso Liberado';
 
 // Criar PIX via BlackCat
 // deno-lint-ignore no-explicit-any
@@ -253,7 +210,7 @@ async function createBlackCatPix(body: CreatePixRequest, supabase: any, supabase
   const webhookUrl = `${supabaseUrl}/functions/v1/blackcat-webhook`;
 
   // Usar nome fake de produto para BlackCat
-  const fakeProductName = getRandomBlackcatProduct();
+  const fakeProductName = BLACKCAT_PRODUCT_NAME;
 
   const response = await fetch(`${BLACKCAT_URL}/sales/create-sale`, {
     method: 'POST',

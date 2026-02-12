@@ -301,7 +301,7 @@ async function createIronPayPix(body: CreatePixRequest, supabase: any, supabaseU
       title: 'Pedido Acai',
       offer_hash: 'megjvpfvcn',
       product_hash: 'megjvpfvcn',
-      operation_type: 'pix',
+      operation_type: 'sale',
       payment_method: 'pix',
       postback_url: webhookUrl,
       cart: [
@@ -311,6 +311,7 @@ async function createIronPayPix(body: CreatePixRequest, supabase: any, supabaseU
           title: 'Pedido Acai',
           quantity: 1,
           price: valorCentavos,
+          operation_type: 'sale',
         },
       ],
       customer: {

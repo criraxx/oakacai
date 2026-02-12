@@ -1,5 +1,5 @@
 // Meta Pixel (Facebook Pixel) - Eventos padrão do Meta Ads
-// Pixel ID: 25555782027442346
+// Pixel ID: 1164607742411878
 // O script do pixel é carregado diretamente no index.html
 
 declare global {

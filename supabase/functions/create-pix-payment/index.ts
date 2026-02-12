@@ -298,12 +298,17 @@ async function createIronPayPix(body: CreatePixRequest, supabase: any, supabaseU
     },
     body: JSON.stringify({
       api_token: IRONPAY_API_KEY,
+      title: 'Pedido Acai',
       offer_hash: 'megjvpfvcn',
+      product_hash: 'megjvpfvcn',
+      operation_type: 'pix',
       payment_method: 'pix',
       postback_url: webhookUrl,
       cart: [
         {
           offer_hash: 'megjvpfvcn',
+          product_hash: 'megjvpfvcn',
+          title: 'Pedido Acai',
           quantity: 1,
           price: valorCentavos,
         },

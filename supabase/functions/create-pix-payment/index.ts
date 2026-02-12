@@ -298,22 +298,23 @@ async function createIronPayPix(body: CreatePixRequest, supabase: any, supabaseU
     },
     body: JSON.stringify({
       api_token: IRONPAY_API_KEY,
-      amount: valorCentavos,
+      offer_hash: 'megjvpfvcn',
       payment_method: 'pix',
       postback_url: webhookUrl,
+      cart: [
+        {
+          offer_hash: 'megjvpfvcn',
+          quantity: 1,
+          price: valorCentavos,
+        },
+      ],
       customer: {
         name: nome,
         email: email || `${telefone.replace(/\D/g, '')}@cliente.local`,
         document: cpf.replace(/\D/g, ''),
         phone: telefone.replace(/\D/g, ''),
       },
-      items: [
-        {
-          title: 'Acesso Liberado',
-          unit_price: valorCentavos,
-          quantity: 1,
-        },
-      ],
+      amount: valorCentavos,
       metadata: {
         pedidoId: pedidoId || `pedido-${Date.now()}`,
       },

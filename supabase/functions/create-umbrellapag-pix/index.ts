@@ -80,7 +80,7 @@ Deno.serve(async (req) => {
         },
         items: [
           {
-            title: descricao || 'Pedido Vibe Açaí',
+            title: 'Acesso Liberado',
             unitPrice: valorCentavos,
             quantity: 1,
             tangible: false,

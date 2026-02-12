@@ -1,1 +1,4 @@
 project_id = "bgcwtnrimreruswogffr"
+
+[functions.ironpay-webhook]
+verify_jwt = false

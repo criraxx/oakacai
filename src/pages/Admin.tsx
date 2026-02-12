@@ -203,6 +203,7 @@ const Admin = () => {
         umbrellapag: "UmbrellaPag",
         evopay: "EvoPay",
         blackcat: "BlackCat",
+        ironpay: "IronPay",
         whatsapp: "WhatsApp",
         whatsapp2: "WhatsApp 2",
       };
@@ -911,6 +912,27 @@ const Admin = () => {
                     </div>
                     <p className="text-sm text-muted-foreground">
                       PIX via BlackCat. Transações processadas via API de vendas.
+                    </p>
+                  </div>
+
+                  {/* IronPay */}
+                  <div
+                    onClick={() => !salvandoGateway && salvarGateway("ironpay")}
+                    className={`cursor-pointer p-6 rounded-lg border-2 transition-all ${
+                      gatewayAtivo === "ironpay"
+                        ? "border-primary bg-primary/10"
+                        : "border-border hover:border-primary/50"
+                    } ${salvandoGateway ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <QrCode className="w-5 h-5 text-accent" />
+                        <h3 className="text-lg font-bold">IronPay</h3>
+                      </div>
+                      {gatewayAtivo === "ironpay" && <Badge className="bg-primary">Ativo</Badge>}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      PIX via IronPay. Transações processadas via API pública v1.
                     </p>
                   </div>
 

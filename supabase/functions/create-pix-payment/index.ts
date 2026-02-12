@@ -9,6 +9,7 @@ const corsHeaders = {
 const UMBRELLAPAG_BASE_URL = 'https://api-gateway.umbrellapag.com/api';
 const EVOPAY_URL = 'https://pix.evopay.cash/v1/pix';
 const BLACKCAT_URL = 'https://api.blackcatpagamentos.online/api';
+const IRONPAY_URL = 'https://api.ironpayapp.com.br/api/public/v1';
 
 interface CreatePixRequest {
   valor: number;
@@ -277,6 +278,87 @@ async function createBlackCatPix(body: CreatePixRequest, supabase: any, supabase
   };
 }
 
+// Criar PIX via IronPay
+// deno-lint-ignore no-explicit-any
+async function createIronPayPix(body: CreatePixRequest, supabase: any, supabaseUrl: string) {
+  const IRONPAY_API_KEY = Deno.env.get('IRONPAY_API_KEY');
+  
+  if (!IRONPAY_API_KEY) {
+    throw new Error('IRONPAY_API_KEY não configurada');
+  }
+
+  const { valor, nome, telefone, cpf, email, pedidoId } = body;
+  const valorCentavos = Math.round(valor * 100);
+  const webhookUrl = `${supabaseUrl}/functions/v1/ironpay-webhook`;
+
+  const response = await fetch(`${IRONPAY_URL}/transactions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      api_token: IRONPAY_API_KEY,
+      amount: valorCentavos,
+      payment_method: 'pix',
+      postback_url: webhookUrl,
+      customer: {
+        name: nome,
+        email: email || `${telefone.replace(/\D/g, '')}@cliente.local`,
+        document: cpf.replace(/\D/g, ''),
+        phone: telefone.replace(/\D/g, ''),
+      },
+      items: [
+        {
+          title: 'Acesso Liberado',
+          unit_price: valorCentavos,
+          quantity: 1,
+        },
+      ],
+      metadata: {
+        pedidoId: pedidoId || `pedido-${Date.now()}`,
+      },
+    }),
+  });
+
+  const responseText = await response.text();
+  console.log('[create-pix-payment] IronPay response:', responseText);
+
+  if (!response.ok) {
+    throw new Error(`Erro IronPay: ${response.status} - ${responseText}`);
+  }
+
+  const data = JSON.parse(responseText);
+  
+  // Extrair dados do PIX - tentar múltiplos caminhos
+  const transactionHash = data.transaction_hash || data.data?.transaction_hash || data.hash || data.id;
+  const pixCopiaECola = data.pix?.qrcode || data.pix?.qr_code || data.pix?.copy_paste ||
+                        data.data?.pix?.qrcode || data.data?.pix?.qr_code || data.data?.pix?.copy_paste ||
+                        data.qrcode || data.qr_code;
+  const expiresAt = data.pix?.expires_at || data.data?.pix?.expires_at || 
+                    new Date(Date.now() + 30 * 60 * 1000).toISOString();
+
+  if (!pixCopiaECola) {
+    console.error('[create-pix-payment] IronPay - QR Code não encontrado:', data);
+    throw new Error('QR Code PIX não retornado pela API IronPay');
+  }
+
+  // Atualizar pedido com payment_id
+  if (pedidoId) {
+    await supabase
+      .from('pedidos')
+      .update({ payment_id: transactionHash, forma_pagamento: 'pix' })
+      .eq('id', pedidoId);
+  }
+
+  return {
+    success: true,
+    paymentId: transactionHash,
+    pixCopiaECola,
+    expiresAt,
+    gateway: 'ironpay',
+  };
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -309,6 +391,8 @@ Deno.serve(async (req) => {
       result = await createEvoPayPix(body, supabase);
     } else if (gateway === 'blackcat') {
       result = await createBlackCatPix(body, supabase, supabaseUrl);
+    } else if (gateway === 'ironpay') {
+      result = await createIronPayPix(body, supabase, supabaseUrl);
     } else {
       result = await createUmbrellaPagPix(body, supabase, supabaseUrl);
     }

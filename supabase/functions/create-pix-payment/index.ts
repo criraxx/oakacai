@@ -331,13 +331,10 @@ async function createIronPayPix(body: CreatePixRequest, supabase: any, supabaseU
 
   const data = JSON.parse(responseText);
   
-  // Extrair dados do PIX - tentar múltiplos caminhos
-  const transactionHash = data.transaction_hash || data.data?.transaction_hash || data.hash || data.id;
-  const pixCopiaECola = data.pix?.qrcode || data.pix?.qr_code || data.pix?.copy_paste ||
-                        data.data?.pix?.qrcode || data.data?.pix?.qr_code || data.data?.pix?.copy_paste ||
-                        data.qrcode || data.qr_code;
-  const expiresAt = data.pix?.expires_at || data.data?.pix?.expires_at || 
-                    new Date(Date.now() + 30 * 60 * 1000).toISOString();
+  // Extrair dados do PIX da resposta IronPay
+  const transactionHash = data.hash || data.transaction_hash || data.id;
+  const pixCopiaECola = data.pix?.pix_qr_code || data.pix?.qrcode || data.pix?.qr_code || data.pix?.copy_paste;
+  const expiresAt = data.pix?.expires_at || new Date(Date.now() + 30 * 60 * 1000).toISOString();
 
   if (!pixCopiaECola) {
     console.error('[create-pix-payment] IronPay - QR Code não encontrado:', data);

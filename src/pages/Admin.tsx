@@ -936,6 +936,27 @@ const Admin = () => {
                     </p>
                   </div>
 
+                  {/* BRGateway */}
+                  <div
+                    onClick={() => !salvandoGateway && salvarGateway("brgateway")}
+                    className={`cursor-pointer p-6 rounded-lg border-2 transition-all ${
+                      gatewayAtivo === "brgateway"
+                        ? "border-primary bg-primary/10"
+                        : "border-border hover:border-primary/50"
+                    } ${salvandoGateway ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <QrCode className="w-5 h-5 text-accent" />
+                        <h3 className="text-lg font-bold">BRGateway</h3>
+                      </div>
+                      {gatewayAtivo === "brgateway" && <Badge className="bg-primary">Ativo</Badge>}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      PIX via BRGateway. Transações processadas via API pública v1.
+                    </p>
+                  </div>
+
                   {/* WhatsApp */}
                   <div
                     onClick={() => !salvandoGateway && salvarGateway("whatsapp")}

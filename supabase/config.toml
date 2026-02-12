@@ -2,3 +2,6 @@ project_id = "bgcwtnrimreruswogffr"
 
 [functions.ironpay-webhook]
 verify_jwt = false
+
+[functions.brgateway-webhook]
+verify_jwt = false

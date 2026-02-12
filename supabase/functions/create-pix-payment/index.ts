@@ -10,6 +10,7 @@ const UMBRELLAPAG_BASE_URL = 'https://api-gateway.umbrellapag.com/api';
 const EVOPAY_URL = 'https://pix.evopay.cash/v1/pix';
 const BLACKCAT_URL = 'https://api.blackcatpagamentos.online/api';
 const IRONPAY_URL = 'https://api.ironpayapp.com.br/api/public/v1';
+const BRGATEWAY_URL = 'https://api.brgateway.com.br/api/public/v1';
 
 interface CreatePixRequest {
   valor: number;
@@ -358,6 +359,84 @@ async function createIronPayPix(body: CreatePixRequest, supabase: any, supabaseU
   };
 }
 
+// Criar PIX via BRGateway
+// deno-lint-ignore no-explicit-any
+async function createBRGatewayPix(body: CreatePixRequest, supabase: any, supabaseUrl: string) {
+  const BRGATEWAY_API_KEY = Deno.env.get('BRGATEWAY_API_KEY');
+  
+  if (!BRGATEWAY_API_KEY) {
+    throw new Error('BRGATEWAY_API_KEY não configurada');
+  }
+
+  const { valor, nome, telefone, cpf, email, pedidoId } = body;
+  const valorCentavos = Math.round(valor * 100);
+  const webhookUrl = `${supabaseUrl}/functions/v1/brgateway-webhook`;
+
+  const response = await fetch(`${BRGATEWAY_URL}/transactions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: JSON.stringify({
+      api_token: BRGATEWAY_API_KEY,
+      amount: valorCentavos,
+      offer_hash: 'n9a00wohzj',
+      payment_method: 'pix',
+      postback_url: webhookUrl,
+      customer: {
+        name: nome,
+        email: email || `${telefone.replace(/\D/g, '')}@cliente.local`,
+        phone_number: telefone.replace(/\D/g, ''),
+        document: cpf.replace(/\D/g, ''),
+      },
+      cart: [
+        {
+          product_hash: 'n9a00wohzj',
+          title: 'Pedido Acai',
+          price: valorCentavos,
+          quantity: 1,
+          operation_type: 1,
+          tangible: false,
+        },
+      ],
+    }),
+  });
+
+  const responseText = await response.text();
+  console.log('[create-pix-payment] BRGateway response:', responseText);
+
+  if (!response.ok) {
+    throw new Error(`Erro BRGateway: ${response.status} - ${responseText}`);
+  }
+
+  const data = JSON.parse(responseText);
+  
+  const transactionHash = data.hash || data.transaction_hash || data.id;
+  const pixCopiaECola = data.pix?.pix_qr_code || data.pix?.qrcode || data.pix?.qr_code || data.pix?.copy_paste;
+  const expiresAt = data.pix?.expires_at || new Date(Date.now() + 30 * 60 * 1000).toISOString();
+
+  if (!pixCopiaECola) {
+    console.error('[create-pix-payment] BRGateway - QR Code não encontrado:', data);
+    throw new Error('QR Code PIX não retornado pela API BRGateway');
+  }
+
+  if (pedidoId) {
+    await supabase
+      .from('pedidos')
+      .update({ payment_id: transactionHash, forma_pagamento: 'pix' })
+      .eq('id', pedidoId);
+  }
+
+  return {
+    success: true,
+    paymentId: transactionHash,
+    pixCopiaECola,
+    expiresAt,
+    gateway: 'brgateway',
+  };
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -392,6 +471,8 @@ Deno.serve(async (req) => {
       result = await createBlackCatPix(body, supabase, supabaseUrl);
     } else if (gateway === 'ironpay') {
       result = await createIronPayPix(body, supabase, supabaseUrl);
+    } else if (gateway === 'brgateway') {
+      result = await createBRGatewayPix(body, supabase, supabaseUrl);
     } else {
       result = await createUmbrellaPagPix(body, supabase, supabaseUrl);
     }

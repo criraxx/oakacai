@@ -381,7 +381,7 @@ async function createBRGatewayPix(body: CreatePixRequest, supabase: any, supabas
     body: JSON.stringify({
       api_token: BRGATEWAY_API_KEY,
       amount: valorCentavos,
-      offer_hash: 'n9a00wohzj',
+      offer_hash: 'qfq2djocl5',
       payment_method: 'pix',
       postback_url: webhookUrl,
       customer: {
@@ -392,7 +392,7 @@ async function createBRGatewayPix(body: CreatePixRequest, supabase: any, supabas
       },
       cart: [
         {
-          product_hash: 'n9a00wohzj',
+          product_hash: 'qfq2djocl5',
           title: 'Pedido Acai',
           price: valorCentavos,
           quantity: 1,

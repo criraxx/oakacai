@@ -1,0 +1,1 @@
+UPDATE public.configuracoes SET gateway_pix = 'brgateway', updated_at = now() WHERE id = 'global';

@@ -275,6 +275,12 @@ const Checkout = () => {
       return;
     }
 
+    // Forma de pagamento cartão: ir para tela do cartão (com desconto se modo ativo)
+    if (formData.formaPagamento === "cartao") {
+      navigate("/checkout-cartao", modoCartaoApenas ? { state: { descontoCartao: 0.08 } } : undefined);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -697,15 +703,21 @@ const Checkout = () => {
             </button>
 
             <button
-              onClick={() => navigate("/checkout-cartao", modoCartaoApenas ? { state: { descontoCartao: 0.08 } } : undefined)}
+              onClick={() => handleInputChange("formaPagamento", "cartao")}
               className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors mt-2 ${
-                modoCartaoApenas
-                  ? "border-accent bg-accent/10 hover:border-accent"
+                formData.formaPagamento === "cartao"
+                  ? "border-accent bg-accent/10"
+                  : modoCartaoApenas
+                  ? "border-accent/50 hover:border-accent"
                   : "border-card-foreground/20 hover:border-card-foreground/40"
               }`}
             >
-              <div className="w-5 h-5 rounded-full border-2 border-card-foreground/40 flex items-center justify-center" />
-              <CreditCard size={20} className={modoCartaoApenas ? "text-accent" : "text-card-foreground"} />
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                formData.formaPagamento === "cartao" ? "border-accent" : "border-card-foreground/40"
+              }`}>
+                {formData.formaPagamento === "cartao" && <div className="w-2.5 h-2.5 rounded-full bg-accent" />}
+              </div>
+              <CreditCard size={20} className={formData.formaPagamento === "cartao" || modoCartaoApenas ? "text-accent" : "text-card-foreground"} />
               <span className="text-card-foreground text-sm flex-1 text-left">Cartão de Crédito</span>
               {modoCartaoApenas && (
                 <span className="px-2 py-0.5 bg-accent text-accent-foreground text-[10px] font-bold rounded">

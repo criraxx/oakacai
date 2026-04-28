@@ -1,5 +1,5 @@
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { AlertTriangle, CreditCard, ShieldCheck, Zap } from "lucide-react";
+import { useEffect } from "react";
+import { AlertTriangle, CreditCard, ShieldCheck, Zap, ArrowRight, X } from "lucide-react";
 
 interface PixManutencaoModalProps {
   open: boolean;
@@ -18,85 +18,116 @@ const PixManutencaoModal = ({
   totalComDesconto,
   economia,
 }: PixManutencaoModalProps) => {
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  if (!open) return null;
+
   return (
-    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden gap-0 border-0">
-        {/* Topo de alerta */}
-        <div className="bg-yellow-500/10 border-b border-yellow-500/20 p-4 flex items-start gap-3">
-          <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center shrink-0">
+    <div className="fixed inset-0 z-50 bg-muted max-w-md mx-auto flex flex-col animate-in fade-in duration-200">
+      {/* Header padrão do sistema */}
+      <header className="sticky top-0 z-10 bg-background border-b border-border">
+        <div className="flex items-center gap-3 px-4 py-3">
+          <button
+            onClick={onClose}
+            aria-label="Voltar"
+            className="w-8 h-8 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
+          >
+            <X size={20} />
+          </button>
+          <h1 className="text-foreground font-semibold text-lg">PIX indisponível</h1>
+        </div>
+      </header>
+
+      <main className="flex-1 overflow-y-auto p-4 pb-32">
+        {/* Aviso de manutenção */}
+        <div className="bg-card rounded-xl p-4 mb-3 flex items-start gap-3">
+          <div className="w-10 h-10 rounded-full bg-yellow-500/15 flex items-center justify-center shrink-0">
             <AlertTriangle className="w-5 h-5 text-yellow-600" />
           </div>
           <div>
-            <h2 className="font-bold text-foreground text-base leading-tight">
-              PIX temporariamente indisponível
+            <h2 className="font-semibold text-card-foreground text-sm leading-tight">
+              PIX temporariamente em manutenção
             </h2>
-            <p className="text-muted-foreground text-xs mt-1">
-              Nosso sistema PIX está em manutenção no momento. Não foi possível gerar o seu código.
+            <p className="text-card-foreground/60 text-xs mt-1 leading-relaxed">
+              Não foi possível gerar o seu código PIX agora. Nossa equipe já está trabalhando para
+              normalizar o serviço.
             </p>
           </div>
         </div>
 
-        {/* Oferta principal */}
-        <div className="p-5">
-          <div className="text-center mb-4">
-            <div className="inline-flex items-center gap-1.5 bg-accent/15 text-accent px-3 py-1 rounded-full text-xs font-bold mb-3">
-              <Zap className="w-3.5 h-3.5" />
-              OFERTA EXCLUSIVA AGORA
-            </div>
-            <h3 className="text-foreground font-bold text-lg leading-tight">
-              Pague no cartão e ganhe <span className="text-accent">8% de desconto</span>
-            </h3>
-            <p className="text-muted-foreground text-xs mt-1.5">
-              Como compensação pela indisponibilidade do PIX, liberamos um desconto exclusivo no cartão.
-            </p>
+        {/* Oferta de compensação */}
+        <div className="bg-card rounded-xl p-5 mb-3">
+          <div className="flex items-center gap-1.5 bg-accent/15 text-accent px-2.5 py-1 rounded-full text-[11px] font-bold w-fit mb-3">
+            <Zap className="w-3 h-3" />
+            COMPENSAÇÃO EXCLUSIVA
           </div>
 
-          {/* Card de valores */}
-          <div className="bg-muted rounded-xl p-4 mb-4 space-y-2">
-            <div className="flex items-center justify-between text-sm">
+          <h3 className="text-card-foreground font-bold text-lg leading-tight mb-1.5">
+            Pague no cartão e ganhe{" "}
+            <span className="text-accent">8% de desconto</span>
+          </h3>
+          <p className="text-card-foreground/60 text-xs leading-relaxed mb-4">
+            Como pedido de desculpas pela indisponibilidade do PIX, liberamos um desconto exclusivo
+            no pagamento via cartão. Aproveite agora.
+          </p>
+
+          {/* Resumo de valores */}
+          <div className="bg-muted rounded-lg p-3 space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-muted-foreground">Valor original</span>
               <span className="text-muted-foreground line-through">
                 R$ {totalOriginal.toFixed(2).replace(".", ",")}
               </span>
-              <span className="px-2 py-0.5 bg-accent text-accent-foreground text-[10px] font-bold rounded">
-                -8%
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-accent font-medium">Desconto no cartão (8%)</span>
+              <span className="text-accent font-medium">
+                - R$ {economia.toFixed(2).replace(".", ",")}
               </span>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="text-foreground font-semibold text-sm">Total no cartão</span>
-              <span className="text-accent font-bold text-2xl">
+            <div className="border-t border-border pt-2 flex items-center justify-between">
+              <span className="text-card-foreground font-semibold text-sm">Total no cartão</span>
+              <span className="text-accent font-bold text-xl">
                 R$ {totalComDesconto.toFixed(2).replace(".", ",")}
               </span>
             </div>
-            <div className="pt-2 border-t border-border flex items-center justify-center gap-1.5 text-xs text-accent font-medium">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              Você economiza R$ {economia.toFixed(2).replace(".", ",")}
-            </div>
-          </div>
-
-          {/* Botões */}
-          <button
-            onClick={onIrParaCartao}
-            className="w-full py-3.5 bg-accent text-accent-foreground font-bold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2 text-base shadow-lg shadow-accent/20"
-          >
-            <CreditCard className="w-5 h-5" />
-            Pagar no cartão com 8% OFF
-          </button>
-
-          <button
-            onClick={onClose}
-            className="w-full py-2.5 mt-2 text-muted-foreground text-xs hover:text-foreground transition-colors"
-          >
-            Tentar PIX novamente mais tarde
-          </button>
-
-          {/* Selo confiança */}
-          <div className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-            <ShieldCheck className="w-3.5 h-3.5 text-accent" />
-            Pagamento seguro e criptografado
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+
+        {/* Selo de confiança */}
+        <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground py-2">
+          <ShieldCheck className="w-3.5 h-3.5 text-accent" />
+          Pagamento 100% seguro e criptografado
+        </div>
+      </main>
+
+      {/* Footer fixo padrão do sistema */}
+      <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-card p-4 space-y-2 border-t border-border">
+        <button
+          onClick={onIrParaCartao}
+          className="w-full py-3.5 bg-accent text-accent-foreground font-semibold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+        >
+          <CreditCard className="w-5 h-5" />
+          Pagar no cartão com 8% OFF
+          <ArrowRight className="w-4 h-4" />
+        </button>
+        <button
+          onClick={onClose}
+          className="w-full py-2.5 text-muted-foreground text-xs hover:text-foreground transition-colors"
+        >
+          Tentar PIX novamente mais tarde
+        </button>
+      </footer>
+    </div>
   );
 };
 

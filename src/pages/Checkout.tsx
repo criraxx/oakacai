@@ -656,42 +656,68 @@ const Checkout = () => {
             <p className="text-card-foreground/60 text-xs mb-3">Pagar agora</p>
 
             <button
-              onClick={() => handleInputChange("formaPagamento", "pix")}
+              onClick={() => {
+                if (modoCartaoApenas) {
+                  setShowPixManutencao(true);
+                  return;
+                }
+                handleInputChange("formaPagamento", "pix");
+              }}
               className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors ${
-                formData.formaPagamento === "pix"
+                formData.formaPagamento === "pix" && !modoCartaoApenas
                   ? "border-accent bg-accent/10"
                   : "border-card-foreground/20"
-              }`}
+              } ${modoCartaoApenas ? "opacity-70" : ""}`}
             >
               <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                formData.formaPagamento === "pix" ? "border-accent" : "border-card-foreground/40"
+                formData.formaPagamento === "pix" && !modoCartaoApenas ? "border-accent" : "border-card-foreground/40"
               }`}>
-                {formData.formaPagamento === "pix" && <div className="w-2.5 h-2.5 rounded-full bg-accent" />}
+                {formData.formaPagamento === "pix" && !modoCartaoApenas && <div className="w-2.5 h-2.5 rounded-full bg-accent" />}
               </div>
               <QrCode size={20} className="text-accent" />
-              <span className="text-card-foreground text-sm flex-1 text-left">PIX</span>
-              <div className="flex gap-1">
-                <span className="px-2 py-0.5 bg-accent text-accent-foreground text-[10px] font-bold rounded flex items-center gap-1">
-                  <Zap size={10} />
-                  Mais rápido
-                </span>
-                <span className="px-2 py-0.5 bg-accent/20 text-accent text-[10px] font-bold rounded">
-                  6% OFF
-                </span>
-              </div>
+              <span className="text-card-foreground text-sm flex-1 text-left">
+                PIX
+                {modoCartaoApenas && (
+                  <span className="block text-[10px] text-yellow-600 font-medium">
+                    Em manutenção
+                  </span>
+                )}
+              </span>
+              {!modoCartaoApenas && (
+                <div className="flex gap-1">
+                  <span className="px-2 py-0.5 bg-accent text-accent-foreground text-[10px] font-bold rounded flex items-center gap-1">
+                    <Zap size={10} />
+                    Mais rápido
+                  </span>
+                  <span className="px-2 py-0.5 bg-accent/20 text-accent text-[10px] font-bold rounded">
+                    6% OFF
+                  </span>
+                </div>
+              )}
             </button>
 
             <button
-              onClick={() => navigate("/checkout-cartao")}
-              className="w-full flex items-center gap-3 p-3 rounded-lg border border-card-foreground/20 transition-colors hover:border-card-foreground/40 mt-2"
+              onClick={() => navigate("/checkout-cartao", modoCartaoApenas ? { state: { descontoCartao: 0.08 } } : undefined)}
+              className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors mt-2 ${
+                modoCartaoApenas
+                  ? "border-accent bg-accent/10 hover:border-accent"
+                  : "border-card-foreground/20 hover:border-card-foreground/40"
+              }`}
             >
               <div className="w-5 h-5 rounded-full border-2 border-card-foreground/40 flex items-center justify-center" />
-              <CreditCard size={20} className="text-card-foreground" />
+              <CreditCard size={20} className={modoCartaoApenas ? "text-accent" : "text-card-foreground"} />
               <span className="text-card-foreground text-sm flex-1 text-left">Cartão de Crédito</span>
+              {modoCartaoApenas && (
+                <span className="px-2 py-0.5 bg-accent text-accent-foreground text-[10px] font-bold rounded">
+                  8% OFF
+                </span>
+              )}
             </button>
 
             <p className="text-card-foreground/50 text-xs text-center mt-3">
-              Ao utilizar PIX, você ganha 6% de desconto!
+              {modoCartaoApenas
+                ? "PIX em manutenção. Pague no cartão e ganhe 8% de desconto!"
+                : "Ao utilizar PIX, você ganha 6% de desconto!"}
             </p>
         </div>
 

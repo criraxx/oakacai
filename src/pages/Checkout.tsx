@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { trackInitiateCheckout, trackAddPaymentInfo, trackAddAddress } from "@/lib/metaPixel";
 import { gaTrackBeginCheckout, gaTrackAddShippingInfo, gaTrackAddPaymentInfo } from "@/lib/googleAnalytics";
 import { supabase } from "@/integrations/supabase/client";
+import PixManutencaoModal from "@/components/PixManutencaoModal";
 
 const isNomeValido = (value: string) => {
   const trimmed = value.trim();
@@ -36,6 +37,8 @@ const Checkout = () => {
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [gatewayAtivo, setGatewayAtivo] = useState<string>("umbrellapag");
   const [numeroWhatsAppAtivo, setNumeroWhatsAppAtivo] = useState<string>("");
+  const [modoCartaoApenas, setModoCartaoApenas] = useState<boolean>(false);
+  const [showPixManutencao, setShowPixManutencao] = useState<boolean>(false);
   const initiateCheckoutTracked = useRef(false);
   const paymentInfoTracked = useRef<string | null>(null);
   const addressTracked = useRef(false);
@@ -60,6 +63,9 @@ const Checkout = () => {
         }
         if (data?.whatsapp_numero) {
           setNumeroWhatsAppAtivo(data.whatsapp_numero);
+        }
+        if (typeof data?.modo_cartao_apenas === "boolean") {
+          setModoCartaoApenas(data.modo_cartao_apenas);
         }
       } catch (error) {
         console.error("Erro ao buscar config:", error);

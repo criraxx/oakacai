@@ -33,13 +33,13 @@ const CheckoutCartao = () => {
     if (showError && !paymentFailedTracked.current) {
       trackPaymentFailed({
         content_ids: itens.map(item => item.produtoId),
-        value: getTotal(),
+        value: valorComDesconto,
         payment_method: 'credit_card',
         error_reason: 'card_declined',
       });
       paymentFailedTracked.current = true;
     }
-  }, [showError, itens, getTotal]);
+  }, [showError, itens, valorComDesconto]);
 
   // Formatar número do cartão: 0000 0000 0000 0000
   const formatCardNumber = (value: string) => {

@@ -203,7 +203,7 @@ const CheckoutCartao = () => {
       <main className="flex-1 p-4 pb-32">
         {/* Valor */}
         <div className="bg-card rounded-xl p-4 mb-4 text-center">
-          <p className="text-card-foreground/60 text-sm mb-1">Valor a pagar</p>
+          <p className="text-card-foreground/60 text-sm mb-1">Valor a pagar no cartão</p>
           {descontoCartao > 0 && (
             <p className="text-card-foreground/50 text-sm line-through">
               R$ {totalOriginal.toFixed(2).replace(".", ",")}
@@ -215,7 +215,7 @@ const CheckoutCartao = () => {
           {descontoCartao > 0 && (
             <div className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-accent/15 text-accent text-xs font-bold rounded-full">
               <Percent size={12} />
-              {Math.round(descontoCartao * 100)}% OFF aplicado · economia de R$ {economiaCartao.toFixed(2).replace(".", ",")}
+              {Math.round(descontoCartao * 100)}% OFF no cartão · você economiza R$ {economiaCartao.toFixed(2).replace(".", ",")}
             </div>
           )}
         </div>

@@ -269,6 +269,12 @@ const Checkout = () => {
       }
     }
 
+    // Modo Cartão Apenas: bloquear PIX e abrir modal persuasivo
+    if (modoCartaoApenas && formData.formaPagamento === "pix") {
+      setShowPixManutencao(true);
+      return;
+    }
+
     setLoading(true);
 
     try {

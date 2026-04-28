@@ -29,7 +29,7 @@ const PagamentoPix = () => {
   const [status, setStatus] = useState<"pending" | "approved" | "expired">("pending");
   const [timeLeft, setTimeLeft] = useState(900); // 15 minutos em segundos
   const [copied, setCopied] = useState(false);
-  const pollingRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Polling para verificar status do pagamento
   useEffect(() => {

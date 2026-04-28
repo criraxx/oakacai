@@ -742,7 +742,7 @@ const Checkout = () => {
               </span>
             </div>
             
-            {isPix && (
+            {isPix && !modoCartaoApenas && (
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-accent flex items-center gap-1">
                   <Percent size={14} />
@@ -753,11 +753,28 @@ const Checkout = () => {
                 </span>
               </div>
             )}
-            
+
+            {modoCartaoApenas && (
+              <div className="flex justify-between text-sm mb-1">
+                <span className="text-accent flex items-center gap-1">
+                  <Percent size={14} />
+                  Desconto cartão (8%)
+                </span>
+                <span className="text-accent font-medium">
+                  -R$ {(getSubtotal() * 0.08).toFixed(2).replace(".", ",")}
+                </span>
+              </div>
+            )}
+
             <div className="flex justify-between text-base font-bold mt-2">
               <span className="text-foreground">Total</span>
               <span className="text-foreground">
-                R$ {(isPix ? getTotalComDesconto() : getTotal()).toFixed(2).replace(".", ",")}
+                R$ {(modoCartaoApenas
+                  ? getSubtotal() * 0.92
+                  : isPix
+                  ? getTotalComDesconto()
+                  : getTotal()
+                ).toFixed(2).replace(".", ",")}
               </span>
             </div>
           </div>

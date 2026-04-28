@@ -95,7 +95,7 @@ const PixManutencaoModal = ({
               </span>
             </div>
             <div className="border-t border-border pt-2 flex items-center justify-between">
-              <span className="text-card-foreground font-semibold text-sm">Total no cartão</span>
+              <span className="text-muted-foreground font-semibold text-sm">Total no cartão</span>
               <span className="text-accent font-bold text-xl">
                 R$ {totalComDesconto.toFixed(2).replace(".", ",")}
               </span>

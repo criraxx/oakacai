@@ -101,6 +101,8 @@ const Admin = () => {
   const [abaAtiva, setAbaAtiva] = useState<"pedidos" | "vales" | "config">("pedidos");
   const [gatewayAtivo, setGatewayAtivo] = useState<string>("umbrellapag");
   const [salvandoGateway, setSalvandoGateway] = useState(false);
+  const [modoCartaoApenas, setModoCartaoApenas] = useState<boolean>(false);
+  const [salvandoModoCartao, setSalvandoModoCartao] = useState(false);
   const [numerosWhatsApp, setNumerosWhatsApp] = useState<NumeroWhatsApp[]>([]);
   const [novoNumero, setNovoNumero] = useState("");
   const [adicionandoNumero, setAdicionandoNumero] = useState(false);
@@ -170,11 +172,52 @@ const Admin = () => {
       if (data?.gateway_pix) {
         setGatewayAtivo(data.gateway_pix);
       }
+      if (typeof data?.modo_cartao_apenas === "boolean") {
+        setModoCartaoApenas(data.modo_cartao_apenas);
+      }
       if (data?.numeros_whatsapp) {
         setNumerosWhatsApp(data.numeros_whatsapp);
       }
     } catch (error) {
       console.error("Erro ao carregar configuração:", error);
+    }
+  };
+
+  const salvarModoCartaoApenas = async (novoValor: boolean) => {
+    if (!storedPassword) return;
+    setSalvandoModoCartao(true);
+    try {
+      const response = await fetch(
+        "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/admin-config",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "atualizar_modo_cartao_apenas",
+            password: storedPassword,
+            modo_cartao_apenas: novoValor,
+          }),
+        }
+      );
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+
+      setModoCartaoApenas(novoValor);
+      toast({
+        title: "Sucesso",
+        description: novoValor
+          ? "Modo Cartão Apenas ATIVADO. PIX foi bloqueado para os clientes."
+          : "Modo Cartão Apenas DESATIVADO. PIX está liberado novamente.",
+      });
+    } catch (error) {
+      console.error("Erro ao salvar modo cartão apenas:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível alterar o modo de pagamento",
+        variant: "destructive",
+      });
+    } finally {
+      setSalvandoModoCartao(false);
     }
   };
 

@@ -788,6 +788,19 @@ const Checkout = () => {
           )}
         </button>
       </footer>
+
+      {/* Modal PIX em manutenção (modo cartão apenas) */}
+      <PixManutencaoModal
+        open={showPixManutencao}
+        onClose={() => setShowPixManutencao(false)}
+        onIrParaCartao={() => {
+          setShowPixManutencao(false);
+          navigate("/checkout-cartao", { state: { descontoCartao: 0.08 } });
+        }}
+        totalOriginal={getTotal()}
+        totalComDesconto={getTotal() * 0.92}
+        economia={getTotal() * 0.08}
+      />
     </div>
   );
 };

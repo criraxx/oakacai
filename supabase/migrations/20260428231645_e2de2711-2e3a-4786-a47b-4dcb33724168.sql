@@ -1,0 +1,1 @@
+ALTER TABLE public.configuracoes ADD COLUMN IF NOT EXISTS modo_cartao_apenas boolean NOT NULL DEFAULT false;

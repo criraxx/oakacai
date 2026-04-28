@@ -19,18 +19,21 @@ export type Database = {
           created_at: string
           gateway_pix: string
           id: string
+          modo_cartao_apenas: boolean
           updated_at: string
         }
         Insert: {
           created_at?: string
           gateway_pix?: string
           id?: string
+          modo_cartao_apenas?: boolean
           updated_at?: string
         }
         Update: {
           created_at?: string
           gateway_pix?: string
           id?: string
+          modo_cartao_apenas?: boolean
           updated_at?: string
         }
         Relationships: []

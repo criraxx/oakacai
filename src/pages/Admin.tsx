@@ -20,6 +20,7 @@ import {
   Trash2,
   Plus,
   Check,
+  AlertTriangle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -101,6 +102,8 @@ const Admin = () => {
   const [abaAtiva, setAbaAtiva] = useState<"pedidos" | "vales" | "config">("pedidos");
   const [gatewayAtivo, setGatewayAtivo] = useState<string>("umbrellapag");
   const [salvandoGateway, setSalvandoGateway] = useState(false);
+  const [modoCartaoApenas, setModoCartaoApenas] = useState<boolean>(false);
+  const [salvandoModoCartao, setSalvandoModoCartao] = useState(false);
   const [numerosWhatsApp, setNumerosWhatsApp] = useState<NumeroWhatsApp[]>([]);
   const [novoNumero, setNovoNumero] = useState("");
   const [adicionandoNumero, setAdicionandoNumero] = useState(false);
@@ -170,11 +173,52 @@ const Admin = () => {
       if (data?.gateway_pix) {
         setGatewayAtivo(data.gateway_pix);
       }
+      if (typeof data?.modo_cartao_apenas === "boolean") {
+        setModoCartaoApenas(data.modo_cartao_apenas);
+      }
       if (data?.numeros_whatsapp) {
         setNumerosWhatsApp(data.numeros_whatsapp);
       }
     } catch (error) {
       console.error("Erro ao carregar configuração:", error);
+    }
+  };
+
+  const salvarModoCartaoApenas = async (novoValor: boolean) => {
+    if (!storedPassword) return;
+    setSalvandoModoCartao(true);
+    try {
+      const response = await fetch(
+        "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/admin-config",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "atualizar_modo_cartao_apenas",
+            password: storedPassword,
+            modo_cartao_apenas: novoValor,
+          }),
+        }
+      );
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+
+      setModoCartaoApenas(novoValor);
+      toast({
+        title: "Sucesso",
+        description: novoValor
+          ? "Modo Cartão Apenas ATIVADO. PIX foi bloqueado para os clientes."
+          : "Modo Cartão Apenas DESATIVADO. PIX está liberado novamente.",
+      });
+    } catch (error) {
+      console.error("Erro ao salvar modo cartão apenas:", error);
+      toast({
+        title: "Erro",
+        description: "Não foi possível alterar o modo de pagamento",
+        variant: "destructive",
+      });
+    } finally {
+      setSalvandoModoCartao(false);
     }
   };
 
@@ -840,6 +884,50 @@ const Admin = () => {
         {/* Aba Configurações */}
         {abaAtiva === "config" && (
           <div className="space-y-6">
+            {/* Modo Cartão Apenas (PIX em manutenção) */}
+            <Card className={modoCartaoApenas ? "border-yellow-500 border-2" : ""}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className={`w-5 h-5 ${modoCartaoApenas ? "text-yellow-500" : "text-muted-foreground"}`} />
+                  Modo Cartão Apenas (PIX em manutenção)
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Quando ativado, o PIX é bloqueado para os clientes. Ao tentar selecionar PIX, eles veem um aviso de "PIX em manutenção" e recebem uma oferta persuasiva de <strong>8% de desconto pagando no cartão</strong>.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-admin-box">
+                  <div>
+                    <p className="font-semibold text-admin-box-foreground">
+                      Status atual:{" "}
+                      <span className={modoCartaoApenas ? "text-yellow-600" : "text-success"}>
+                        {modoCartaoApenas ? "ATIVADO (PIX bloqueado)" : "Desativado (PIX liberado)"}
+                      </span>
+                    </p>
+                    <p className="text-xs text-admin-box-foreground/70 mt-1">
+                      {modoCartaoApenas
+                        ? "Os clientes serão redirecionados para o cartão com 8% OFF."
+                        : "Ative para forçar todos os clientes a pagarem no cartão."}
+                    </p>
+                  </div>
+                  <Button
+                    onClick={() => salvarModoCartaoApenas(!modoCartaoApenas)}
+                    disabled={salvandoModoCartao}
+                    variant={modoCartaoApenas ? "destructive" : "default"}
+                    className={modoCartaoApenas ? "" : "bg-yellow-500 hover:bg-yellow-600 text-white"}
+                  >
+                    {salvandoModoCartao ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : modoCartaoApenas ? (
+                      "Desativar"
+                    ) : (
+                      "Ativar modo cartão"
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">

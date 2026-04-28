@@ -23,9 +23,10 @@ Deno.serve(async (req) => {
       gateway_pix?: string
       numero?: string
       numero_id?: string
+      modo_cartao_apenas?: boolean
     }
 
-    const { action, password, gateway_pix, numero, numero_id } = body
+    const { action, password, gateway_pix, numero, numero_id, modo_cartao_apenas } = body
 
     // Verificar senha do admin
     if (password !== adminPassword) {
@@ -39,7 +40,7 @@ Deno.serve(async (req) => {
     if (action === 'listar') {
       const { data: config } = await supabase
         .from('configuracoes')
-        .select('gateway_pix')
+        .select('gateway_pix, modo_cartao_apenas')
         .eq('id', 'global')
         .maybeSingle()
 
@@ -51,8 +52,31 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({
           gateway_pix: config?.gateway_pix || 'umbrellapag',
+          modo_cartao_apenas: config?.modo_cartao_apenas ?? false,
           numeros_whatsapp: numeros || [],
         }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Atualizar modo cartão apenas
+    if (action === 'atualizar_modo_cartao_apenas') {
+      if (typeof modo_cartao_apenas !== 'boolean') {
+        return new Response(
+          JSON.stringify({ error: 'modo_cartao_apenas deve ser boolean' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      const { error } = await supabase
+        .from('configuracoes')
+        .update({ modo_cartao_apenas, updated_at: new Date().toISOString() })
+        .eq('id', 'global')
+
+      if (error) throw error
+
+      return new Response(
+        JSON.stringify({ success: true }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }

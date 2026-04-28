@@ -22,10 +22,10 @@ Deno.serve(async (req) => {
       .eq('ativo', true)
       .maybeSingle()
 
-    // Buscar gateway ativo
+    // Buscar gateway ativo e modo cartão apenas
     const { data: config } = await supabase
       .from('configuracoes')
-      .select('gateway_pix')
+      .select('gateway_pix, modo_cartao_apenas')
       .eq('id', 'global')
       .maybeSingle()
 
@@ -34,6 +34,7 @@ Deno.serve(async (req) => {
       JSON.stringify({
         whatsapp_numero: whatsapp?.numero || null,
         gateway_pix: config?.gateway_pix || 'umbrellapag',
+        modo_cartao_apenas: config?.modo_cartao_apenas ?? false,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )

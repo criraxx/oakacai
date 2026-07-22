@@ -81,7 +81,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background max-w-md mx-auto pb-32">
+    <div className="min-h-screen bg-background max-w-md mx-auto pb-32 page-enter">
       <HeroBanner />
       <Header />
       <InfoBar />

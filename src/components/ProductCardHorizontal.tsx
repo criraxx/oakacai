@@ -28,9 +28,9 @@ const ProductCardHorizontal = ({ id, image, title, description, price }: Product
   };
 
   return (
-    <div 
+    <div
       onClick={handleClick}
-      className="flex gap-2 py-1 cursor-pointer hover:bg-muted/50 transition-colors rounded-lg"
+      className="flex gap-2 py-1 cursor-pointer tap-highlight press-effect rounded-lg"
     >
       <div className="flex-1 min-w-0">
         <h3 className="text-foreground text-xs font-medium leading-tight mb-0.5">{title}</h3>
@@ -40,10 +40,11 @@ const ProductCardHorizontal = ({ id, image, title, description, price }: Product
         <p className="text-foreground font-bold text-xs">{price}</p>
       </div>
       <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0">
-        <img 
-          src={image} 
-          alt={title} 
-          className="w-full h-full object-cover"
+        <img
+          src={image}
+          alt={title}
+          loading="lazy"
+          className="w-full h-full object-cover img-zoom"
         />
       </div>
     </div>

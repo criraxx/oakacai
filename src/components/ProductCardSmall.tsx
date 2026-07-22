@@ -11,15 +11,16 @@ const ProductCardSmall = ({ id, image, title, price }: ProductCardSmallProps) =>
   const navigate = useNavigate();
 
   return (
-    <div 
+    <div
       onClick={() => navigate(`/produto/${id}`)}
-      className="flex-shrink-0 w-36 cursor-pointer hover:opacity-90 transition-opacity"
+      className="flex-shrink-0 w-36 cursor-pointer card-lift press-effect"
     >
       <div className="w-36 h-36 rounded-xl overflow-hidden mb-2 shadow-sm">
-        <img 
-          src={image} 
-          alt={title} 
-          className="w-full h-full object-cover"
+        <img
+          src={image}
+          alt={title}
+          loading="lazy"
+          className="w-full h-full object-cover img-zoom"
         />
       </div>
       <p className="text-foreground text-sm leading-tight line-clamp-2 mb-1 font-medium">{title}</p>

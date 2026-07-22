@@ -132,7 +132,7 @@ const Pedidos = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
+      <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col page-enter">
         <Header />
         <main className="flex-1 flex items-center justify-center pb-20">
           <div className="animate-pulse text-muted-foreground text-sm">Carregando pedidos...</div>

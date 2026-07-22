@@ -4,7 +4,8 @@ import { useCart } from "@/contexts/CartContext";
 import { todasSecoes } from "@/data/complementosData";
 
 // Produtos para sugestão (Order Bump)
-import acaiPuro from "@/assets/acai-puro.jpg";
+import acaiPuroAsset from "@/assets/acai-puro.jpg.asset.json";
+const acaiPuro = acaiPuroAsset.url;
 import acaiCombo300 from "@/assets/acai-combo-300.jpg";
 import acaiRafaelo from "@/assets/acai-rafaelo.png";
 import acaiDiamante from "@/assets/acai-diamante-negro.png";

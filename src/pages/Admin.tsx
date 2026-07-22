@@ -455,6 +455,47 @@ const Admin = () => {
     }
   };
 
+  const salvarBranding = async (payload: { logo_url?: string | null; banner_url?: string | null; cor_borda_logo?: string }) => {
+    if (!storedPassword) return;
+    try {
+      const response = await fetch(
+        "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/admin-config",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "atualizar_branding", password: storedPassword, ...payload }),
+        }
+      );
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+      const { refreshBranding } = await import("@/hooks/useBranding");
+      refreshBranding();
+      toast({ title: "Sucesso", description: "Personalização atualizada" });
+    } catch (error) {
+      console.error("Erro ao salvar branding:", error);
+      toast({ title: "Erro", description: "Erro ao salvar personalização", variant: "destructive" });
+    }
+  };
+
+  const handleUploadImagem = async (file: File, tipo: "logo" | "banner") => {
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: "Arquivo muito grande", description: "Envie uma imagem de até 2MB", variant: "destructive" });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = reader.result as string;
+      if (tipo === "logo") {
+        await salvarBranding({ logo_url: dataUrl });
+      } else {
+        await salvarBranding({ banner_url: dataUrl });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+
+
   const formatarNumeroWhatsApp = (numero: string) => {
     // Formato: +55 (11) 99999-9999
     if (numero.length === 11) {

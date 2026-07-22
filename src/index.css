@@ -1,6 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Work+Sans:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Fonte editorial usada em headings premium (página do produto) */
+.font-editorial {
+  font-family: 'Instrument Serif', 'Times New Roman', serif;
+  letter-spacing: -0.01em;
+}
+.font-body-premium {
+  font-family: 'Work Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Tokens premium para a página do produto */
+:root {
+  --premium-bg: 35 40% 96%;
+  --premium-surface: 0 0% 100%;
+  --premium-ink: 25 30% 12%;
+  --premium-muted-ink: 25 15% 40%;
+  --premium-accent: 270 55% 45%;
+  --premium-accent-soft: 35 55% 88%;
+  --premium-gold: 32 65% 55%;
+  --shadow-premium: 0 24px 60px -20px hsl(25 40% 15% / 0.35);
+  --shadow-float: 0 8px 24px -8px hsl(25 40% 15% / 0.25);
+}
+
+.product-premium-scope {
+  background-color: hsl(var(--premium-bg));
+  color: hsl(var(--premium-ink));
+}
 
 @layer base {
   :root {

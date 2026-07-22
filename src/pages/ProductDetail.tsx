@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft, Search, X } from "lucide-react";
+import { useBranding } from "@/hooks/useBranding";
 import { secoesCombo, secoesMonteCopo, SecaoComplemento } from "@/data/complementosData";
 import acaiCombo500 from "@/assets/acai-combo-500.jpg";
 import acaiPuroAsset from "@/assets/acai-puro.jpg.asset.json";

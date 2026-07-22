@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Trash2, ShoppingBag, Plus } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { todasSecoes } from "@/data/complementosData";
+import BottomNavigation from "@/components/BottomNavigation";
 
 // Produtos para sugestão (Order Bump)
 import acaiPuroAsset from "@/assets/acai-puro.jpg.asset.json";

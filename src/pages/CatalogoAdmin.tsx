@@ -148,9 +148,10 @@ const CatalogoAdmin = () => {
 };
 
 // ================== PRODUTOS ==================
-function ProdutosTab({ produtos, categorias, secoes, produtoSecoes, onCrud }: {
+function ProdutosTab({ produtos, categorias, secoes, produtoSecoes, onCrud, onReload }: {
   produtos: Row[]; categorias: Row[]; secoes: Row[]; produtoSecoes: Row[];
   onCrud: (action: "create" | "update" | "delete", entity: Entity, payload?: { id?: string; data?: Record<string, unknown> }) => Promise<void>;
+  onReload: () => Promise<void>;
 }) {
   const [editing, setEditing] = useState<Row | null>(null);
   const [creating, setCreating] = useState(false);

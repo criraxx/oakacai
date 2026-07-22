@@ -502,4 +502,79 @@ function OfertaTab({ entity, rows, produtos, onCrud, label }: {
   );
 }
 
+// ================== HELPERS ==================
+async function reorder(
+  rows: Row[],
+  from: number,
+  to: number,
+  entity: Entity,
+  onCrud: (action: "create" | "update" | "delete", entity: Entity, payload?: { id?: string; data?: Record<string, unknown> }) => Promise<void>,
+) {
+  const a = rows[from], b = rows[to];
+  if (!a || !b) return;
+  const oa = Number(a.ordem ?? from);
+  const ob = Number(b.ordem ?? to);
+  await onCrud("update", entity, { id: a.id, data: { ordem: ob } });
+  await onCrud("update", entity, { id: b.id, data: { ordem: oa } });
+}
+
+// ================== CATEGORIAS ==================
+function CategoriasTab({ categorias, onCrud }: {
+  categorias: Row[];
+  onCrud: (action: "create" | "update" | "delete", entity: Entity, payload?: { id?: string; data?: Record<string, unknown> }) => Promise<void>;
+}) {
+  const [novoNome, setNovoNome] = useState("");
+
+  return (
+    <div className="space-y-3">
+      <Card className="p-3 flex gap-2">
+        <Input placeholder="Nome da nova categoria" value={novoNome} onChange={(e) => setNovoNome(e.target.value)} />
+        <Button onClick={async () => {
+          if (!novoNome) return;
+          const slug = novoNome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+          await onCrud("create", "categorias", { data: { nome: novoNome, slug, ordem: categorias.length + 1, ativo: true, cor_fundo: "#FFFFFF", cor_texto: "#1F1F1F" } });
+          setNovoNome("");
+        }}><Plus size={14} className="mr-1" /> Criar</Button>
+      </Card>
+
+      <div className="grid gap-2">
+        {categorias.map((c, i) => (
+          <Card key={c.id} className="p-3 space-y-2" style={{ backgroundColor: (c.cor_fundo as string) || undefined }}>
+            <div className="flex items-center gap-2">
+              {c.icone ? <img src={c.icone as string} className="w-10 h-10 rounded object-cover" alt="" /> : <div className="w-10 h-10 rounded bg-muted" />}
+              <Input className="flex-1" style={{ color: (c.cor_texto as string) || undefined }}
+                defaultValue={c.nome as string}
+                onBlur={(e) => e.target.value !== c.nome && onCrud("update", "categorias", { id: c.id, data: { nome: e.target.value } })} />
+              <div className="flex flex-col">
+                <Button variant="ghost" size="icon" className="h-6 w-6" disabled={i === 0} onClick={() => reorder(categorias, i, i - 1, "categorias", onCrud)}><ArrowUp size={12} /></Button>
+                <Button variant="ghost" size="icon" className="h-6 w-6" disabled={i === categorias.length - 1} onClick={() => reorder(categorias, i, i + 1, "categorias", onCrud)}><ArrowDown size={12} /></Button>
+              </div>
+              <Switch checked={c.ativo as boolean} onCheckedChange={(v) => onCrud("update", "categorias", { id: c.id, data: { ativo: v } })} />
+              <Button variant="ghost" size="icon" onClick={() => confirm(`Excluir categoria "${c.nome}"?`) && onCrud("delete", "categorias", { id: c.id })}><Trash2 size={14} className="text-destructive" /></Button>
+            </div>
+            <div className="grid grid-cols-3 gap-2 items-end">
+              <div>
+                <Label className="text-xs">Ícone</Label>
+                <Input type="file" accept="image/*" className="text-xs" onChange={async (e) => {
+                  const f = e.target.files?.[0]; if (!f) return;
+                  try { const b64 = await fileToBase64(f); onCrud("update", "categorias", { id: c.id, data: { icone: b64 } }); } catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
+                }} />
+              </div>
+              <div>
+                <Label className="text-xs">Cor de fundo</Label>
+                <Input type="color" defaultValue={(c.cor_fundo as string) || "#FFFFFF"} onBlur={(e) => onCrud("update", "categorias", { id: c.id, data: { cor_fundo: e.target.value } })} />
+              </div>
+              <div>
+                <Label className="text-xs">Cor do texto</Label>
+                <Input type="color" defaultValue={(c.cor_texto as string) || "#1F1F1F"} onBlur={(e) => onCrud("update", "categorias", { id: c.id, data: { cor_texto: e.target.value } })} />
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground">A cor de fundo e cor do texto são usadas nos chips de categoria do site.</p>
+    </div>
+  );
+}
+
 export default CatalogoAdmin;

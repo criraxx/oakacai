@@ -107,6 +107,9 @@ const Admin = () => {
   const [numerosWhatsApp, setNumerosWhatsApp] = useState<NumeroWhatsApp[]>([]);
   const [novoNumero, setNovoNumero] = useState("");
   const [adicionandoNumero, setAdicionandoNumero] = useState(false);
+  const [corBordaLogo, setCorBordaLogo] = useState<string>("#F5E6D3");
+  const [logoAtual, setLogoAtual] = useState<string | null>(null);
+  const [bannerAtual, setBannerAtual] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleLogin = async () => {
@@ -179,6 +182,9 @@ const Admin = () => {
       if (data?.numeros_whatsapp) {
         setNumerosWhatsApp(data.numeros_whatsapp);
       }
+      if (typeof data?.cor_borda_logo === "string") setCorBordaLogo(data.cor_borda_logo);
+      setLogoAtual(data?.logo_url || null);
+      setBannerAtual(data?.banner_url || null);
     } catch (error) {
       console.error("Erro ao carregar configuração:", error);
     }
@@ -454,6 +460,47 @@ const Admin = () => {
       });
     }
   };
+
+  const salvarBranding = async (payload: { logo_url?: string | null; banner_url?: string | null; cor_borda_logo?: string }) => {
+    if (!storedPassword) return;
+    try {
+      const response = await fetch(
+        "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/admin-config",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "atualizar_branding", password: storedPassword, ...payload }),
+        }
+      );
+      const data = await response.json();
+      if (data.error) throw new Error(data.error);
+      const { refreshBranding } = await import("@/hooks/useBranding");
+      refreshBranding();
+      toast({ title: "Sucesso", description: "Personalização atualizada" });
+    } catch (error) {
+      console.error("Erro ao salvar branding:", error);
+      toast({ title: "Erro", description: "Erro ao salvar personalização", variant: "destructive" });
+    }
+  };
+
+  const handleUploadImagem = async (file: File, tipo: "logo" | "banner") => {
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: "Arquivo muito grande", description: "Envie uma imagem de até 2MB", variant: "destructive" });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = reader.result as string;
+      if (tipo === "logo") {
+        await salvarBranding({ logo_url: dataUrl });
+      } else {
+        await salvarBranding({ banner_url: dataUrl });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+
 
   const formatarNumeroWhatsApp = (numero: string) => {
     // Formato: +55 (11) 99999-9999
@@ -884,6 +931,99 @@ const Admin = () => {
         {/* Aba Configurações */}
         {abaAtiva === "config" && (
           <div className="space-y-6">
+            {/* Personalização visual */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-primary" />
+                  Personalização visual
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Altere a logo, o banner principal e a cor da borda ao redor da logo.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold">Logo</label>
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-16 h-16 rounded-full overflow-hidden bg-background flex-shrink-0"
+                        style={{ border: `3px solid ${corBordaLogo}` }}
+                      >
+                        {logoAtual && <img src={logoAtual} alt="Logo atual" className="w-full h-full object-cover" />}
+                      </div>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) handleUploadImagem(f, "logo");
+                          e.target.value = "";
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">PNG/JPG até 2MB. Ideal quadrada.</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold">Cor da borda da logo</label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={corBordaLogo}
+                        onChange={(e) => setCorBordaLogo(e.target.value)}
+                        className="w-14 h-10 rounded border border-border cursor-pointer"
+                      />
+                      <Input
+                        value={corBordaLogo}
+                        onChange={(e) => setCorBordaLogo(e.target.value)}
+                        placeholder="#F5E6D3"
+                      />
+                      <Button onClick={() => salvarBranding({ cor_borda_logo: corBordaLogo })}>
+                        Salvar cor
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Bege padrão: #F5E6D3</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold">Banner principal</label>
+                  <div className="space-y-3">
+                    {bannerAtual && (
+                      <img src={bannerAtual} alt="Banner atual" className="w-full max-h-40 object-cover rounded-lg border border-border" />
+                    )}
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) handleUploadImagem(f, "banner");
+                        e.target.value = "";
+                      }}
+                    />
+                    <p className="text-xs text-muted-foreground">PNG/JPG até 2MB. Formato horizontal recomendado.</p>
+                  </div>
+                </div>
+
+                {(logoAtual || bannerAtual) && (
+                  <div className="flex gap-2">
+                    {logoAtual && (
+                      <Button variant="outline" size="sm" onClick={() => salvarBranding({ logo_url: null })}>
+                        Remover logo personalizada
+                      </Button>
+                    )}
+                    {bannerAtual && (
+                      <Button variant="outline" size="sm" onClick={() => salvarBranding({ banner_url: null })}>
+                        Remover banner personalizado
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Modo Cartão Apenas (PIX em manutenção) */}
             <Card className={modoCartaoApenas ? "border-yellow-500 border-2" : ""}>
               <CardHeader>

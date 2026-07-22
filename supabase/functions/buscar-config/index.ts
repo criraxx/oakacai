@@ -15,26 +15,26 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Buscar número de WhatsApp ativo
     const { data: whatsapp } = await supabase
       .from('numeros_whatsapp')
       .select('numero')
       .eq('ativo', true)
       .maybeSingle()
 
-    // Buscar gateway ativo e modo cartão apenas
     const { data: config } = await supabase
       .from('configuracoes')
-      .select('gateway_pix, modo_cartao_apenas')
+      .select('gateway_pix, modo_cartao_apenas, logo_url, banner_url, cor_borda_logo')
       .eq('id', 'global')
       .maybeSingle()
 
-    // Retornar apenas dados públicos necessários para o app
     return new Response(
       JSON.stringify({
         whatsapp_numero: whatsapp?.numero || null,
         gateway_pix: config?.gateway_pix || 'umbrellapag',
         modo_cartao_apenas: config?.modo_cartao_apenas ?? false,
+        logo_url: config?.logo_url || null,
+        banner_url: config?.banner_url || null,
+        cor_borda_logo: config?.cor_borda_logo || '#F5E6D3',
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )

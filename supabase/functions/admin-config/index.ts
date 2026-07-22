@@ -24,9 +24,12 @@ Deno.serve(async (req) => {
       numero?: string
       numero_id?: string
       modo_cartao_apenas?: boolean
+      logo_url?: string | null
+      banner_url?: string | null
+      cor_borda_logo?: string
     }
 
-    const { action, password, gateway_pix, numero, numero_id, modo_cartao_apenas } = body
+    const { action, password, gateway_pix, numero, numero_id, modo_cartao_apenas, logo_url, banner_url, cor_borda_logo } = body
 
     // Verificar senha do admin
     if (password !== adminPassword) {
@@ -40,7 +43,7 @@ Deno.serve(async (req) => {
     if (action === 'listar') {
       const { data: config } = await supabase
         .from('configuracoes')
-        .select('gateway_pix, modo_cartao_apenas')
+        .select('gateway_pix, modo_cartao_apenas, logo_url, banner_url, cor_borda_logo')
         .eq('id', 'global')
         .maybeSingle()
 
@@ -53,11 +56,37 @@ Deno.serve(async (req) => {
         JSON.stringify({
           gateway_pix: config?.gateway_pix || 'umbrellapag',
           modo_cartao_apenas: config?.modo_cartao_apenas ?? false,
+          logo_url: config?.logo_url || null,
+          banner_url: config?.banner_url || null,
+          cor_borda_logo: config?.cor_borda_logo || '#F5E6D3',
           numeros_whatsapp: numeros || [],
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
+
+    // Atualizar branding (logo, banner, cor da borda)
+    if (action === 'atualizar_branding') {
+      const updates: Record<string, unknown> = { updated_at: new Date().toISOString() }
+      if (typeof logo_url !== 'undefined') updates.logo_url = logo_url
+      if (typeof banner_url !== 'undefined') updates.banner_url = banner_url
+      if (typeof cor_borda_logo === 'string' && /^#[0-9a-fA-F]{6}$/.test(cor_borda_logo)) {
+        updates.cor_borda_logo = cor_borda_logo
+      }
+
+      const { error } = await supabase
+        .from('configuracoes')
+        .update(updates)
+        .eq('id', 'global')
+
+      if (error) throw error
+
+      return new Response(
+        JSON.stringify({ success: true }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
 
     // Atualizar modo cartão apenas
     if (action === 'atualizar_modo_cartao_apenas') {

@@ -114,8 +114,9 @@ const CatalogoAdmin = () => {
 
       <main className="max-w-5xl mx-auto p-4">
         <Tabs defaultValue="produtos">
-          <TabsList className="grid grid-cols-5 w-full">
+          <TabsList className="grid grid-cols-6 w-full">
             <TabsTrigger value="produtos">Produtos</TabsTrigger>
+            <TabsTrigger value="categorias">Categorias</TabsTrigger>
             <TabsTrigger value="complementos">Complementos</TabsTrigger>
             <TabsTrigger value="banners">Banners</TabsTrigger>
             <TabsTrigger value="orderbump">Order Bump</TabsTrigger>
@@ -124,6 +125,9 @@ const CatalogoAdmin = () => {
 
           <TabsContent value="produtos" className="mt-4">
             <ProdutosTab produtos={produtos} categorias={categorias} secoes={secoes} produtoSecoes={produtoSecoes} onCrud={crud} />
+          </TabsContent>
+          <TabsContent value="categorias" className="mt-4">
+            <CategoriasTab categorias={categorias} onCrud={crud} />
           </TabsContent>
           <TabsContent value="complementos" className="mt-4">
             <ComplementosTab secoes={secoes} complementos={complementos} onCrud={crud} />

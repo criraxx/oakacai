@@ -82,6 +82,8 @@ const ProductDetail = () => {
   const [pesquisa, setPesquisa] = useState("");
   const [quantidadeProduto, setQuantidadeProduto] = useState(1);
   const [modalAberto, setModalAberto] = useState(false);
+  const [imagemAmpliada, setImagemAmpliada] = useState(false);
+  const { cor_borda_logo } = useBranding();
   const viewContentTracked = useRef(false);
 
   // Verificar se é um produto promocional

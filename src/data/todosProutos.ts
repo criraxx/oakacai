@@ -1,7 +1,8 @@
 // Importar todas as imagens
 import acaiCombo300 from "@/assets/acai-combo-300.jpg";
 import acaiCombo500 from "@/assets/acai-combo-500.jpg";
-import acaiPuro from "@/assets/acai-puro.jpg";
+import acaiPuroAsset from "@/assets/acai-puro.jpg.asset.json";
+const acaiPuro = acaiPuroAsset.url;
 import acaiRoleta from "@/assets/acai-roleta.jpg";
 import acaiKids from "@/assets/acai-kids.jpg";
 import acaiTradicional from "@/assets/acai-tradicional.jpg";

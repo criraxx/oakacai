@@ -1,4 +1,5 @@
-import acaiPuro from "@/assets/acai-puro.jpg";
+import acaiPuroAsset from "@/assets/acai-puro.jpg.asset.json";
+const acaiPuro = acaiPuroAsset.url;
 import SectionTitle from "./SectionTitle";
 import ProductCardHorizontal from "./ProductCardHorizontal";
 

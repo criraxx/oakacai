@@ -1,4 +1,5 @@
-import acaiPuro from "@/assets/acai-puro.jpg";
+import acaiPuroAsset from "@/assets/acai-puro.jpg.asset.json";
+const acaiPuro = acaiPuroAsset.url;
 import acaiCombo300 from "@/assets/acai-combo-300.jpg";
 import acaiCombo500 from "@/assets/acai-combo-500.jpg";
 import acaiRafaelo from "@/assets/acai-rafaelo.png";

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft, Search, X } from "lucide-react";
+import { useBranding } from "@/hooks/useBranding";
 import { secoesCombo, secoesMonteCopo, SecaoComplemento } from "@/data/complementosData";
 import acaiCombo500 from "@/assets/acai-combo-500.jpg";
 import acaiPuroAsset from "@/assets/acai-puro.jpg.asset.json";
@@ -81,6 +82,8 @@ const ProductDetail = () => {
   const [pesquisa, setPesquisa] = useState("");
   const [quantidadeProduto, setQuantidadeProduto] = useState(1);
   const [modalAberto, setModalAberto] = useState(false);
+  const [imagemAmpliada, setImagemAmpliada] = useState(false);
+  const { cor_borda_logo } = useBranding();
   const viewContentTracked = useRef(false);
 
   // Verificar se é um produto promocional
@@ -305,10 +308,11 @@ const ProductDetail = () => {
                 <img 
                   src={produto.imagem} 
                   alt={produto.nome}
-                  className="w-28 h-28 object-cover rounded-lg"
+                  onClick={() => setImagemAmpliada(true)}
+                  className="w-28 h-28 object-cover rounded-lg cursor-zoom-in press-effect"
                 />
                 {isPromocional && (
-                  <div className="absolute inset-0 bg-gradient-to-t from-green-500/40 to-transparent rounded-lg" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-green-500/40 to-transparent rounded-lg pointer-events-none" />
                 )}
               </div>
             )}
@@ -419,6 +423,30 @@ const ProductDetail = () => {
         onClose={() => setModalAberto(false)}
         produto={{ nome: produto.nome, imagem: produto.imagem }}
       />
+
+      {/* Lightbox da imagem ampliada */}
+      {imagemAmpliada && produto.imagem && (
+        <div
+          onClick={() => setImagemAmpliada(false)}
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 animate-in fade-in duration-200"
+        >
+          <button
+            onClick={(e) => { e.stopPropagation(); setImagemAmpliada(false); }}
+            aria-label="Fechar"
+            className="absolute top-4 right-4 w-11 h-11 rounded-full flex items-center justify-center shadow-lg press-effect"
+            style={{ backgroundColor: cor_borda_logo, color: "#000" }}
+          >
+            <X size={24} strokeWidth={2.5} />
+          </button>
+          <img
+            src={produto.imagem}
+            alt={produto.nome}
+            onClick={(e) => e.stopPropagation()}
+            className="max-w-full max-h-full object-contain rounded-lg"
+            style={{ border: `4px solid ${cor_borda_logo}` }}
+          />
+        </div>
+      )}
     </div>
   );
 };

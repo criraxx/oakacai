@@ -931,6 +931,99 @@ const Admin = () => {
         {/* Aba Configurações */}
         {abaAtiva === "config" && (
           <div className="space-y-6">
+            {/* Personalização visual */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="w-5 h-5 text-primary" />
+                  Personalização visual
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Altere a logo, o banner principal e a cor da borda ao redor da logo.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold">Logo</label>
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-16 h-16 rounded-full overflow-hidden bg-background flex-shrink-0"
+                        style={{ border: `3px solid ${corBordaLogo}` }}
+                      >
+                        {logoAtual && <img src={logoAtual} alt="Logo atual" className="w-full h-full object-cover" />}
+                      </div>
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) handleUploadImagem(f, "logo");
+                          e.target.value = "";
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">PNG/JPG até 2MB. Ideal quadrada.</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold">Cor da borda da logo</label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        value={corBordaLogo}
+                        onChange={(e) => setCorBordaLogo(e.target.value)}
+                        className="w-14 h-10 rounded border border-border cursor-pointer"
+                      />
+                      <Input
+                        value={corBordaLogo}
+                        onChange={(e) => setCorBordaLogo(e.target.value)}
+                        placeholder="#F5E6D3"
+                      />
+                      <Button onClick={() => salvarBranding({ cor_borda_logo: corBordaLogo })}>
+                        Salvar cor
+                      </Button>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Bege padrão: #F5E6D3</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold">Banner principal</label>
+                  <div className="space-y-3">
+                    {bannerAtual && (
+                      <img src={bannerAtual} alt="Banner atual" className="w-full max-h-40 object-cover rounded-lg border border-border" />
+                    )}
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) handleUploadImagem(f, "banner");
+                        e.target.value = "";
+                      }}
+                    />
+                    <p className="text-xs text-muted-foreground">PNG/JPG até 2MB. Formato horizontal recomendado.</p>
+                  </div>
+                </div>
+
+                {(logoAtual || bannerAtual) && (
+                  <div className="flex gap-2">
+                    {logoAtual && (
+                      <Button variant="outline" size="sm" onClick={() => salvarBranding({ logo_url: null })}>
+                        Remover logo personalizada
+                      </Button>
+                    )}
+                    {bannerAtual && (
+                      <Button variant="outline" size="sm" onClick={() => salvarBranding({ banner_url: null })}>
+                        Remover banner personalizado
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             {/* Modo Cartão Apenas (PIX em manutenção) */}
             <Card className={modoCartaoApenas ? "border-yellow-500 border-2" : ""}>
               <CardHeader>

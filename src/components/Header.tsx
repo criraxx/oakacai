@@ -1,5 +1,5 @@
 import { Search, Share2 } from "lucide-react";
-import logoOak from "@/assets/logo-oak.png.asset.json";
+import logoOak from "@/assets/logo-oak-v2.png.asset.json";
 
 const Header = () => {
   return <header className="bg-background relative">

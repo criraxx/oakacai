@@ -1,10 +1,12 @@
-import heroBanner from "@/assets/hero-oak-banner.png.asset.json";
+import { useBranding } from "@/hooks/useBranding";
 
 const HeroBanner = () => {
+  const { banner_url } = useBranding();
+
   return (
     <div className="w-full">
       <img
-        src={heroBanner.url}
+        src={banner_url}
         alt="Oak Açaí - Sabor, qualidade, energia em cada colherada"
         className="w-full h-auto object-cover"
       />

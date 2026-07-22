@@ -1,12 +1,18 @@
 import { Search, Share2 } from "lucide-react";
-import logoOak from "@/assets/logo-oak-v2.png.asset.json";
+import { useBranding } from "@/hooks/useBranding";
 
 const Header = () => {
-  return <header className="bg-background relative">
+  const { logo_url, cor_borda_logo } = useBranding();
+
+  return (
+    <header className="bg-background relative">
       <div className="flex items-center justify-between px-4 py-2">
         <div className="flex items-center gap-2">
-          <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 border-2 border-background -mt-8 bg-background shadow-sm">
-            <img alt="Oak Açaí" className="w-full h-full object-cover" src={logoOak.url} />
+          <div
+            className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 -mt-8 bg-background shadow-sm"
+            style={{ border: `3px solid ${cor_borda_logo}` }}
+          >
+            <img alt="Oak Açaí" className="w-full h-full object-cover" src={logo_url} />
           </div>
           <div className="flex flex-col">
             <span className="text-foreground font-semibold text-sm leading-tight">Oak Açaí </span>
@@ -22,6 +28,7 @@ const Header = () => {
           </button>
         </div>
       </div>
-    </header>;
+    </header>
+  );
 };
 export default Header;

@@ -19,11 +19,12 @@ const FloatingCart = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4">
+    <div className="fixed bottom-0 left-0 right-0 z-50 px-4 pb-4 animate-fade-in">
       <div className="max-w-md mx-auto">
         <div className="bg-card rounded-xl shadow-lg overflow-hidden">
           {/* Expanded content */}
           <AnimatePresence>
+
             {isExpanded && (
               <motion.div
                 initial={{ height: 0, opacity: 0 }}

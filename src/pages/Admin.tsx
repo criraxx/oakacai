@@ -179,6 +179,9 @@ const Admin = () => {
       if (data?.numeros_whatsapp) {
         setNumerosWhatsApp(data.numeros_whatsapp);
       }
+      if (typeof data?.cor_borda_logo === "string") setCorBordaLogo(data.cor_borda_logo);
+      setLogoAtual(data?.logo_url || null);
+      setBannerAtual(data?.banner_url || null);
     } catch (error) {
       console.error("Erro ao carregar configuração:", error);
     }

@@ -22,15 +22,7 @@ const PromoBannerCarousel = () => {
 
         {/* Banner de Promoção - mesmo tamanho do banner de entrega */}
         <div className={`transition-all duration-500 ease-in-out ${currentBanner === 1 ? "block" : "hidden"}`}>
-          <div className="w-2/3 mx-auto bg-gradient-to-r from-purple-600 to-purple-800 rounded-xl py-3 px-4">
-            <p className="text-white font-bold text-xs text-center leading-tight">💥 PROMOÇÃO UPGRADE 50%</p>
-            <p className="text-purple-100 text-[10px] text-center leading-tight mt-1">
-              Comprou R$50 ou mais?
-            </p>
-            <p className="text-yellow-300 font-bold text-[10px] text-center leading-tight mt-1">
-              Desbloqueie 1 produto do cardápio pela METADE DO PREÇO!
-            </p>
-          </div>
+          <img src={promoUpgradeBanner} alt="Promoção Upgrade 50%" className="w-2/3 mx-auto h-auto object-cover rounded-xl" />
         </div>
       </div>
 

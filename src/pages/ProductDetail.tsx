@@ -308,10 +308,11 @@ const ProductDetail = () => {
                 <img 
                   src={produto.imagem} 
                   alt={produto.nome}
-                  className="w-28 h-28 object-cover rounded-lg"
+                  onClick={() => setImagemAmpliada(true)}
+                  className="w-28 h-28 object-cover rounded-lg cursor-zoom-in press-effect"
                 />
                 {isPromocional && (
-                  <div className="absolute inset-0 bg-gradient-to-t from-green-500/40 to-transparent rounded-lg" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-green-500/40 to-transparent rounded-lg pointer-events-none" />
                 )}
               </div>
             )}

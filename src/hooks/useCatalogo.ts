@@ -53,14 +53,31 @@ export interface CatalogoBanner {
   intervalo_segundos: number;
 }
 
-export interface CatalogoOferta {
+export interface CatalogoOrderBump {
   id: string;
+  titulo: string | null;
   nome: string;
   descricao: string | null;
   imagem: string | null;
   preco_original: number;
   preco_promocional: number;
+  produto_ofertado_id: string | null;
   produto_vinculado_id: string | null;
+  gatilho: 'carrinho' | 'checkout' | null;
+  max_exibicoes: number | null;
+}
+
+export interface CatalogoDownsell {
+  id: string;
+  titulo: string | null;
+  nome: string;
+  descricao: string | null;
+  imagem: string | null;
+  preco_original: number;
+  preco_promocional: number;
+  produto_ofertado_id: string | null;
+  produto_vinculado_id: string | null;
+  posicao: 'checkout' | 'saida' | null;
 }
 
 export interface CatalogoData {
@@ -70,8 +87,9 @@ export interface CatalogoData {
   secoes: CatalogoSecao[];
   complementos: CatalogoComplemento[];
   produto_secoes: { produto_id: string; secao_id: string; ordem: number }[];
-  order_bump: CatalogoOferta | null;
-  downsell: CatalogoOferta | null;
+  order_bumps: CatalogoOrderBump[];
+  downsells: CatalogoDownsell[];
+  order_bump_gatilhos: { order_bump_id: string; produto_id: string }[];
   config: Record<string, unknown> | null;
 }
 

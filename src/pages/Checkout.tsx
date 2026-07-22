@@ -7,6 +7,8 @@ import { trackInitiateCheckout, trackAddPaymentInfo, trackAddAddress } from "@/l
 import { gaTrackBeginCheckout, gaTrackAddShippingInfo, gaTrackAddPaymentInfo } from "@/lib/googleAnalytics";
 import { supabase } from "@/integrations/supabase/client";
 import PixManutencaoModal from "@/components/PixManutencaoModal";
+import OrderBumpList from "@/components/OrderBumpList";
+import DownsellModal from "@/components/DownsellModal";
 
 const isNomeValido = (value: string) => {
   const trimmed = value.trim();
@@ -547,6 +549,12 @@ const Checkout = () => {
             </button>
           </div>
         </div>
+
+        {/* Order Bumps do gatilho checkout */}
+        <OrderBumpList gatilho="checkout" />
+
+        {/* Downsell embutido no checkout */}
+        <DownsellModal posicao="checkout" />
 
         {/* Escolha como receber */}
         <div className="bg-card p-4 mb-2 mx-4 rounded-xl">

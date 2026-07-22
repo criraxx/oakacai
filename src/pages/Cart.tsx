@@ -3,6 +3,8 @@ import { ArrowLeft, Trash2, ShoppingBag, Plus } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { todasSecoes } from "@/data/complementosData";
 import BottomNavigation from "@/components/BottomNavigation";
+import OrderBumpList from "@/components/OrderBumpList";
+import DownsellModal from "@/components/DownsellModal";
 
 // Produtos para sugestão (Order Bump)
 import acaiPuroAsset from "@/assets/acai-puro.jpg.asset.json";
@@ -275,7 +277,10 @@ const Cart = () => {
           ))}
         </div>
 
-        {/* Seção Peça Também (Order Bump) */}
+        {/* Order Bumps dinâmicos (admin) */}
+        <OrderBumpList gatilho="carrinho" />
+
+        {/* Seção Peça Também (Fallback estático) */}
         {sugestoesFiltradas.length > 0 && (
           <div className="mt-4 px-4">
             <h3 className="text-foreground font-semibold text-sm mb-3">Peça também</h3>
@@ -345,6 +350,7 @@ const Cart = () => {
         </div>
       </footer>
       <BottomNavigation />
+      <DownsellModal posicao="saida" />
     </div>
   );
 };

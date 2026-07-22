@@ -7,6 +7,8 @@ import { trackInitiateCheckout, trackAddPaymentInfo, trackAddAddress } from "@/l
 import { gaTrackBeginCheckout, gaTrackAddShippingInfo, gaTrackAddPaymentInfo } from "@/lib/googleAnalytics";
 import { supabase } from "@/integrations/supabase/client";
 import PixManutencaoModal from "@/components/PixManutencaoModal";
+import OrderBumpList from "@/components/OrderBumpList";
+import DownsellModal from "@/components/DownsellModal";
 
 const isNomeValido = (value: string) => {
   const trimmed = value.trim();

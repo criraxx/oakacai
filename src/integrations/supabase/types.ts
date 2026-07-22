@@ -55,8 +55,11 @@ export type Database = {
           ativo: boolean
           com_borda: boolean
           cor_borda: string | null
+          cor_fundo: string | null
           cor_fundo_card: string | null
+          cor_texto: string | null
           created_at: string
+          icone: string | null
           id: string
           nome: string
           ordem: number
@@ -67,8 +70,11 @@ export type Database = {
           ativo?: boolean
           com_borda?: boolean
           cor_borda?: string | null
+          cor_fundo?: string | null
           cor_fundo_card?: string | null
+          cor_texto?: string | null
           created_at?: string
+          icone?: string | null
           id?: string
           nome: string
           ordem?: number
@@ -79,8 +85,11 @@ export type Database = {
           ativo?: boolean
           com_borda?: boolean
           cor_borda?: string | null
+          cor_fundo?: string | null
           cor_fundo_card?: string | null
+          cor_texto?: string | null
           created_at?: string
+          icone?: string | null
           id?: string
           nome?: string
           ordem?: number

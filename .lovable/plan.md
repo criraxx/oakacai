@@ -1,99 +1,109 @@
-## Objetivo
 
-Transformar o admin em um painel completo de gestão de loja, com controle total sobre produtos, complementos, banners, order bump e downsell, além de melhorar a experiência de compra (carrinho + página do produto premium + bottom nav).
+# Plano — Experiência Premium do Catálogo Oak Açaí
 
----
-
-## 1. Banco de dados (novas tabelas)
-
-Todas com RLS bloqueada para `anon`; acesso apenas via Edge Functions com `SERVICE_ROLE_KEY` (padrão do projeto).
-
-- **`produtos`** — id, nome, descrição, preço, imagem (base64), categoria, ordem, ativo, com_borda, cor_borda, cor_fundo_card
-- **`categorias`** — id, nome, slug, ordem, ativo
-- **`secoes_complementos`** — id, título, subtítulo, tipo (`gratis`/`pago`), max_itens, ativo
-- **`complementos`** — id, secao_id, nome, preço (null=grátis), imagem, max_quantidade, ativo, ordem
-- **`produto_secoes`** — vincula produto ↔ seções de complementos que aparecem para ele
-- **`banners`** — id, imagem, ordem, ativo, acao_tipo (`nenhuma`/`produto`/`categoria`/`url`), acao_valor, intervalo_segundos
-- **`order_bumps`** — id, nome, descrição, imagem, preço_original, preço_promocional, produto_vinculado_id, ativo
-- **`downsells`** — id, nome, descrição, imagem, preço_original, preço_promocional, produto_vinculado_id, ativo
-- **`configuracoes`** (novas colunas) — `cor_fundo_site`, `cor_padrao_borda_produto`, `borda_produto_ativa`
-
-Adicionar colunas em `pedido_itens` para registrar order bump/downsell aplicados.
-
-**Seed inicial**: migração popula tabelas com produtos e complementos atuais de `src/data/todosProutos.ts` e `complementosData.ts`, para não perder nada.
+O trabalho é grande, então proponho executar em **6 fases sequenciais**. Cada fase é entregável isoladamente e pode ser aprovada/revisada antes de seguir para a próxima.
 
 ---
 
-## 2. Edge Functions (novas / expandidas)
+## Fase 1 — Banco de dados: personalização, order bump e downsell completos
 
-- `buscar-catalogo` — pública: retorna produtos ativos + categorias + banners ativos + configuração visual (para o site consumir)
-- `buscar-complementos-produto` — pública: recebe `produto_id`, retorna seções e complementos ativos vinculados
-- `admin-produtos` — CRUD (autenticado): criar/editar/excluir/reordenar produtos
-- `admin-complementos` — CRUD de seções e itens de complemento, e vincular seções a produtos
-- `admin-banners` — CRUD de banners + ação de clique
-- `admin-ofertas` — CRUD de order bumps e downsells
-- Expandir `admin-config` com novas cores globais
-- Expandir `criar-pedido` para aceitar order bump / downsell aplicados
+Uma única migração que estende o modelo atual para suportar tudo que foi pedido.
 
----
+**`categorias`** — novos campos:
+- `cor_fundo_card`, `cor_borda`, `com_borda` (padrão visual da categoria)
 
-## 3. Frontend — site (comprador)
+**`produtos`** — os campos `cor_fundo_card`, `cor_borda`, `com_borda` já existem; passam a **sobrescrever** o padrão da categoria quando preenchidos (NULL = herda da categoria).
 
-**Home**
-- Substituir dados hardcoded pelo retorno de `buscar-catalogo`
-- `PromoBannerCarousel` vira carrossel dinâmico com N banners; clique executa a ação configurada (navegar para produto/categoria ou nada)
-- Cards de produto aplicam `com_borda`, `cor_borda`, `cor_fundo_card`; fundo global do site vem de `configuracoes.cor_fundo_site`
+**`order_bumps`** — substituir a tabela atual por versão completa:
+- título, descrição, imagem, preço, `produto_ofertado_id`, `posicao` (`carrinho` | `checkout` | `pos_pagamento`), `ativo`, `ordem`
+- nova tabela `order_bump_produtos_gatilho(order_bump_id, produto_id)` para definir em quais produtos do carrinho o bump aparece (vazio = todos)
 
-**Página do produto (premium)**
-- Redesign de `ProductDetail.tsx`: hero da imagem maior com gradiente, título com tipografia refinada, seção de preço destacada, animações suaves entre seções de complementos, sticky bottom bar com total e botão CTA maior/com brilho
-- Complementos vêm de `buscar-complementos-produto`
+**`downsells`** — estender:
+- título, descrição, imagem, `produto_ofertado_id`, `preco_promocional`, `preco_original`, `ativo`, `max_exibicoes` (por sessão), `gatilho` (`sair_pix` | `fechar_checkout` | `ambos`)
 
-**Carrinho**
-- Adicionar `<BottomNavigation />` na página `/carrinho` (mantém tela cheia, só acrescenta a barra inferior)
+**`produto_secoes`** — já existe; será a única fonte da verdade para "quais complementos aparecem em cada produto". A lógica hardcoded em `ProductDetail.tsx` (função `getTipoProduto`) será removida.
 
-**Checkout — Order bump**
-- Antes do botão "Finalizar pedido": card destacado com o order bump ativo (imagem, preço riscado, preço promocional, checkbox "Adicionar ao meu pedido")
-- Se marcado, envia junto ao `criar-pedido` e soma no total
+Todas as tabelas mantêm RLS bloqueado para `anon`; leitura via `buscar-catalogo` e escrita via `admin-catalogo`.
 
-**Página PIX — Downsell**
-- Listener de `beforeunload` / botão voltar / inatividade: dispara modal com o downsell ativo (imagem, oferta, botões "Aceitar oferta" / "Não, obrigado")
-- Aceitar → cria novo pedido substituindo o atual com o item do downsell
+## Fase 2 — Migração das imagens para o CDN (assets)
 
----
+Hoje os produtos usam imports estáticos (`src/assets/acai-*.jpg`) espalhados no código. Vou:
 
-## 4. Frontend — Admin (`/admin`)
+1. Rodar o skill **migrate-to-assets** para subir todas as imagens de `src/assets/` para o CDN Lovable e substituir por `.asset.json`.
+2. Popular a coluna `produtos.imagem` no banco com a URL CDN correta de cada produto (script SQL de seed baseado no mapeamento atual `todosProutos.ts`).
+3. Atualizar `CatalogoAdmin` para que o upload de foto do produto suba direto para o CDN via `lovable-assets` (opcional — se preferir, mantemos base64 no banco como está hoje; me diga na revisão).
 
-Nova estrutura em abas:
+Resultado: cada produto tem sua imagem vinculada no banco, sem depender de assets locais.
 
-1. **Pedidos** (existente)
-2. **Vales-Presente** (existente)
-3. **Produtos** — lista com drag-and-drop de ordem; modal de edição com: nome, descrição, preço, upload de foto, categoria, borda on/off + cor, cor de fundo do card, seções de complementos vinculadas (multi-select), ativo
-4. **Complementos** — gestão de seções (Monte o copo 1, Adicionais, Premium, etc.) e itens (nome, preço, foto, ativo)
-5. **Banners** — upload de imagens do carrossel, ordem, tempo de exibição, ação de clique (nenhuma/produto/categoria)
-6. **Ofertas** — abas internas: Order Bump e Downsell, com formulário de criação/edição
-7. **Configurações** (existente + novo) — cor de fundo do site, cor padrão de borda dos produtos, personalização visual já existente (logo/banner header/cor da borda da logo), modo cartão apenas, gateway ativo, WhatsApp
+## Fase 3 — Página do produto premium (redesign completo)
 
----
+Reescrever `src/pages/ProductDetail.tsx`:
 
-## 5. Faseamento interno de entrega
+- Abertura como **rota animada** (`framer-motion` já é o padrão do stack shadcn — vou adicionar via `motion/react`): entrada com `fade + scale + slide-up`, saída inversa.
+- **Hero image full-width** no topo (16:9), com parallax leve no scroll e badge de promoção sobreposto quando aplicável.
+- Header sticky translúcido que ganha fundo ao rolar.
+- Título grande, preço destacado, descrição completa.
+- Seções de complementos vindas do banco via `produto_secoes` (não mais lista hardcoded).
+- Campo de observações sempre disponível.
+- Footer sticky com botão "Adicionar" que faz uma micro-animação (bounce + flying image até o ícone do carrinho no `BottomNavigation`).
+- Loading skeleton enquanto o catálogo carrega.
 
-Como é grande, vou implementar em blocos sequenciais dentro do mesmo plano, sempre com o build passando entre eles:
+## Fase 4 — Personalização visual por produto/categoria no admin
 
-1. Migração do banco + seed dos dados atuais
-2. Edge Functions de leitura (`buscar-catalogo`, `buscar-complementos-produto`)
-3. Frontend consumindo catálogo dinâmico + bottom nav no carrinho + cores globais
-4. Edge Functions admin + abas Produtos e Complementos no `/admin`
-5. Banners dinâmicos + aba Banners
-6. Order bump (checkout) + Downsell (PIX) + aba Ofertas
-7. Redesign premium da página do produto
+Em `CatalogoAdmin.tsx`:
+
+**Aba Categorias (nova)** — CRUD com color pickers para `cor_fundo_card`, `cor_borda`, `com_borda` (defaults da categoria).
+
+**Aba Produtos** — no editor de cada produto, os campos de cor/borda passam a mostrar "Herdar da categoria" como opção (NULL). Preview ao vivo do card com as cores aplicadas.
+
+**Aba Complementos por Produto** — dentro do editor do produto, seletor com checkbox de todas as seções de complementos disponíveis + reordenação por drag. Remover um complemento de um produto **não** apaga do sistema, só desvincula.
+
+**Aba Order Bump** (reformulada) — múltiplos bumps, cada um com: título, descrição, imagem, preço, produto ofertado, posição de exibição, produtos-gatilho (multi-select) e toggle ativo.
+
+**Aba Downsell** (reformulada) — mesma estrutura + `max_exibicoes` e regra de gatilho.
+
+## Fase 5 — Order Bump e Downsell funcionais no fluxo
+
+- **Order Bump**: componente `<OrderBumpCard>` que aparece no `Cart.tsx` (posição `carrinho`) e/ou `Checkout.tsx` (`checkout`), filtrando bumps ativos cujo `produtos_gatilho` bate com itens do carrinho.
+- **Downsell**: hook `useDownsell()` que:
+  - Escuta `beforeunload` e o botão voltar em `PagamentoPix` / `Checkout`.
+  - Verifica `max_exibicoes` (contador em `sessionStorage`).
+  - Abre modal animado com a oferta configurada.
+  - Ao aceitar, substitui o item pelo `produto_ofertado_id` com o `preco_promocional`.
+
+## Fase 6 — Microinterações e polimento global
+
+Adicionar `motion/react` e aplicar transições em:
+
+- **Categorias** (`CategoryTabs`): underline animado ao trocar (`layoutId`).
+- **Cards de produto**: `hover:scale-[1.02]`, `tap:scale-98`, sombra suave. Aplicar as cores por produto/categoria vindas do banco.
+- **Banners** (`PromoBannerCarousel`): fade cross entre slides.
+- **Carrinho**: entrada dos itens em stagger; remoção com `AnimatePresence` slide-out; badge do carrinho anima ao adicionar.
+- **Complementos**: `+`/`-` com bounce; total anima com `<AnimatePresence mode="popLayout">`.
+- **Botões globais**: variant `premium` no shadcn com scale/tap feedback.
+- **Bottom navigation**: indicador ativo animado.
+
+Todas as cores continuam via tokens semânticos do `index.css` (nada de `text-white`/`bg-black` hardcoded).
 
 ---
 
 ## Detalhes técnicos
 
-- Imagens seguem o padrão atual do projeto: **Base64 na coluna da tabela** (evita bucket público bloqueado e mantém consistência com logo/banner do header)
-- Toda escrita passa por Edge Function autenticada com `ADMIN_PASSWORD` (mesmo padrão do `admin-config`)
-- `useBranding` é expandido para virar `useSiteConfig` (branding + cores globais + banners)
-- Novo hook `useCatalogo` com React Query para carregar produtos/categorias
-- Compatibilidade: enquanto a migração roda, mantém fallback para os dados estáticos para não quebrar o preview
-- Cache invalidation: após qualquer edição no admin, invalidar queries do catálogo
+- **Nova dep**: `motion` (sucessor do `framer-motion`, ~30KB gz).
+- **Rotas**: não muda; ProductDetail continua em `/produto/:id`, mas envolvida em `<AnimatePresence>` no `App.tsx` para transições entre rotas.
+- **Edge functions**: `buscar-catalogo` passa a devolver `order_bumps[]` (com produtos-gatilho) e `downsells[]` completos. `admin-catalogo` ganha ações para as novas tabelas/campos.
+- **Retrocompatibilidade**: se o produto/categoria não tiver cor definida, cai no default do design system (bg `card`, sem borda) — nada quebra.
+- **Escopo intencionalmente fora**: refatorar o `Index.tsx` para consumir 100% do `useCatalogo` (algumas seções ainda usam `todosProutos.ts`). Isso pode ser feito junto se você quiser; por padrão, faço apenas o necessário para produto/carrinho/checkout consumirem dados do banco.
+
+---
+
+## Ordem de entrega sugerida
+
+1. **Fase 1** (migração DB) — bloqueia tudo, começo por aqui.
+2. **Fase 2** (imagens para CDN) — pode rodar em paralelo mental, mas executo depois.
+3. **Fase 3** (ProductDetail premium) — impacto visual imediato.
+4. **Fase 4** (admin de personalização).
+5. **Fase 5** (bump + downsell no fluxo).
+6. **Fase 6** (microinterações finais).
+
+Se aprovar, começo executando Fase 1 + Fase 2 juntas (banco e assets), depois volto para revisão antes das fases visuais.

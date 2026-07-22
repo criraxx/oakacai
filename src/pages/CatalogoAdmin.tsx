@@ -124,7 +124,7 @@ const CatalogoAdmin = () => {
           </TabsList>
 
           <TabsContent value="produtos" className="mt-4">
-            <ProdutosTab produtos={produtos} categorias={categorias} secoes={secoes} produtoSecoes={produtoSecoes} onCrud={crud} />
+            <ProdutosTab produtos={produtos} categorias={categorias} secoes={secoes} produtoSecoes={produtoSecoes} onCrud={crud} onReload={() => loadAll(password)} />
           </TabsContent>
           <TabsContent value="categorias" className="mt-4">
             <CategoriasTab categorias={categorias} onCrud={crud} />
@@ -148,9 +148,10 @@ const CatalogoAdmin = () => {
 };
 
 // ================== PRODUTOS ==================
-function ProdutosTab({ produtos, categorias, secoes, produtoSecoes, onCrud }: {
+function ProdutosTab({ produtos, categorias, secoes, produtoSecoes, onCrud, onReload }: {
   produtos: Row[]; categorias: Row[]; secoes: Row[]; produtoSecoes: Row[];
   onCrud: (action: "create" | "update" | "delete", entity: Entity, payload?: { id?: string; data?: Record<string, unknown> }) => Promise<void>;
+  onReload: () => Promise<void>;
 }) {
   const [editing, setEditing] = useState<Row | null>(null);
   const [creating, setCreating] = useState(false);
@@ -202,7 +203,8 @@ function ProdutosTab({ produtos, categorias, secoes, produtoSecoes, onCrud }: {
                 await api(sessionStorage.getItem("admin_pw") || "", "create", "produto_secoes", { data: { produto_id: editing.id, secao_id: sid } });
               }
             }
-            await onCrud("update", "produtos"); // triggers reload
+            await onReload();
+            toast.success("Salvo");
             setEditing(null);
           }}
         />

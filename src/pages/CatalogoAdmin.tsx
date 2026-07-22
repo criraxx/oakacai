@@ -203,7 +203,8 @@ function ProdutosTab({ produtos, categorias, secoes, produtoSecoes, onCrud, onRe
                 await api(sessionStorage.getItem("admin_pw") || "", "create", "produto_secoes", { data: { produto_id: editing.id, secao_id: sid } });
               }
             }
-            await onCrud("update", "produtos"); // triggers reload
+            await onReload();
+            toast.success("Salvo");
             setEditing(null);
           }}
         />

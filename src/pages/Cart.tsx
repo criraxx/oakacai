@@ -350,6 +350,7 @@ const Cart = () => {
         </div>
       </footer>
       <BottomNavigation />
+      <DownsellModal posicao="saida" />
     </div>
   );
 };

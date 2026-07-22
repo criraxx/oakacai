@@ -423,6 +423,30 @@ const ProductDetail = () => {
         onClose={() => setModalAberto(false)}
         produto={{ nome: produto.nome, imagem: produto.imagem }}
       />
+
+      {/* Lightbox da imagem ampliada */}
+      {imagemAmpliada && produto.imagem && (
+        <div
+          onClick={() => setImagemAmpliada(false)}
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 animate-in fade-in duration-200"
+        >
+          <button
+            onClick={(e) => { e.stopPropagation(); setImagemAmpliada(false); }}
+            aria-label="Fechar"
+            className="absolute top-4 right-4 w-11 h-11 rounded-full flex items-center justify-center shadow-lg press-effect"
+            style={{ backgroundColor: cor_borda_logo, color: "#000" }}
+          >
+            <X size={24} strokeWidth={2.5} />
+          </button>
+          <img
+            src={produto.imagem}
+            alt={produto.nome}
+            onClick={(e) => e.stopPropagation()}
+            className="max-w-full max-h-full object-contain rounded-lg"
+            style={{ border: `4px solid ${cor_borda_logo}` }}
+          />
+        </div>
+      )}
     </div>
   );
 };

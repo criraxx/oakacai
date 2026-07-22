@@ -118,6 +118,7 @@ const Cart = () => {
             Ver cardápio
           </button>
         </div>
+        <BottomNavigation />
       </div>
     );
   }

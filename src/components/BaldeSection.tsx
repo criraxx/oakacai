@@ -1,6 +1,7 @@
 import SectionTitle from "./SectionTitle";
 import ProductCardHorizontal from "./ProductCardHorizontal";
-import balde22l from "@/assets/balde-22l.jpg";
+import balde22lAsset from "@/assets/balde-22l.jpg.asset.json";
+const balde22l = balde22lAsset.url;
 
 const BaldeSection = () => {
   return (

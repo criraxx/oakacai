@@ -1,4 +1,5 @@
-import deliveryBanner from "@/assets/delivery-banner.png";
+import deliveryBannerAsset from "@/assets/delivery-banner.jpg.asset.json";
+const deliveryBanner = deliveryBannerAsset.url;
 
 const DeliveryBanner = () => {
   return (

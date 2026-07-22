@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import deliveryBanner from "@/assets/delivery-banner.png";
+import deliveryBannerAsset from "@/assets/delivery-banner.jpg.asset.json";
+const deliveryBanner = deliveryBannerAsset.url;
 const PromoBannerCarousel = () => {
   // Começa com a promoção (1) primeiro
   const [currentBanner, setCurrentBanner] = useState(1);

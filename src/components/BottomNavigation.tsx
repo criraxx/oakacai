@@ -23,14 +23,17 @@ const BottomNavigation = () => {
               <button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className={`flex flex-col items-center gap-1 px-4 py-2 transition-colors ${
-                  isActive ? "text-accent" : "text-muted-foreground"
+                className={`flex flex-col items-center gap-1 px-4 py-2 press-effect transition-all duration-200 ${
+                  isActive ? "text-accent scale-105" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <div className="relative">
                   <item.icon size={22} strokeWidth={isActive ? 2 : 1.5} />
                   {item.badge && (
-                    <span className="absolute -top-1 -right-2 bg-accent text-accent-foreground text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                    <span
+                      key={item.badge}
+                      className="badge-pop absolute -top-1 -right-2 bg-accent text-accent-foreground text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center"
+                    >
                       {item.badge}
                     </span>
                   )}

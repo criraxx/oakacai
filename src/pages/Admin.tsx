@@ -142,6 +142,7 @@ const Admin = () => {
       }
 
       setStoredPassword(password);
+      sessionStorage.setItem("admin_pw", password);
       setIsAuthenticated(true);
       // Após autenticação, carregar dados diretamente do Supabase
       await Promise.all([carregarPedidosDireto(), carregarValesPresente(), carregarConfiguracao(), carregarNumerosWhatsApp()]);

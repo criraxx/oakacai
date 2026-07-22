@@ -91,9 +91,10 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 const Admin = () => {
+  const initialPw = typeof window !== "undefined" ? sessionStorage.getItem("admin_pw") || "" : "";
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState("");
-  const [storedPassword, setStoredPassword] = useState("");
+  const [password, setPassword] = useState(initialPw);
+  const [storedPassword, setStoredPassword] = useState(initialPw);
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [valesPresente, setValesPresente] = useState<ValePresente[]>([]);
   const [loading, setLoading] = useState(false);

@@ -16,6 +16,7 @@ import PagamentoPix from "./pages/PagamentoPix";
 import PixConfirmado from "./pages/PixConfirmado";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import Admin from "./pages/Admin";
+import CatalogoAdmin from "./pages/CatalogoAdmin";
 import Pedidos from "./pages/Pedidos";
 import WhatsAppRetorno from "./pages/WhatsAppRetorno";
 import NotFound from "./pages/NotFound";
@@ -53,6 +54,7 @@ const AppContent = () => {
           <Route path="/pix-confirmado" element={<PixConfirmado />} />
           <Route path="/pedido-confirmado" element={<OrderConfirmation />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/catalogo" element={<CatalogoAdmin />} />
           <Route path="/pedidos" element={<Pedidos />} />
           <Route path="/whatsapp-retorno" element={<WhatsAppRetorno />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

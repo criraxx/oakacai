@@ -674,7 +674,11 @@ const Admin = () => {
             <Settings className="w-4 h-4" />
             Configurações
           </Button>
+          <Button variant="outline" onClick={() => window.location.assign("/admin/catalogo")} className="gap-2">
+            Catálogo
+          </Button>
         </div>
+
 
         {/* Conteúdo das Abas */}
         {abaAtiva === "pedidos" && (

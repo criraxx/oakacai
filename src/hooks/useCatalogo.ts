@@ -1,0 +1,88 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+export interface CatalogoCategoria {
+  id: string;
+  nome: string;
+  slug: string;
+  ordem: number;
+  ativo: boolean;
+}
+
+export interface CatalogoProduto {
+  id: string;
+  slug: string | null;
+  nome: string;
+  descricao: string | null;
+  preco: number;
+  imagem: string | null;
+  categoria_id: string | null;
+  ordem: number;
+  ativo: boolean;
+  com_borda: boolean;
+  cor_borda: string | null;
+  cor_fundo_card: string | null;
+}
+
+export interface CatalogoSecao {
+  id: string;
+  slug: string | null;
+  titulo: string;
+  subtitulo: string | null;
+  tipo: 'gratis' | 'pago';
+  max_itens: number;
+  ordem: number;
+}
+
+export interface CatalogoComplemento {
+  id: string;
+  secao_id: string;
+  nome: string;
+  preco: number | null;
+  imagem: string | null;
+  max_quantidade: number;
+  ordem: number;
+}
+
+export interface CatalogoBanner {
+  id: string;
+  imagem: string;
+  ordem: number;
+  acao_tipo: 'nenhuma' | 'produto' | 'categoria' | 'url';
+  acao_valor: string | null;
+  intervalo_segundos: number;
+}
+
+export interface CatalogoOferta {
+  id: string;
+  nome: string;
+  descricao: string | null;
+  imagem: string | null;
+  preco_original: number;
+  preco_promocional: number;
+  produto_vinculado_id: string | null;
+}
+
+export interface CatalogoData {
+  categorias: CatalogoCategoria[];
+  produtos: CatalogoProduto[];
+  banners: CatalogoBanner[];
+  secoes: CatalogoSecao[];
+  complementos: CatalogoComplemento[];
+  produto_secoes: { produto_id: string; secao_id: string; ordem: number }[];
+  order_bump: CatalogoOferta | null;
+  downsell: CatalogoOferta | null;
+  config: Record<string, unknown> | null;
+}
+
+export function useCatalogo() {
+  return useQuery<CatalogoData>({
+    queryKey: ['catalogo'],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('buscar-catalogo');
+      if (error) throw error;
+      return data as CatalogoData;
+    },
+    staleTime: 60_000,
+  });
+}

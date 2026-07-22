@@ -14,10 +14,126 @@ export type Database = {
   }
   public: {
     Tables: {
+      banners: {
+        Row: {
+          acao_tipo: string
+          acao_valor: string | null
+          ativo: boolean
+          created_at: string
+          id: string
+          imagem: string
+          intervalo_segundos: number
+          ordem: number
+          updated_at: string
+        }
+        Insert: {
+          acao_tipo?: string
+          acao_valor?: string | null
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          imagem: string
+          intervalo_segundos?: number
+          ordem?: number
+          updated_at?: string
+        }
+        Update: {
+          acao_tipo?: string
+          acao_valor?: string | null
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          imagem?: string
+          intervalo_segundos?: number
+          ordem?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      categorias: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          id: string
+          nome: string
+          ordem: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          nome: string
+          ordem?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          nome?: string
+          ordem?: number
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      complementos: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          id: string
+          imagem: string | null
+          max_quantidade: number
+          nome: string
+          ordem: number
+          preco: number | null
+          secao_id: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          imagem?: string | null
+          max_quantidade?: number
+          nome: string
+          ordem?: number
+          preco?: number | null
+          secao_id: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          imagem?: string | null
+          max_quantidade?: number
+          nome?: string
+          ordem?: number
+          preco?: number | null
+          secao_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "complementos_secao_id_fkey"
+            columns: ["secao_id"]
+            isOneToOne: false
+            referencedRelation: "secoes_complementos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       configuracoes: {
         Row: {
           banner_url: string | null
+          borda_produto_ativa: boolean | null
           cor_borda_logo: string | null
+          cor_fundo_site: string | null
+          cor_padrao_borda_produto: string | null
           created_at: string
           gateway_pix: string
           id: string
@@ -27,7 +143,10 @@ export type Database = {
         }
         Insert: {
           banner_url?: string | null
+          borda_produto_ativa?: boolean | null
           cor_borda_logo?: string | null
+          cor_fundo_site?: string | null
+          cor_padrao_borda_produto?: string | null
           created_at?: string
           gateway_pix?: string
           id?: string
@@ -37,7 +156,10 @@ export type Database = {
         }
         Update: {
           banner_url?: string | null
+          borda_produto_ativa?: boolean | null
           cor_borda_logo?: string | null
+          cor_fundo_site?: string | null
+          cor_padrao_borda_produto?: string | null
           created_at?: string
           gateway_pix?: string
           id?: string
@@ -46,6 +168,56 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      downsells: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          descricao: string | null
+          id: string
+          imagem: string | null
+          nome: string
+          ordem: number
+          preco_original: number
+          preco_promocional: number
+          produto_vinculado_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          imagem?: string | null
+          nome: string
+          ordem?: number
+          preco_original?: number
+          preco_promocional?: number
+          produto_vinculado_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          imagem?: string | null
+          nome?: string
+          ordem?: number
+          preco_original?: number
+          preco_promocional?: number
+          produto_vinculado_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "downsells_produto_vinculado_id_fkey"
+            columns: ["produto_vinculado_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       numeros_whatsapp: {
         Row: {
@@ -67,6 +239,56 @@ export type Database = {
           numero?: string
         }
         Relationships: []
+      }
+      order_bumps: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          descricao: string | null
+          id: string
+          imagem: string | null
+          nome: string
+          ordem: number
+          preco_original: number
+          preco_promocional: number
+          produto_vinculado_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          imagem?: string | null
+          nome: string
+          ordem?: number
+          preco_original?: number
+          preco_promocional?: number
+          produto_vinculado_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          imagem?: string | null
+          nome?: string
+          ordem?: number
+          preco_original?: number
+          preco_promocional?: number
+          produto_vinculado_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_bumps_produto_vinculado_id_fkey"
+            columns: ["produto_vinculado_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pagamentos_cartao: {
         Row: {
@@ -155,6 +377,8 @@ export type Database = {
           created_at: string
           id: string
           observacoes: string | null
+          oferta_id: string | null
+          origem: string | null
           pedido_id: string | null
           produto_nome: string
           produto_preco: number
@@ -166,6 +390,8 @@ export type Database = {
           created_at?: string
           id?: string
           observacoes?: string | null
+          oferta_id?: string | null
+          origem?: string | null
           pedido_id?: string | null
           produto_nome: string
           produto_preco: number
@@ -177,6 +403,8 @@ export type Database = {
           created_at?: string
           id?: string
           observacoes?: string | null
+          oferta_id?: string | null
+          origem?: string | null
           pedido_id?: string | null
           produto_nome?: string
           produto_preco?: number
@@ -271,6 +499,143 @@ export type Database = {
           subtotal?: number
           tipo_entrega?: string
           total?: number
+        }
+        Relationships: []
+      }
+      produto_secoes: {
+        Row: {
+          created_at: string
+          id: string
+          ordem: number
+          produto_id: string
+          secao_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ordem?: number
+          produto_id: string
+          secao_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ordem?: number
+          produto_id?: string
+          secao_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "produto_secoes_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "produto_secoes_secao_id_fkey"
+            columns: ["secao_id"]
+            isOneToOne: false
+            referencedRelation: "secoes_complementos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      produtos: {
+        Row: {
+          ativo: boolean
+          categoria_id: string | null
+          com_borda: boolean
+          cor_borda: string | null
+          cor_fundo_card: string | null
+          created_at: string
+          descricao: string | null
+          id: string
+          imagem: string | null
+          nome: string
+          ordem: number
+          preco: number
+          slug: string | null
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          categoria_id?: string | null
+          com_borda?: boolean
+          cor_borda?: string | null
+          cor_fundo_card?: string | null
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          imagem?: string | null
+          nome: string
+          ordem?: number
+          preco?: number
+          slug?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          categoria_id?: string | null
+          com_borda?: boolean
+          cor_borda?: string | null
+          cor_fundo_card?: string | null
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          imagem?: string | null
+          nome?: string
+          ordem?: number
+          preco?: number
+          slug?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "produtos_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "categorias"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      secoes_complementos: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          id: string
+          max_itens: number
+          ordem: number
+          slug: string | null
+          subtitulo: string | null
+          tipo: string
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          max_itens?: number
+          ordem?: number
+          slug?: string | null
+          subtitulo?: string | null
+          tipo?: string
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          max_itens?: number
+          ordem?: number
+          slug?: string | null
+          subtitulo?: string | null
+          tipo?: string
+          titulo?: string
+          updated_at?: string
         }
         Relationships: []
       }

@@ -1,5 +1,7 @@
-import acaiCombo300 from "@/assets/acai-combo-300.jpg";
-import acaiCombo500 from "@/assets/acai-combo-500.jpg";
+import acaiCombo300Asset from "@/assets/acai-combo-300.jpg.asset.json";
+const acaiCombo300 = acaiCombo300Asset.url;
+import acaiCombo500Asset from "@/assets/acai-combo-500.jpg.asset.json";
+const acaiCombo500 = acaiCombo500Asset.url;
 import SectionTitle from "./SectionTitle";
 import ProductCardHorizontal from "./ProductCardHorizontal";
 

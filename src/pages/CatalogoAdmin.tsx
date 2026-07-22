@@ -124,7 +124,7 @@ const CatalogoAdmin = () => {
           </TabsList>
 
           <TabsContent value="produtos" className="mt-4">
-            <ProdutosTab produtos={produtos} categorias={categorias} secoes={secoes} produtoSecoes={produtoSecoes} onCrud={crud} />
+            <ProdutosTab produtos={produtos} categorias={categorias} secoes={secoes} produtoSecoes={produtoSecoes} onCrud={crud} onReload={() => loadAll(password)} />
           </TabsContent>
           <TabsContent value="categorias" className="mt-4">
             <CategoriasTab categorias={categorias} onCrud={crud} />

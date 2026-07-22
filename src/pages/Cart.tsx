@@ -9,10 +9,14 @@ import DownsellModal from "@/components/DownsellModal";
 // Produtos para sugestão (Order Bump)
 import acaiPuroAsset from "@/assets/acai-puro.jpg.asset.json";
 const acaiPuro = acaiPuroAsset.url;
-import acaiCombo300 from "@/assets/acai-combo-300.jpg";
-import acaiRafaelo from "@/assets/acai-rafaelo.png";
-import acaiDiamante from "@/assets/acai-diamante-negro.png";
-import acaiSensacao from "@/assets/acai-sensacao.jpg";
+import acaiCombo300Asset from "@/assets/acai-combo-300.jpg.asset.json";
+const acaiCombo300 = acaiCombo300Asset.url;
+import acaiRafaeloAsset from "@/assets/acai-rafaelo.jpg.asset.json";
+const acaiRafaelo = acaiRafaeloAsset.url;
+import acaiDiamanteAsset from "@/assets/acai-diamante-negro.jpg.asset.json";
+const acaiDiamante = acaiDiamanteAsset.url;
+import acaiSensacaoAsset from "@/assets/acai-sensacao.jpg.asset.json";
+const acaiSensacao = acaiSensacaoAsset.url;
 
 const produtosSugeridos = [
   {

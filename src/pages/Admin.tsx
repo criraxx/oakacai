@@ -324,6 +324,29 @@ const Admin = () => {
     // Esta função existe para manter compatibilidade
   };
 
+  // Auto-login se já houver senha salva na sessão
+  useEffect(() => {
+    const saved = sessionStorage.getItem("admin_pw");
+    if (saved && !isAuthenticated) {
+      (async () => {
+        try {
+          const { data, error } = await supabase.functions.invoke("admin-pedidos", {
+            body: { action: "listar", password: saved },
+          });
+          if (error || data?.error) {
+            sessionStorage.removeItem("admin_pw");
+            return;
+          }
+          setStoredPassword(saved);
+          setIsAuthenticated(true);
+        } catch {
+          sessionStorage.removeItem("admin_pw");
+        }
+      })();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Carregar dados automaticamente ao autenticar e atualizar a cada 15 segundos
   useEffect(() => {
     if (isAuthenticated && storedPassword) {

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft, Search, Sparkles, Plus, Minus, Flame } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { secoesCombo, secoesMonteCopo, SecaoComplemento } from "@/data/complementosData";
 import acaiCombo500 from "@/assets/acai-combo-500.jpg";
 import acaiPuroAsset from "@/assets/acai-puro.jpg.asset.json";
@@ -12,64 +13,67 @@ import { trackViewContent, trackAddToCart } from "@/lib/metaPixel";
 import { gaTrackAddToCart } from "@/lib/googleAnalytics";
 import { toast } from "sonner";
 
-// Mapeamento de produtos por ID
+// Mapeamento de produtos por ID (fallback)
 const produtosPorId: Record<string, { nome: string; preco: number; imagem: string; descricao: string }> = {
   "combo-500ml": {
     nome: "Combo premium 2 açaí 500ml + 4 complementos gratis",
-    preco: 59.90,
+    preco: 59.9,
     imagem: acaiCombo500,
-    descricao: "Combo 2 Açaís 500 ml (4 complementos grátis cada)\nLeve 2 açaís de 500 ml com nossa base super cremosa e ainda ganhe 4 complementos grátis em cada copo."
+    descricao:
+      "Combo 2 Açaís 500 ml (4 complementos grátis cada)\nLeve 2 açaís de 500 ml com nossa base super cremosa e ainda ganhe 4 complementos grátis em cada copo.",
   },
   "combo-300ml": {
     nome: "Combo premium 2 açaí 300ml + 4 complementos gratis",
-    preco: 49.90,
+    preco: 49.9,
     imagem: acaiCombo500,
-    descricao: "Combo 2 Açaís 300 ml (4 complementos grátis cada)\nLeve 2 açaís de 300 ml com nossa base super cremosa e ainda ganhe 4 complementos grátis em cada copo."
+    descricao:
+      "Combo 2 Açaís 300 ml (4 complementos grátis cada)\nLeve 2 açaís de 300 ml com nossa base super cremosa e ainda ganhe 4 complementos grátis em cada copo.",
   },
   "monte-300ml": {
     nome: "Copo 300ml Açaí Puro - Monte do seu jeito",
-    preco: 25.90,
+    preco: 25.9,
     imagem: acaiPuro,
-    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!"
+    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!",
   },
   "monte-500ml": {
     nome: "Copo 500ml Açaí Puro - monte do seu jeito",
-    preco: 29.90,
+    preco: 29.9,
     imagem: acaiPuro,
-    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!"
+    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!",
   },
   "monte-700ml": {
     nome: "Copo 700ml Açaí Puro - monte do seu jeito",
-    preco: 34.90,
+    preco: 34.9,
     imagem: acaiPuro,
-    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!"
+    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!",
   },
-  // IDs usados na seção "Mais Pedidos"
   "copo-500ml-puro": {
     nome: "Copo 500ml Açaí Puro - monte do seu jeito",
-    preco: 29.90,
+    preco: 29.9,
     imagem: acaiPuro,
-    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!"
+    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!",
   },
   "copo-300ml-puro": {
     nome: "Copo 300ml Açaí Puro - Monte do seu jeito",
-    preco: 25.90,
+    preco: 25.9,
     imagem: acaiPuro,
-    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!"
+    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!",
   },
   "trufado-rafaelo-500": {
     nome: "Copo trufado Rafaelo 500 ML",
     preco: 39.99,
     imagem: acaiPuro,
-    descricao: "Açaí trufado com Rafaelo"
+    descricao: "Açaí trufado com Rafaelo",
   },
   "trufado-rafaelo-300": {
     nome: "Copo trufado Rafaelo 300 ML",
     preco: 34.99,
     imagem: acaiPuro,
-    descricao: "Açaí trufado com Rafaelo"
-  }
+    descricao: "Açaí trufado com Rafaelo",
+  },
 };
+
+const brl = (n: number) => `R$ ${n.toFixed(2).replace(".", ",")}`;
 
 const ProductDetail = () => {
   const navigate = useNavigate();
@@ -82,76 +86,67 @@ const ProductDetail = () => {
   const [quantidadeProduto, setQuantidadeProduto] = useState(1);
   const [modalAberto, setModalAberto] = useState(false);
   const viewContentTracked = useRef(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Verificar se é um produto promocional
+  const { scrollY } = useScroll({ container: scrollRef });
+  const heroScale = useTransform(scrollY, [0, 320], [1.08, 1.28]);
+  const heroY = useTransform(scrollY, [0, 320], [0, -40]);
+  const heroOpacity = useTransform(scrollY, [0, 260], [1, 0.35]);
+  const titleY = useTransform(scrollY, [0, 260], [0, -30]);
+
   const isPromocional = location.state?.produto?.isPromocional || false;
 
-  // Dados do produto passados via state ou buscados por ID
   const getProdutoPadrao = () => {
-    if (id && produtosPorId[id]) {
-      return produtosPorId[id];
-    }
-    // Fallback baseado no ID da URL
-    return {
-      nome: id || "Produto",
-      preco: 0,
-      imagem: acaiPuro,
-      descricao: ""
-    };
+    if (id && produtosPorId[id]) return produtosPorId[id];
+    return { nome: id || "Produto", preco: 0, imagem: acaiPuro, descricao: "" };
   };
-  
   const produto = location.state?.produto || getProdutoPadrao();
 
-  // Determinar tipo de produto para exibir seções corretas
   const getTipoProduto = (): "combo" | "monte" | "pronto" => {
     const nome = produto.nome.toLowerCase();
-    
-    // Combo Premium (2 copos) - tem monte copo 1 e 2 + adicionais
-    if (nome.includes("combo premium") || nome.includes("combo 2")) {
-      return "combo";
-    }
-    
-    // Picolés e Bebidas - produtos prontos, SEM complementos
-    if (nome.includes("picolé") || nome.includes("picole") || 
-        nome.includes("laka oreo") || nome.includes("morango com ninho") || nome.includes("choconinho") ||
-        nome.includes("água") || nome.includes("agua") || 
-        nome.includes("coca") || nome.includes("coca cola")) {
+    if (nome.includes("combo premium") || nome.includes("combo 2")) return "combo";
+    if (
+      nome.includes("picolé") ||
+      nome.includes("picole") ||
+      nome.includes("laka oreo") ||
+      nome.includes("morango com ninho") ||
+      nome.includes("choconinho") ||
+      nome.includes("água") ||
+      nome.includes("agua") ||
+      nome.includes("coca") ||
+      nome.includes("coca cola")
+    )
       return "pronto";
-    }
-    
-    // Trufados e Tradicionais - produtos prontos, SEM complementos
-    if (nome.includes("trufado") || nome.includes("kids") || nome.includes("tradicional") || 
-        nome.includes("mega") || nome.includes("da casa") || nome.includes("sensação") ||
-        nome.includes("sensacao")) {
+    if (
+      nome.includes("trufado") ||
+      nome.includes("kids") ||
+      nome.includes("tradicional") ||
+      nome.includes("mega") ||
+      nome.includes("da casa") ||
+      nome.includes("sensação") ||
+      nome.includes("sensacao")
+    )
       return "pronto";
-    }
-    
-    // Balde - tem adicionais
-    if (nome.includes("balde")) {
+    if (nome.includes("balde")) return "monte";
+    if (
+      nome.includes("monte") ||
+      nome.includes("seu copo") ||
+      nome.includes("seu jeito") ||
+      nome.includes("roleta") ||
+      nome.includes("puro")
+    )
       return "monte";
-    }
-    
-    // Monte do seu jeito e Roleta - 1 copo com adicionais
-    if (nome.includes("monte") || nome.includes("seu copo") || nome.includes("seu jeito") || 
-        nome.includes("roleta") || nome.includes("puro")) {
-      return "monte";
-    }
-    
-    // Default: produto pronto
     return "pronto";
   };
 
   const tipoProduto = getTipoProduto();
-  
-  // Selecionar seções baseado no tipo de produto
+
   const getSecoes = (): SecaoComplemento[] => {
     switch (tipoProduto) {
       case "combo":
         return secoesCombo;
       case "monte":
         return secoesMonteCopo;
-      case "pronto":
-        return []; // Sem complementos
       default:
         return [];
     }
@@ -160,36 +155,28 @@ const ProductDetail = () => {
   const secoesProduto = getSecoes();
   const temComplementos = secoesProduto.length > 0;
 
-  // Meta Pixel: ViewContent - Disparar apenas uma vez por visualização
   useEffect(() => {
     if (!viewContentTracked.current && produto.nome && produto.preco) {
       trackViewContent({
-        content_ids: [id || 'produto'],
+        content_ids: [id || "produto"],
         content_name: produto.nome,
-        content_type: 'product',
+        content_type: "product",
         value: produto.preco,
       });
       viewContentTracked.current = true;
     }
   }, [id, produto.nome, produto.preco]);
 
-
   const handleQuantidadeChange = (itemId: string, quantidade: number) => {
-    setQuantidades((prev) => ({
-      ...prev,
-      [itemId]: quantidade,
-    }));
+    setQuantidades((prev) => ({ ...prev, [itemId]: quantidade }));
   };
 
-  // Calcular total dos adicionais
   const calcularTotal = () => {
     let total = 0;
     secoesProduto.forEach((secao) => {
       secao.itens.forEach((item) => {
         const qtd = quantidades[item.id] || 0;
-        if (item.preco && qtd > 0) {
-          total += item.preco * qtd;
-        }
+        if (item.preco && qtd > 0) total += item.preco * qtd;
       });
     });
     return total;
@@ -197,24 +184,21 @@ const ProductDetail = () => {
 
   const totalAdicionais = calcularTotal();
 
-  // Filtrar seções baseado na pesquisa
-  const secoesFiltradas = secoesProduto.map(secao => ({
-    ...secao,
-    itens: secao.itens.filter(item => 
-      item.nome.toLowerCase().includes(pesquisa.toLowerCase())
-    )
-  })).filter(secao => secao.itens.length > 0 || pesquisa === "");
+  const secoesFiltradas = secoesProduto
+    .map((secao) => ({
+      ...secao,
+      itens: secao.itens.filter((item) =>
+        item.nome.toLowerCase().includes(pesquisa.toLowerCase())
+      ),
+    }))
+    .filter((secao) => secao.itens.length > 0 || pesquisa === "");
 
   const handleAdicionarAoCarrinho = () => {
-    // Validações para itens promocionais
     if (isPromocional) {
-      // Verificar se já tem item promocional
       if (temItemPromocional()) {
         toast.error("Você já adicionou 1 item promocional. Limite de 1 por pedido!");
         return;
       }
-      
-      // Verificar se ainda tem R$50+ no carrinho
       if (getSubtotalSemPromocional() < 50) {
         toast.error("O carrinho precisa ter R$50 ou mais para adicionar item promocional!");
         return;
@@ -222,10 +206,8 @@ const ProductDetail = () => {
     }
 
     const valorTotal = (produto.preco + totalAdicionais) * quantidadeProduto;
-    
-    // Para itens promocionais, só permite adicionar 1
     const qtdAdicionar = isPromocional ? 1 : quantidadeProduto;
-    
+
     for (let i = 0; i < qtdAdicionar; i++) {
       const novoItem: ItemCarrinho = {
         id: "",
@@ -240,180 +222,299 @@ const ProductDetail = () => {
       };
       adicionarItem(novoItem);
     }
-    
-    // Meta Pixel: AddToCart - Valor final considera produto + complementos
+
     trackAddToCart({
-      content_ids: [id || 'produto'],
+      content_ids: [id || "produto"],
       content_name: produto.nome,
-      content_type: 'product',
+      content_type: "product",
       value: valorTotal,
       num_items: qtdAdicionar,
     });
-    
-    // Google Analytics: add_to_cart
     gaTrackAddToCart({
-      item_id: id || 'produto',
+      item_id: id || "produto",
       item_name: produto.nome,
       price: produto.preco + totalAdicionais,
       quantity: qtdAdicionar,
     });
-    
-    if (isPromocional) {
-      toast.success("Item promocional adicionado com sucesso!");
-    }
-    
+
+    if (isPromocional) toast.success("Item promocional adicionado com sucesso!");
     setModalAberto(true);
   };
 
-  return (
-    <div className="min-h-screen bg-muted max-w-md mx-auto flex flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-background border-b border-border">
-        <div className="flex items-center gap-3 px-4 py-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-8 h-8 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <h1 className="text-foreground font-semibold text-base">
-            {temComplementos ? "Personalize seu Açaí" : "Detalhes do Produto"}
-          </h1>
-        </div>
-      </header>
+  const totalFinal =
+    (produto.preco + totalAdicionais) * (isPromocional ? 1 : quantidadeProduto);
 
-      {/* Conteúdo */}
-      <main className="flex-1 pb-24">
-        {/* Seção do Produto */}
-        <div className="bg-background p-4 border-b border-border">
+  return (
+    <div className="product-premium-scope font-body-premium min-h-screen max-w-md mx-auto relative overflow-hidden">
+      {/* Scroll container */}
+      <div
+        ref={scrollRef}
+        className="h-screen overflow-y-auto overflow-x-hidden scrollbar-hide"
+      >
+        {/* HERO IMERSIVO */}
+        <div className="relative h-[62vh] min-h-[420px] overflow-hidden">
+          {/* Imagem parallax */}
+          <motion.div
+            style={{ scale: heroScale, y: heroY }}
+            className="absolute inset-0"
+          >
+            {produto.imagem && (
+              <img
+                src={produto.imagem}
+                alt={produto.nome}
+                className="w-full h-full object-cover"
+              />
+            )}
+          </motion.div>
+
+          {/* Overlay para leitura */}
+          <motion.div
+            style={{ opacity: heroOpacity }}
+            className="absolute inset-0"
+            aria-hidden
+          >
+            <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/0 to-transparent" />
+            <div
+              className="absolute inset-x-0 bottom-0 h-2/3"
+              style={{
+                background:
+                  "linear-gradient(180deg, transparent 0%, hsl(35 40% 96% / 0.6) 55%, hsl(var(--premium-bg)) 100%)",
+              }}
+            />
+          </motion.div>
+
+          {/* Barra superior flutuante */}
+          <div className="absolute top-0 left-0 right-0 z-20 flex items-center justify-between px-4 pt-4">
+            <button
+              onClick={() => navigate(-1)}
+              className="w-11 h-11 rounded-full flex items-center justify-center backdrop-blur-md bg-white/70 border border-white/60 shadow-[var(--shadow-float)] active:scale-95 transition"
+              aria-label="Voltar"
+            >
+              <ArrowLeft size={20} className="text-[hsl(var(--premium-ink))]" />
+            </button>
+            <span
+              className="text-[10px] uppercase tracking-[0.28em] font-semibold px-3 py-1.5 rounded-full backdrop-blur-md bg-white/70 border border-white/60 shadow-[var(--shadow-float)]"
+              style={{ color: "hsl(var(--premium-ink))" }}
+            >
+              Oak Açaí · Assinatura
+            </span>
+          </div>
+
           {/* Badge promocional */}
           {isPromocional && (
-            <div className="mb-3 flex items-center gap-2">
-              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold animate-pulse">
-                🔥 -50% PROMOÇÃO
-              </span>
-              <span className="text-yellow-400 text-xs">
-                (Limite: 1 por pedido)
-              </span>
-            </div>
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute top-20 left-4 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-[hsl(var(--premium-accent))] to-[hsl(var(--premium-gold))] text-white text-xs font-bold shadow-[var(--shadow-float)]"
+            >
+              <Flame size={14} />
+              -50% edição limitada
+            </motion.div>
           )}
-          
-          <div className="flex gap-4">
-            {/* Imagem do Produto */}
-            {produto.imagem && (
-              <div className="flex-shrink-0 relative">
-                <img 
-                  src={produto.imagem} 
-                  alt={produto.nome}
-                  className="w-28 h-28 object-cover rounded-lg"
-                />
-                {isPromocional && (
-                  <div className="absolute inset-0 bg-gradient-to-t from-green-500/40 to-transparent rounded-lg" />
-                )}
-              </div>
-            )}
-            {/* Informações do Produto */}
-            <div className="flex-1">
-              <h2 className="text-foreground font-bold text-lg leading-tight mb-1">
-                {produto.nome}
-              </h2>
-              {isPromocional && produto.precoOriginal && (
-                <p className="text-muted-foreground line-through text-sm">
-                  R$ {produto.precoOriginal.toFixed(2).replace(".", ",")}
-                </p>
-              )}
-              <p className={`font-semibold text-base mb-2 ${isPromocional ? "text-green-400" : "text-foreground"}`}>
-                R$ {produto.preco.toFixed(2).replace(".", ",")}
-              </p>
-              <p className="text-foreground/80 text-sm leading-relaxed whitespace-pre-line">
-                {produto.descricao}
-              </p>
+
+          {/* Título sobreposto */}
+          <motion.div
+            style={{ y: titleY }}
+            className="absolute bottom-6 left-0 right-0 px-6 z-10"
+          >
+            <div className="flex items-center gap-2 mb-2 text-[11px] uppercase tracking-[0.22em] font-semibold text-[hsl(var(--premium-muted-ink))]">
+              <Sparkles size={12} className="text-[hsl(var(--premium-gold))]" />
+              {tipoProduto === "combo"
+                ? "Combo assinatura"
+                : tipoProduto === "monte"
+                ? "Monte do seu jeito"
+                : "Nossa carta"}
             </div>
-          </div>
+            <h1 className="font-editorial text-[36px] leading-[1.05] text-[hsl(var(--premium-ink))] max-w-[92%]">
+              {produto.nome}
+            </h1>
+          </motion.div>
         </div>
 
-        {/* Campo de Pesquisa - só mostra se tem complementos */}
+        {/* CARD DE INFO FLUTUANTE */}
+        <motion.section
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="relative -mt-10 mx-4 rounded-3xl p-6 border shadow-[var(--shadow-premium)]"
+          style={{
+            background: "hsl(var(--premium-surface))",
+            borderColor: "hsl(35 30% 88%)",
+          }}
+        >
+          <div className="flex items-start justify-between gap-4 mb-4">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.22em] text-[hsl(var(--premium-muted-ink))] font-semibold mb-1">
+                A partir de
+              </p>
+              {isPromocional && produto.precoOriginal && (
+                <p className="text-[hsl(var(--premium-muted-ink))] line-through text-sm mb-0.5">
+                  {brl(produto.precoOriginal)}
+                </p>
+              )}
+              <p className="font-editorial text-4xl leading-none text-[hsl(var(--premium-ink))]">
+                {brl(produto.preco)}
+              </p>
+            </div>
+            <div className="text-right">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[hsl(var(--premium-accent-soft))] text-[hsl(var(--premium-ink))] text-[11px] font-semibold uppercase tracking-widest">
+                <Sparkles size={12} className="text-[hsl(var(--premium-accent))]" />
+                Cremoso
+              </span>
+            </div>
+          </div>
+
+          <div
+            className="h-px w-full mb-4"
+            style={{ background: "linear-gradient(90deg, transparent, hsl(35 30% 82%), transparent)" }}
+          />
+
+          <p className="text-[15px] leading-relaxed whitespace-pre-line text-[hsl(var(--premium-muted-ink))]">
+            {produto.descricao}
+          </p>
+        </motion.section>
+
+        {/* PESQUISA + COMPLEMENTOS */}
         {temComplementos && (
-          <div className="bg-background px-4 py-3 border-b border-border">
-            <div className="relative">
-              <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <div className="px-4 mt-8">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-editorial text-2xl text-[hsl(var(--premium-ink))]">
+                Personalize sua experiência
+              </h2>
+            </div>
+            <div className="relative mb-4">
+              <Search
+                size={18}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-[hsl(var(--premium-muted-ink))]"
+              />
               <input
                 type="text"
                 value={pesquisa}
                 onChange={(e) => setPesquisa(e.target.value)}
-                placeholder="Pesquise pelo nome"
-                className="w-full pl-10 pr-4 py-2 bg-muted border border-border rounded-lg text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary"
+                placeholder="Buscar complemento…"
+                className="w-full pl-11 pr-4 py-3 rounded-2xl border text-sm placeholder:text-[hsl(var(--premium-muted-ink))] focus:outline-none focus:ring-2 focus:ring-[hsl(var(--premium-accent))]"
+                style={{
+                  background: "hsl(var(--premium-surface))",
+                  borderColor: "hsl(35 30% 88%)",
+                  color: "hsl(var(--premium-ink))",
+                }}
               />
             </div>
           </div>
         )}
 
-        {/* Seções de Complementos - só mostra se tem complementos */}
-        {temComplementos && (pesquisa ? secoesFiltradas : secoesProduto).map((secao) => (
-          <ComplementSection
-            key={secao.id}
-            secao={secao}
-            quantidades={quantidades}
-            onQuantidadeChange={handleQuantidadeChange}
-          />
-        ))}
+        {temComplementos &&
+          (pesquisa ? secoesFiltradas : secoesProduto).map((secao, i) => (
+            <motion.div
+              key={secao.id}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-40px" }}
+              transition={{ duration: 0.4, delay: i * 0.04 }}
+              className="mx-4 mt-3 rounded-2xl overflow-hidden border shadow-[var(--shadow-float)]"
+              style={{
+                background: "hsl(var(--premium-surface))",
+                borderColor: "hsl(35 30% 88%)",
+              }}
+            >
+              <ComplementSection
+                secao={secao}
+                quantidades={quantidades}
+                onQuantidadeChange={handleQuantidadeChange}
+              />
+            </motion.div>
+          ))}
 
-        {/* Campo de Observações */}
-        <div className="px-4 py-4 bg-background">
-          <label className="block text-foreground text-sm font-medium mb-2">
-            Observações
-          </label>
+        {/* OBSERVAÇÕES */}
+        <section className="px-4 mt-8">
+          <h3 className="font-editorial text-xl text-[hsl(var(--premium-ink))] mb-2">
+            Alguma observação?
+          </h3>
+          <p className="text-[13px] text-[hsl(var(--premium-muted-ink))] mb-3">
+            Conte pra gente qualquer preferência especial — nós cuidamos do resto.
+          </p>
           <textarea
             value={observacoes}
             onChange={(e) => setObservacoes(e.target.value)}
-            placeholder="Alguma observação para o seu pedido?"
-            className="w-full h-20 px-3 py-2 bg-muted border border-border rounded-lg text-foreground text-sm placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-secondary"
+            placeholder="Ex: sem banana, extra leite condensado…"
+            className="w-full h-24 px-4 py-3 rounded-2xl border text-sm placeholder:text-[hsl(var(--premium-muted-ink))] resize-none focus:outline-none focus:ring-2 focus:ring-[hsl(var(--premium-accent))]"
+            style={{
+              background: "hsl(var(--premium-surface))",
+              borderColor: "hsl(35 30% 88%)",
+              color: "hsl(var(--premium-ink))",
+            }}
           />
-        </div>
-      </main>
+        </section>
 
-      {/* Footer Fixo */}
-      <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-background border-t border-border p-4">
-        <div className="flex items-center gap-3">
-          {/* Seletor de Quantidade - esconde para itens promocionais */}
+        {/* Espaço para footer fixo */}
+        <div className="h-40" />
+      </div>
+
+      {/* FOOTER PREMIUM */}
+      <motion.footer
+        initial={{ y: 80, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.15, duration: 0.4 }}
+        className="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-30 px-4 pb-4 pt-3"
+        style={{
+          background:
+            "linear-gradient(180deg, transparent 0%, hsl(var(--premium-bg) / 0.9) 40%, hsl(var(--premium-bg)) 100%)",
+        }}
+      >
+        <div
+          className="rounded-2xl p-3 flex items-center gap-3 border shadow-[var(--shadow-premium)]"
+          style={{
+            background: "hsl(var(--premium-surface))",
+            borderColor: "hsl(35 30% 88%)",
+          }}
+        >
           {!isPromocional && (
-            <div className="flex items-center gap-2">
+            <div
+              className="flex items-center gap-2 rounded-full px-1 py-1 border"
+              style={{
+                background: "hsl(var(--premium-accent-soft))",
+                borderColor: "hsl(35 30% 82%)",
+              }}
+            >
               <button
                 onClick={() => setQuantidadeProduto(Math.max(1, quantidadeProduto - 1))}
-                className="w-8 h-8 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors border border-border"
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-white text-[hsl(var(--premium-ink))] active:scale-95 transition"
+                aria-label="Diminuir"
               >
-                −
+                <Minus size={14} />
               </button>
-              <span className="w-6 text-center text-foreground font-medium">
+              <span className="w-5 text-center font-semibold text-[hsl(var(--premium-ink))]">
                 {quantidadeProduto}
               </span>
               <button
                 onClick={() => setQuantidadeProduto(quantidadeProduto + 1)}
-                className="w-8 h-8 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors border border-border"
+                className="w-8 h-8 flex items-center justify-center rounded-full bg-white text-[hsl(var(--premium-ink))] active:scale-95 transition"
+                aria-label="Aumentar"
               >
-                +
+                <Plus size={14} />
               </button>
             </div>
           )}
 
-          {/* Botão Adicionar */}
-          <button
+          <motion.button
+            whileTap={{ scale: 0.98 }}
             onClick={handleAdicionarAoCarrinho}
-            className={`flex-1 py-3 font-semibold rounded-lg transition-colors flex items-center justify-between px-4 ${
-              isPromocional 
-                ? "bg-green-500 text-white hover:bg-green-600" 
-                : "bg-foreground text-background hover:bg-foreground/90"
-            }`}
+            className="flex-1 relative overflow-hidden rounded-xl py-3 px-4 font-semibold text-white flex items-center justify-between shadow-[var(--shadow-float)]"
+            style={{
+              background: isPromocional
+                ? "linear-gradient(135deg, hsl(var(--premium-gold)), hsl(var(--premium-accent)))"
+                : "linear-gradient(135deg, hsl(var(--premium-ink)), hsl(270 40% 25%))",
+            }}
           >
-            <span>{isPromocional ? "🔥 Adicionar Promoção" : "Adicionar"}</span>
-            <span>
-              R$ {((produto.preco + totalAdicionais) * (isPromocional ? 1 : quantidadeProduto)).toFixed(2).replace(".", ",")}
+            <span className="flex items-center gap-2 text-[15px]">
+              {isPromocional ? <Flame size={16} /> : <Sparkles size={16} />}
+              {isPromocional ? "Adicionar promoção" : "Adicionar ao carrinho"}
             </span>
-          </button>
+            <span className="font-editorial text-lg">{brl(totalFinal)}</span>
+          </motion.button>
         </div>
-      </footer>
+      </motion.footer>
 
-      {/* Modal de confirmação */}
       <AddToCartModal
         isOpen={modalAberto}
         onClose={() => setModalAberto(false)}

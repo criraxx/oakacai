@@ -24,9 +24,12 @@ Deno.serve(async (req) => {
       numero?: string
       numero_id?: string
       modo_cartao_apenas?: boolean
+      logo_url?: string | null
+      banner_url?: string | null
+      cor_borda_logo?: string
     }
 
-    const { action, password, gateway_pix, numero, numero_id, modo_cartao_apenas } = body
+    const { action, password, gateway_pix, numero, numero_id, modo_cartao_apenas, logo_url, banner_url, cor_borda_logo } = body
 
     // Verificar senha do admin
     if (password !== adminPassword) {

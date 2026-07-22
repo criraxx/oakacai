@@ -107,6 +107,9 @@ const Admin = () => {
   const [numerosWhatsApp, setNumerosWhatsApp] = useState<NumeroWhatsApp[]>([]);
   const [novoNumero, setNovoNumero] = useState("");
   const [adicionandoNumero, setAdicionandoNumero] = useState(false);
+  const [corBordaLogo, setCorBordaLogo] = useState<string>("#F5E6D3");
+  const [logoAtual, setLogoAtual] = useState<string | null>(null);
+  const [bannerAtual, setBannerAtual] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleLogin = async () => {

@@ -16,23 +16,32 @@ export type Database = {
     Tables: {
       configuracoes: {
         Row: {
+          banner_url: string | null
+          cor_borda_logo: string | null
           created_at: string
           gateway_pix: string
           id: string
+          logo_url: string | null
           modo_cartao_apenas: boolean
           updated_at: string
         }
         Insert: {
+          banner_url?: string | null
+          cor_borda_logo?: string | null
           created_at?: string
           gateway_pix?: string
           id?: string
+          logo_url?: string | null
           modo_cartao_apenas?: boolean
           updated_at?: string
         }
         Update: {
+          banner_url?: string | null
+          cor_borda_logo?: string | null
           created_at?: string
           gateway_pix?: string
           id?: string
+          logo_url?: string | null
           modo_cartao_apenas?: boolean
           updated_at?: string
         }

@@ -1,0 +1,4 @@
+ALTER TABLE public.configuracoes 
+  ADD COLUMN IF NOT EXISTS logo_url TEXT,
+  ADD COLUMN IF NOT EXISTS banner_url TEXT,
+  ADD COLUMN IF NOT EXISTS cor_borda_logo TEXT DEFAULT '#F5E6D3';

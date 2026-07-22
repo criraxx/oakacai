@@ -53,6 +53,9 @@ export type Database = {
       categorias: {
         Row: {
           ativo: boolean
+          com_borda: boolean
+          cor_borda: string | null
+          cor_fundo_card: string | null
           created_at: string
           id: string
           nome: string
@@ -62,6 +65,9 @@ export type Database = {
         }
         Insert: {
           ativo?: boolean
+          com_borda?: boolean
+          cor_borda?: string | null
+          cor_fundo_card?: string | null
           created_at?: string
           id?: string
           nome: string
@@ -71,6 +77,9 @@ export type Database = {
         }
         Update: {
           ativo?: boolean
+          com_borda?: boolean
+          cor_borda?: string | null
+          cor_fundo_card?: string | null
           created_at?: string
           id?: string
           nome?: string
@@ -174,42 +183,61 @@ export type Database = {
           ativo: boolean
           created_at: string
           descricao: string | null
+          gatilho: string
           id: string
           imagem: string | null
+          max_exibicoes: number
           nome: string
           ordem: number
           preco_original: number
           preco_promocional: number
+          produto_ofertado_id: string | null
           produto_vinculado_id: string | null
+          titulo: string | null
           updated_at: string
         }
         Insert: {
           ativo?: boolean
           created_at?: string
           descricao?: string | null
+          gatilho?: string
           id?: string
           imagem?: string | null
+          max_exibicoes?: number
           nome: string
           ordem?: number
           preco_original?: number
           preco_promocional?: number
+          produto_ofertado_id?: string | null
           produto_vinculado_id?: string | null
+          titulo?: string | null
           updated_at?: string
         }
         Update: {
           ativo?: boolean
           created_at?: string
           descricao?: string | null
+          gatilho?: string
           id?: string
           imagem?: string | null
+          max_exibicoes?: number
           nome?: string
           ordem?: number
           preco_original?: number
           preco_promocional?: number
+          produto_ofertado_id?: string | null
           produto_vinculado_id?: string | null
+          titulo?: string | null
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "downsells_produto_ofertado_id_fkey"
+            columns: ["produto_ofertado_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "downsells_produto_vinculado_id_fkey"
             columns: ["produto_vinculado_id"]
@@ -240,6 +268,42 @@ export type Database = {
         }
         Relationships: []
       }
+      order_bump_produtos_gatilho: {
+        Row: {
+          created_at: string
+          id: string
+          order_bump_id: string
+          produto_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_bump_id: string
+          produto_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_bump_id?: string
+          produto_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_bump_produtos_gatilho_order_bump_id_fkey"
+            columns: ["order_bump_id"]
+            isOneToOne: false
+            referencedRelation: "order_bumps"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_bump_produtos_gatilho_produto_id_fkey"
+            columns: ["produto_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_bumps: {
         Row: {
           ativo: boolean
@@ -249,9 +313,12 @@ export type Database = {
           imagem: string | null
           nome: string
           ordem: number
+          posicao: string
           preco_original: number
           preco_promocional: number
+          produto_ofertado_id: string | null
           produto_vinculado_id: string | null
+          titulo: string | null
           updated_at: string
         }
         Insert: {
@@ -262,9 +329,12 @@ export type Database = {
           imagem?: string | null
           nome: string
           ordem?: number
+          posicao?: string
           preco_original?: number
           preco_promocional?: number
+          produto_ofertado_id?: string | null
           produto_vinculado_id?: string | null
+          titulo?: string | null
           updated_at?: string
         }
         Update: {
@@ -275,12 +345,22 @@ export type Database = {
           imagem?: string | null
           nome?: string
           ordem?: number
+          posicao?: string
           preco_original?: number
           preco_promocional?: number
+          produto_ofertado_id?: string | null
           produto_vinculado_id?: string | null
+          titulo?: string | null
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "order_bumps_produto_ofertado_id_fkey"
+            columns: ["produto_ofertado_id"]
+            isOneToOne: false
+            referencedRelation: "produtos"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "order_bumps_produto_vinculado_id_fkey"
             columns: ["produto_vinculado_id"]

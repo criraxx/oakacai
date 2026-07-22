@@ -277,7 +277,10 @@ const Cart = () => {
           ))}
         </div>
 
-        {/* Seção Peça Também (Order Bump) */}
+        {/* Order Bumps dinâmicos (admin) */}
+        <OrderBumpList gatilho="carrinho" />
+
+        {/* Seção Peça Também (Fallback estático) */}
         {sugestoesFiltradas.length > 0 && (
           <div className="mt-4 px-4">
             <h3 className="text-foreground font-semibold text-sm mb-3">Peça também</h3>

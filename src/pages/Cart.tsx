@@ -330,8 +330,8 @@ const Cart = () => {
         </div>
       </main>
 
-      {/* Footer Fixo */}
-      <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-card">
+      {/* Footer Fixo - acima do BottomNavigation */}
+      <footer className="fixed bottom-14 left-0 right-0 max-w-md mx-auto bg-card z-40">
         <div className="p-4 flex items-center justify-between">
           <button
             onClick={() => navigate("/identificacao")}
@@ -344,6 +344,7 @@ const Cart = () => {
           </span>
         </div>
       </footer>
+      <BottomNavigation />
     </div>
   );
 };

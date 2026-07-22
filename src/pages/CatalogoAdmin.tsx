@@ -161,12 +161,16 @@ function ProdutosTab({ produtos, categorias, secoes, produtoSecoes, onCrud }: {
         <Plus size={16} className="mr-1" /> Novo produto
       </Button>
       <div className="grid gap-2">
-        {produtos.map(p => (
-          <Card key={p.id} className="p-3 flex items-center gap-3">
+        {produtos.map((p, i) => (
+          <Card key={p.id} className="p-3 flex items-center gap-2">
             {p.imagem ? <img src={p.imagem as string} className="w-14 h-14 rounded object-cover" alt="" /> : <div className="w-14 h-14 rounded bg-muted" />}
             <div className="flex-1 min-w-0">
               <div className="font-semibold text-sm truncate">{p.nome as string}</div>
               <div className="text-xs text-muted-foreground">R$ {Number(p.preco).toFixed(2)} · {p.ativo ? "ativo" : "inativo"}</div>
+            </div>
+            <div className="flex flex-col">
+              <Button variant="ghost" size="icon" className="h-6 w-6" disabled={i === 0} onClick={() => reorder(produtos, i, i - 1, "produtos", onCrud)}><ArrowUp size={12} /></Button>
+              <Button variant="ghost" size="icon" className="h-6 w-6" disabled={i === produtos.length - 1} onClick={() => reorder(produtos, i, i + 1, "produtos", onCrud)}><ArrowDown size={12} /></Button>
             </div>
             <Button variant="ghost" size="icon" onClick={() => { setEditing(p); setCreating(false); }}><Pencil size={16} /></Button>
             <Button variant="ghost" size="icon" onClick={() => { if (confirm("Excluir produto?")) onCrud("delete", "produtos", { id: p.id }); }}><Trash2 size={16} className="text-destructive" /></Button>

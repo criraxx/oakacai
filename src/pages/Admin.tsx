@@ -705,9 +705,15 @@ const Admin = () => {
             <Settings className="w-4 h-4" />
             Configurações
           </Button>
-          <Button variant="outline" onClick={() => window.location.assign("/admin/catalogo")} className="gap-2">
+          <Button
+            variant={abaAtiva === "catalogo" ? "default" : "outline"}
+            onClick={() => setAbaAtiva("catalogo")}
+            className="gap-2"
+          >
+            <Package className="w-4 h-4" />
             Catálogo
           </Button>
+
         </div>
 
 

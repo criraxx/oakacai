@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ClipboardList, Search, ArrowLeft } from "lucide-react";
+import { ClipboardList, Search, ArrowLeft, MessageCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import BottomNavigation from "@/components/BottomNavigation";
 import PedidoCard from "@/components/PedidoCard";

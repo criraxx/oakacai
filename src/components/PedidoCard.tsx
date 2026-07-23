@@ -377,6 +377,20 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
         onSelectPix={handleSelectPix}
         onSelectCard={handleSelectCard}
       />
+
+      {/* Modal de recibo */}
+      <ReciboModal
+        open={showRecibo}
+        onClose={() => setShowRecibo(false)}
+        pedido={{
+          id: pedido.id,
+          numero_pedido: pedido.numero_pedido,
+          total: pedido.total,
+          forma_pagamento: pedido.forma_pagamento,
+          created_at: pedido.created_at,
+        }}
+        corBorda={corBorda}
+      />
     </div>
   );
 };

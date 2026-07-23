@@ -230,20 +230,19 @@ const ProductDetail = () => {
     // Para itens promocionais, só permite adicionar 1
     const qtdAdicionar = isPromocional ? 1 : quantidadeProduto;
     
-    for (let i = 0; i < qtdAdicionar; i++) {
-      const novoItem: ItemCarrinho = {
-        id: "",
-        produtoId: id || "combo-500ml",
-        produtoNome: produto.nome,
-        produtoPreco: produto.preco,
-        produtoImagem: produto.imagem,
-        complementos: quantidades,
-        observacoes: observacoes,
-        totalAdicionais: totalAdicionais,
-        isPromocional: isPromocional,
-      };
-      adicionarItem(novoItem);
-    }
+    const novoItem: ItemCarrinho = {
+      id: "",
+      produtoId: id || "combo-500ml",
+      produtoNome: produto.nome,
+      produtoPreco: produto.preco,
+      produtoImagem: produto.imagem,
+      complementos: quantidades,
+      observacoes: observacoes,
+      totalAdicionais: totalAdicionais,
+      isPromocional: isPromocional,
+      quantidade: qtdAdicionar,
+    };
+    adicionarItem(novoItem);
     
     // Meta Pixel: AddToCart - Valor final considera produto + complementos
     trackAddToCart({

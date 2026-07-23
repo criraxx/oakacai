@@ -59,6 +59,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [showRecibo, setShowRecibo] = useState(false);
   const [corBorda, setCorBorda] = useState<string>("#F5E6D3");
+  const [complementosMap, setComplementosMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetch("https://bgcwtnrimreruswogffr.supabase.co/functions/v1/buscar-config")
@@ -123,13 +124,15 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
     if (!expanded && itens.length === 0) {
       setLoadingItens(true);
       try {
-        const { data, error } = await supabase
-          .from("pedido_itens")
-          .select("*")
-          .eq("pedido_id", pedido.id);
-
-        if (!error && data) {
-          setItens(data);
+        const [itensRes, compRes] = await Promise.all([
+          supabase.from("pedido_itens").select("*").eq("pedido_id", pedido.id),
+          supabase.from("complementos").select("id, nome"),
+        ]);
+        if (!itensRes.error && itensRes.data) setItens(itensRes.data);
+        if (compRes.data) {
+          const map: Record<string, string> = {};
+          compRes.data.forEach((c: any) => { map[c.id] = c.nome; });
+          setComplementosMap(map);
         }
       } catch (err) {
         console.error("Erro ao buscar itens:", err);
@@ -364,33 +367,47 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
           ) : itens.length === 0 ? (
             <p className="text-card-foreground/60 text-xs text-center">Nenhum item encontrado</p>
           ) : (
-            itens.map((item) => (
-              <div key={item.id} className="bg-card-foreground/5 rounded-lg p-2">
-                <div className="flex justify-between">
-                  <span className="text-card-foreground text-sm font-medium">
-                    {item.quantidade ?? 1}x {item.produto_nome}
-                  </span>
-                  <span className="text-accent text-sm font-bold">
-                    {formatCurrency(item.total_item)}
-                  </span>
-                </div>
-                {item.adicionais && Object.keys(item.adicionais).length > 0 && (
-                  <div className="mt-1">
-                    <p className="text-card-foreground/60 text-xs">
-                      Adicionais: {Object.entries(item.adicionais)
-                        .filter(([_, v]) => v)
-                        .map(([k]) => k)
-                        .join(", ")}
-                    </p>
+            itens.map((item) => {
+              const adicionaisList = Object.entries(item.adicionais || {}).filter(
+                ([, v]) => v && (v as number) > 0
+              );
+              return (
+                <div key={item.id} className="bg-card-foreground/5 rounded-lg p-3">
+                  <div className="flex justify-between gap-2">
+                    <span className="text-card-foreground text-sm font-medium flex-1">
+                      {item.quantidade ?? 1}x {item.produto_nome}
+                    </span>
+                    <span className="text-accent text-sm font-bold whitespace-nowrap">
+                      {formatCurrency(item.total_item)}
+                    </span>
                   </div>
-                )}
-                {item.observacoes && (
-                  <p className="text-card-foreground/50 text-xs mt-1 italic">
-                    Obs: {item.observacoes}
-                  </p>
-                )}
-              </div>
-            ))
+                  {adicionaisList.length > 0 && (
+                    <div className="mt-2 pl-2 border-l-2 border-card-foreground/10">
+                      <p className="text-[10px] uppercase tracking-wider text-card-foreground/50 mb-1">
+                        Adicionais
+                      </p>
+                      <ul className="space-y-0.5">
+                        {adicionaisList.map(([id, qtd]) => (
+                          <li key={id} className="text-xs text-card-foreground/80">
+                            + {qtd as number}x {complementosMap[id] || id}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {item.observacoes && (
+                    <div className="mt-2 pl-2 border-l-2 border-accent/40">
+                      <p className="text-[10px] uppercase tracking-wider text-card-foreground/50 mb-0.5">
+                        Observações
+                      </p>
+                      <p className="text-xs text-card-foreground/80 italic whitespace-pre-wrap">
+                        {item.observacoes}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              );
+            })
           )}
         </div>
       )}

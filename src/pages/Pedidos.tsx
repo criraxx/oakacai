@@ -172,7 +172,7 @@ const Pedidos = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-muted max-w-md mx-auto flex flex-col page-enter">
+      <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col page-enter">
         <Header />
         <main className="flex-1 flex flex-col items-center justify-center pb-24 px-6">
           <div
@@ -190,7 +190,7 @@ const Pedidos = () => {
 
   if (pedidos.length === 0) {
     return (
-      <div className="min-h-screen bg-muted max-w-md mx-auto flex flex-col">
+      <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
         <Header />
         <main className="flex-1 flex flex-col items-center justify-center px-6 py-12 pb-28 text-center">
           <div
@@ -222,7 +222,7 @@ const Pedidos = () => {
   }
 
   return (
-    <div className="min-h-screen bg-muted max-w-md mx-auto flex flex-col">
+    <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
       <Header />
       <main className="flex-1 p-4 space-y-4 pb-28">
         {pedidos.map((pedido) => (

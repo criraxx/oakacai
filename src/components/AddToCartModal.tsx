@@ -87,7 +87,7 @@ const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
               />
               <div
                 className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-md"
-                style={{ background: defaultOrange }}
+                style={{ background: accent }}
               >
                 1
               </div>
@@ -103,8 +103,8 @@ const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
               onClick={handleIrParaCarrinho}
               className="group w-full py-3.5 rounded-2xl font-semibold text-white flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg"
               style={{
-                background: defaultOrange,
-                boxShadow: `0 10px 20px -10px #f97316`,
+                background: accent,
+                boxShadow: `0 10px 20px -10px ${accent}80`,
               }}
             >
               <ShoppingBag size={18} strokeWidth={2.5} />

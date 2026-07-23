@@ -67,12 +67,37 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
       .catch(() => {});
   }, []);
 
-  const status = statusConfig[pedido.status_pedido] || statusConfig.pendente;
+  // Tick para reavaliar status automático baseado em tempo
+  const [, setTick] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 30000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Progressão automática do status quando pagamento confirmado
+  // 0min: confirmado (Em processamento) -> 5min: preparando -> 10min: saiu -> 20min: entregue
+  const statusOrder = ["pendente", "confirmado", "preparando", "saiu", "entregue"];
+  const computeAutoStatus = () => {
+    if (pedido.status_pagamento !== "confirmado") return pedido.status_pedido;
+    const elapsedMin = (Date.now() - new Date(pedido.created_at).getTime()) / 60000;
+    let auto = "confirmado";
+    if (elapsedMin >= 20) auto = "entregue";
+    else if (elapsedMin >= 10) auto = "saiu";
+    else if (elapsedMin >= 5) auto = "preparando";
+    const storedIdx = statusOrder.indexOf(pedido.status_pedido);
+    const autoIdx = statusOrder.indexOf(auto);
+    return autoIdx > storedIdx ? auto : pedido.status_pedido;
+  };
+  const effectiveStatus = computeAutoStatus();
+
+  const status = statusConfig[effectiveStatus] || statusConfig.pendente;
   const StatusIcon = status.icon;
 
   const statusLabel = (() => {
-    if (pedido.status_pedido === "entregue") return statusConfig.entregue.label;
-    if (pedido.status_pedido === "pendente") return statusConfig.pendente.label;
+    if (effectiveStatus === "entregue") return statusConfig.entregue.label;
+    if (effectiveStatus === "pendente") return statusConfig.pendente.label;
+    if (effectiveStatus === "preparando") return statusConfig.preparando.label;
+    if (effectiveStatus === "saiu") return statusConfig.saiu.label;
     return "Em processamento";
   })();
 

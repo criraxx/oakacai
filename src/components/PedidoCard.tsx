@@ -59,6 +59,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [showRecibo, setShowRecibo] = useState(false);
   const [corBorda, setCorBorda] = useState<string>("#F5E6D3");
+  const [complementosMap, setComplementosMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetch("https://bgcwtnrimreruswogffr.supabase.co/functions/v1/buscar-config")

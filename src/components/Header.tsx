@@ -3,24 +3,25 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useBranding } from "@/hooks/useBranding";
-import { useCatalogo } from "@/hooks/useCatalogo";
+import { todosProdutos } from "@/data/todosProutos";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
 const Header = () => {
   const { logo_url, cor_borda_logo } = useBranding();
   const navigate = useNavigate();
-  const { data: catalogo } = useCatalogo();
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
 
   const resultados = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q || !catalogo?.produtos) return [];
-    return catalogo.produtos
-      .filter((p) => p.ativo && p.nome.toLowerCase().includes(q))
-      .slice(0, 20);
-  }, [query, catalogo]);
+    if (!q) return [];
+    return todosProdutos
+      .filter((p) => p.title.toLowerCase().includes(q))
+      .slice(0, 30)
+      .map((p) => ({ id: p.id, nome: p.title, preco: p.price, imagem: p.image }));
+  }, [query]);
+
 
   const handleShare = async () => {
     const url = window.location.origin;

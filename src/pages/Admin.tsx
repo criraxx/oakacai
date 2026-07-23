@@ -1391,7 +1391,14 @@ const Admin = () => {
             </Card>
           </div>
         )}
+
+        {abaAtiva === "catalogo" && (
+          <div className="mt-2">
+            <CatalogoPanel password={password} />
+          </div>
+        )}
       </div>
+
     </div>
   );
 };

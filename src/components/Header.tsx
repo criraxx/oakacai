@@ -158,19 +158,23 @@ const Header = () => {
                       onClick={() => abrirProduto(p.id)}
                       className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-muted transition-all text-left active:scale-[0.99]"
                     >
-                      {p.imagem ? (
-                        <img
-                          src={p.imagem}
-                          alt={p.nome}
-                          className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                          style={{ border: `1.5px solid ${cor_borda_logo}` }}
-                        />
-                      ) : (
-                        <div
-                          className="w-12 h-12 rounded-lg flex-shrink-0 bg-muted"
-                          style={{ border: `1.5px solid ${cor_borda_logo}` }}
-                        />
-                      )}
+                      <div
+                        className="w-12 h-12 rounded-lg flex-shrink-0 bg-muted overflow-hidden flex items-center justify-center"
+                        style={{ border: `1.5px solid ${cor_borda_logo}` }}
+                      >
+                        {p.imagem ? (
+                          <img
+                            src={p.imagem}
+                            alt=""
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.currentTarget as HTMLImageElement).style.display = "none";
+                            }}
+                          />
+                        ) : (
+                          <Search size={16} className="text-muted-foreground" />
+                        )}
+                      </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-foreground truncate">{p.nome}</p>
                         <p className="text-xs text-accent font-bold mt-0.5">

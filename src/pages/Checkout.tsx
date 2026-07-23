@@ -749,9 +749,11 @@ const Checkout = () => {
           
           {itens.map((item) => (
             <div key={item.id} className="flex justify-between text-sm mb-2">
-              <span className="text-muted-foreground">{item.produtoNome}</span>
+              <span className="text-muted-foreground">
+                {item.quantidade ?? 1}x {item.produtoNome}
+              </span>
               <span className="text-foreground">
-                R$ {(item.produtoPreco + item.totalAdicionais).toFixed(2).replace(".", ",")}
+                R$ {((item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1)).toFixed(2).replace(".", ",")}
               </span>
             </div>
           ))}

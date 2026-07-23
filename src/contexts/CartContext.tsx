@@ -133,11 +133,17 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const adicionarItem = (item: ItemCarrinho) => {
-    setItens((prev) => [...prev, { ...item, id: `item-${Date.now()}`, quantidade: item.quantidade ?? 1 }]);
+    const sanitized = sanitizeItem({ ...item, id: `item-${Date.now()}` });
+    // Não adiciona produto sem preço válido para evitar itens com R$ 0,00 no carrinho
+    if (sanitized.produtoPreco <= 0) {
+      console.warn("[Cart] tentativa de adicionar item com preço inválido", item);
+      return;
+    }
+    setItens((prev) => [...prev, sanitized]);
   };
 
   const atualizarItem = (id: string, dados: Partial<ItemCarrinho>) => {
-    setItens((prev) => prev.map((i) => (i.id === id ? { ...i, ...dados, id: i.id } : i)));
+    setItens((prev) => prev.map((i) => (i.id === id ? sanitizeItem({ ...i, ...dados, id: i.id }) : i)));
   };
 
 
@@ -173,8 +179,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const getSubtotal = () => {
     return itens.reduce((acc, item) => {
-      const qtd = item.quantidade ?? 1;
-      return acc + (item.produtoPreco + item.totalAdicionais) * qtd;
+      const qtd = Number(item.quantidade) > 0 ? Number(item.quantidade) : 1;
+      const preco = Number.isFinite(Number(item.produtoPreco)) ? Number(item.produtoPreco) : 0;
+      const add = Number.isFinite(Number(item.totalAdicionais)) ? Number(item.totalAdicionais) : 0;
+      return acc + (preco + add) * qtd;
     }, 0);
   };
 
@@ -182,7 +190,12 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const getSubtotalSemPromocional = () => {
     return itens
       .filter(item => !item.isPromocional)
-      .reduce((acc, item) => acc + (item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1), 0);
+      .reduce((acc, item) => {
+        const qtd = Number(item.quantidade) > 0 ? Number(item.quantidade) : 1;
+        const preco = Number.isFinite(Number(item.produtoPreco)) ? Number(item.produtoPreco) : 0;
+        const add = Number.isFinite(Number(item.totalAdicionais)) ? Number(item.totalAdicionais) : 0;
+        return acc + (preco + add) * qtd;
+      }, 0);
   };
 
   // Verifica se já tem item promocional no carrinho

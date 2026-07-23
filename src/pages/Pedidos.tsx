@@ -181,8 +181,14 @@ const Pedidos = () => {
     return (
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col page-enter">
         <Header />
-        <main className="flex-1 flex items-center justify-center pb-20">
-          <div className="animate-pulse text-muted-foreground text-sm">Carregando pedidos...</div>
+        <main className="flex-1 flex flex-col items-center justify-center pb-24 px-6">
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 animate-pulse"
+            style={{ background: `${accent}20` }}
+          >
+            <ClipboardList size={32} style={{ color: accent }} />
+          </div>
+          <p className="text-muted-foreground text-sm font-medium">Carregando pedidos...</p>
         </main>
         <BottomNavigation />
       </div>
@@ -193,24 +199,24 @@ const Pedidos = () => {
     return (
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
         <Header />
-        <main className="flex-1 flex flex-col items-center justify-center px-6 py-12 pb-24 text-center">
+        <main className="flex-1 flex flex-col items-center justify-center px-6 py-12 pb-28 text-center">
           <div
-            className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
-            style={{ background: `${accent}30`, border: `1.5px solid ${accent}` }}
+            className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-lg"
+            style={{ background: `${accent}18`, border: `2px solid ${accent}40` }}
           >
-            <ClipboardList size={36} style={{ color: accent }} />
+            <ClipboardList size={44} style={{ color: accent }} />
           </div>
-          <h2 className="text-foreground font-bold text-[19px] mb-2">
+          <h2 className="text-foreground font-bold text-xl mb-2 tracking-tight">
             {telefoneAtivo ? "Nenhum pedido encontrado" : "Busque seus pedidos"}
           </h2>
-          <p className="text-muted-foreground text-sm mb-7 max-w-[280px] leading-relaxed">
+          <p className="text-muted-foreground text-sm mb-8 max-w-[280px] leading-relaxed">
             {telefoneAtivo
               ? "Não achamos pedidos com esse telefone. Faça seu primeiro pedido e acompanhe por aqui!"
               : "Digite seu WhatsApp na barra acima para ver seu histórico de pedidos."}
           </p>
           <Link to="/">
             <button
-              className="px-7 py-3.5 font-semibold rounded-xl transition-all active:scale-[0.98] text-[15px]"
+              className="px-8 py-4 font-semibold rounded-2xl transition-all active:scale-[0.98] text-[15px] shadow-lg"
               style={{ background: accent, color: "#000" }}
             >
               Ver cardápio
@@ -225,7 +231,7 @@ const Pedidos = () => {
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
       <Header />
-      <main className="flex-1 p-4 space-y-3 pb-24">
+      <main className="flex-1 p-4 space-y-4 pb-28">
         {pedidos.map((pedido) => (
           <PedidoCard key={pedido.id} pedido={pedido} />
         ))}

@@ -24,6 +24,13 @@ const PixConfirmado = () => {
 
   const purchaseTracked = useRef(false);
 
+  // Pagamento concluído → limpa flag de recuperação de venda
+  useEffect(() => {
+    try { sessionStorage.removeItem("oak_pix_flow"); } catch {}
+  }, []);
+
+
+
   useEffect(() => {
     const carregarConfig = async () => {
       try {

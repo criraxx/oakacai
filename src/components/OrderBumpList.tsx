@@ -35,11 +35,16 @@ const OrderBumpList = ({ gatilho }: Props) => {
       toast({ title: "Produto indisponível", variant: "destructive" });
       return;
     }
+    const preco = Number(bump.preco_promocional);
+    if (!Number.isFinite(preco) || preco <= 0) {
+      toast({ title: "Oferta indisponível", description: "Preço inválido", variant: "destructive" });
+      return;
+    }
     adicionarItem({
       id: `item-${Date.now()}`,
       produtoId: produto.id,
       produtoNome: produto.nome,
-      produtoPreco: Number(bump.preco_promocional),
+      produtoPreco: preco,
       produtoImagem: produto.imagem || "",
       complementos: {},
       observacoes: `🎁 Oferta: ${bump.titulo || bump.nome}`,

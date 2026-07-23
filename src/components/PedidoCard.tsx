@@ -509,6 +509,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
           total: pedido.total,
           forma_pagamento: pedido.forma_pagamento,
           created_at: pedido.created_at,
+          itens: pedido.itens,
         }}
         corBorda={accent}
       />

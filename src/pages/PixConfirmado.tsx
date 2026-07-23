@@ -105,8 +105,31 @@ const PixConfirmado = () => {
     window.open(`https://wa.me/55${numeroWhatsAppAtivo}?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
-  const handleBaixarRecibo = () => {
-    window.print();
+  const reciboRef = useRef<HTMLDivElement>(null);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleBaixarRecibo = async () => {
+    if (!reciboRef.current) return;
+    setDownloading(true);
+    try {
+      const canvas = await html2canvas(reciboRef.current, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+        useCORS: true,
+      });
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({ unit: "mm", format: "a4", orientation: "portrait" });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const margin = 10;
+      const imgWidth = pageWidth - margin * 2;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
+      pdf.save(`recibo-${pedidoId}.pdf`);
+    } catch (e) {
+      console.error("Erro ao gerar PDF:", e);
+    } finally {
+      setDownloading(false);
+    }
   };
 
   if (!fromPixPayment || !pedidoId) return null;

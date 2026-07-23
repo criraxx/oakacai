@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import logoOak from "@/assets/logo-oak-v2.png.asset.json";
-import heroBanner from "@/assets/hero-oak-banner.png.asset.json";
-import { resolveImageUrl } from "@/lib/resolveImageUrl";
+import logoOak from "@/assets/logo-oak-v2.png";
+import heroBanner from "@/assets/hero-oak-banner.png";
 
 export interface Branding {
   logo_url: string;
@@ -10,8 +9,8 @@ export interface Branding {
 }
 
 const DEFAULT_BRANDING: Branding = {
-  logo_url: logoOak.url,
-  banner_url: heroBanner.url,
+  logo_url: logoOak,
+  banner_url: heroBanner,
   cor_borda_logo: "#F5E6D3",
 };
 

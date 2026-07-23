@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Trash2, ShoppingBag, Plus, ArrowRight, Tag, Pencil } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { todasSecoes } from "@/data/complementosData";
+import { useBranding } from "@/hooks/useBranding";
 import BottomNavigation from "@/components/BottomNavigation";
 import OrderBumpList from "@/components/OrderBumpList";
 import DownsellModal from "@/components/DownsellModal";

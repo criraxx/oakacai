@@ -113,7 +113,19 @@ const ProductDetail = () => {
     if (id && produtosPorId[id]) {
       return produtosPorId[id];
     }
-    // Fallback baseado no ID da URL
+    // Tenta fallback no catálogo global antes de zerar
+    if (id) {
+      const alvo = todosProdutos.find((p) => p.id === id);
+      if (alvo) {
+        return {
+          nome: alvo.title,
+          preco: alvo.price,
+          imagem: alvo.image,
+          descricao: alvo.description ?? "",
+        };
+      }
+    }
+    // Último recurso
     return {
       nome: id || "Produto",
       preco: 0,
@@ -121,6 +133,7 @@ const ProductDetail = () => {
       descricao: ""
     };
   };
+
   
   const produtoBase = location.state?.produto || getProdutoPadrao();
 
@@ -234,7 +247,12 @@ const ProductDetail = () => {
     const valorTotal = (produto.preco + totalAdicionais) * quantidadeProduto;
 
     if (modoEdicao && itemEdicao) {
+      const produtoIdEdicao = tamanhoSelecionado?.id || id || itemEdicao.produtoId;
       atualizarItem(itemEdicao.id, {
+        produtoId: produtoIdEdicao,
+        produtoNome: produto.nome,
+        produtoPreco: produto.preco,
+        produtoImagem: produto.imagem,
         complementos: quantidades,
         observacoes,
         totalAdicionais,
@@ -244,6 +262,7 @@ const ProductDetail = () => {
       navigate("/carrinho");
       return;
     }
+
 
     // Validações para itens promocionais
     if (isPromocional) {

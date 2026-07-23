@@ -61,11 +61,16 @@ const DownsellModal = ({ posicao, triggerOnMount = false }: Props) => {
       toast({ title: "Produto indisponível", variant: "destructive" });
       return;
     }
+    const preco = Number(downsell.preco_promocional);
+    if (!Number.isFinite(preco) || preco <= 0) {
+      toast({ title: "Oferta indisponível", description: "Preço inválido", variant: "destructive" });
+      return;
+    }
     adicionarItem({
       id: `item-${Date.now()}`,
       produtoId: produto.id,
       produtoNome: produto.nome,
-      produtoPreco: Number(downsell.preco_promocional),
+      produtoPreco: preco,
       produtoImagem: produto.imagem || "",
       complementos: {},
       observacoes: `🔥 Downsell: ${downsell.titulo || downsell.nome}`,

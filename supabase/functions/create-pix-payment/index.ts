@@ -8,7 +8,7 @@ const corsHeaders = {
 // Gateway URLs
 const UMBRELLAPAG_BASE_URL = 'https://api-gateway.umbrellapag.com/api';
 const EVOPAY_URL = 'https://pix.evopay.cash/v1/pix';
-const BLACKCAT_URL = 'https://api.blackcatpagamentos.online/api';
+const BLACKCAT_URL = 'https://api.blackcatoficial.com/api';
 const IRONPAY_URL = 'https://api.ironpayapp.com.br/api/public/v1';
 const BRGATEWAY_URL = 'https://api.brgateway.com.br/api/public/v1';
 
@@ -241,6 +241,7 @@ async function createBlackCatPix(body: CreatePixRequest, supabase: any, supabase
     },
     body: JSON.stringify({
       amount: valorCentavos,
+      currency: 'BRL',
       paymentMethod: 'pix',
       items: [
         {
@@ -256,8 +257,11 @@ async function createBlackCatPix(body: CreatePixRequest, supabase: any, supabase
         phone: telefone.replace(/\D/g, ''),
         document: {
           number: cpf.replace(/\D/g, ''),
-          type: 'CPF',
+          type: 'cpf',
         },
+      },
+      pix: {
+        expiresInDays: 1,
       },
       postbackUrl: webhookUrl,
       externalReference: pedidoId || `pedido-${Date.now()}`,

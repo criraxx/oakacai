@@ -37,12 +37,15 @@ export interface Complemento {
   maxQuantidade?: number;
 }
 
+export type TipoSecao = "gratis" | "pago" | "premium";
+
 export interface SecaoComplemento {
   id: string;
   titulo: string;
   subtitulo: string;
   itens: Complemento[];
   maxItens?: number;
+  tipo?: TipoSecao;
 }
 
 // ============ MONTE O COPO ============

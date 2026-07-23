@@ -853,6 +853,31 @@ const Admin = () => {
                         </div>
                       )}
 
+                      {/* Aprovar / Cancelar */}
+                      <div className="flex flex-col sm:flex-row gap-2 pt-3 border-t">
+                        <Button
+                          className="flex-1 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white"
+                          onClick={() => atualizarStatus(pedido.id, "aprovado")}
+                          disabled={pedido.status_pedido === "aprovado"}
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                          {pedido.status_pedido === "aprovado" ? "Aprovado" : "Aprovar pedido"}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="flex-1 gap-2 border-red-500 text-red-600 hover:bg-red-500 hover:text-white"
+                          onClick={() => {
+                            if (confirm("Deseja realmente cancelar este pedido?")) {
+                              atualizarStatus(pedido.id, "cancelado");
+                            }
+                          }}
+                          disabled={pedido.status_pedido === "cancelado"}
+                        >
+                          <XCircle className="w-4 h-4" />
+                          {pedido.status_pedido === "cancelado" ? "Cancelado" : "Cancelar pedido"}
+                        </Button>
+                      </div>
+
                       {/* Status do Pedido */}
                       <div className="flex items-center justify-between pt-3 border-t">
                         <span className="text-sm font-medium">Status do pedido:</span>
@@ -860,11 +885,13 @@ const Admin = () => {
                           value={pedido.status_pedido}
                           onValueChange={(value) => atualizarStatus(pedido.id, value)}
                         >
-                          <SelectTrigger className="w-40 bg-admin-box text-admin-box-foreground border-border focus:ring-accent">
+                          <SelectTrigger className="w-44 bg-admin-box text-admin-box-foreground border-border focus:ring-accent">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="pendente">Pendente</SelectItem>
+                            <SelectItem value="aprovado">Aprovado</SelectItem>
+                            <SelectItem value="cancelado">Cancelado</SelectItem>
                             <SelectItem value="preparando">Preparando</SelectItem>
                             <SelectItem value="saiu">Saiu para entrega</SelectItem>
                             <SelectItem value="entregue">Entregue</SelectItem>

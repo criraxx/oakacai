@@ -27,10 +27,7 @@ const Checkout = () => {
   const accent = cor_borda_logo || "#F5E6D3";
   const { itens, getSubtotal, getTotal, getDescontoPix, getTotalComDesconto, finalizarPedido, dadosCliente } = useCart();
 
-  // Modo repagamento: vindo de /pedidos com pedido já criado
-  if (pedidoExistente) {
-    return <RepagamentoCheckout pedido={pedidoExistente} />;
-  }
+
 
 
   const [tipoEntrega, setTipoEntrega] = useState<"delivery" | "pickup">("delivery");

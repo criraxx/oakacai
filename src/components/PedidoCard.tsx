@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { Clock, CheckCircle, Package, Truck, MapPin, ChevronDown, ChevronUp, CreditCard } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Clock, CheckCircle, Package, Truck, MapPin, ChevronDown, ChevronUp, CreditCard, Receipt } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import PaymentMethodModal from "./PaymentMethodModal";
+import ReciboModal from "./ReciboModal";
 
 interface PedidoItem {
   id: string;
@@ -56,6 +57,15 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
   const [loadingItens, setLoadingItens] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [loadingPayment, setLoadingPayment] = useState(false);
+  const [showRecibo, setShowRecibo] = useState(false);
+  const [corBorda, setCorBorda] = useState<string>("#F5E6D3");
+
+  useEffect(() => {
+    fetch("https://bgcwtnrimreruswogffr.supabase.co/functions/v1/buscar-config")
+      .then((r) => r.json())
+      .then((d) => d?.cor_borda_logo && setCorBorda(d.cor_borda_logo))
+      .catch(() => {});
+  }, []);
 
   const status = statusConfig[pedido.status_pedido] || statusConfig.pendente;
   const StatusIcon = status.icon;
@@ -291,6 +301,18 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
         </Button>
       )}
 
+      {/* Botão Ver Recibo (apenas pagos) */}
+      {!isPagamentoPendente && (
+        <Button
+          onClick={() => setShowRecibo(true)}
+          variant="outline"
+          className="w-full mt-3 border-border text-foreground hover:bg-muted"
+        >
+          <Receipt className="w-4 h-4 mr-2" />
+          Ver recibo
+        </Button>
+      )}
+
       {/* Botão Ver Itens */}
       <button
         onClick={handleExpand}
@@ -354,6 +376,20 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
         onClose={() => setShowPaymentModal(false)}
         onSelectPix={handleSelectPix}
         onSelectCard={handleSelectCard}
+      />
+
+      {/* Modal de recibo */}
+      <ReciboModal
+        open={showRecibo}
+        onClose={() => setShowRecibo(false)}
+        pedido={{
+          id: pedido.id,
+          numero_pedido: pedido.numero_pedido,
+          total: pedido.total,
+          forma_pagamento: pedido.forma_pagamento,
+          created_at: pedido.created_at,
+        }}
+        corBorda={corBorda}
       />
     </div>
   );

@@ -174,14 +174,27 @@ const Cart = () => {
                     )}
 
                     <div className="mt-2 flex items-center justify-between">
-                      <button
-                        onClick={() => navigate(`/produto/${item.produtoId}`)}
-                        className="text-xs text-primary font-medium hover:underline"
-                      >
-                        Editar
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => decrementarQuantidade(item.id)}
+                          aria-label="Diminuir quantidade"
+                          className="w-7 h-7 flex items-center justify-center rounded-full border border-border bg-muted text-foreground hover:bg-muted/80 active:scale-95 transition-all"
+                        >
+                          −
+                        </button>
+                        <span className="w-5 text-center text-sm font-semibold text-foreground">
+                          {item.quantidade ?? 1}
+                        </span>
+                        <button
+                          onClick={() => incrementarQuantidade(item.id)}
+                          aria-label="Aumentar quantidade"
+                          className="w-7 h-7 flex items-center justify-center rounded-full bg-primary text-primary-foreground hover:opacity-90 active:scale-95 transition-all"
+                        >
+                          +
+                        </button>
+                      </div>
                       <p className="text-foreground font-bold text-sm">
-                        {formatBRL(item.produtoPreco + item.totalAdicionais)}
+                        {formatBRL((item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1))}
                       </p>
                     </div>
                   </div>

@@ -161,7 +161,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const getSubtotalSemPromocional = () => {
     return itens
       .filter(item => !item.isPromocional)
-      .reduce((acc, item) => acc + item.produtoPreco + item.totalAdicionais, 0);
+      .reduce((acc, item) => acc + (item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1), 0);
   };
 
   // Verifica se já tem item promocional no carrinho

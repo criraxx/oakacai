@@ -301,6 +301,18 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
         </Button>
       )}
 
+      {/* Botão Ver Recibo (apenas pagos) */}
+      {!isPagamentoPendente && (
+        <Button
+          onClick={() => setShowRecibo(true)}
+          variant="outline"
+          className="w-full mt-3 border-border text-foreground hover:bg-muted"
+        >
+          <Receipt className="w-4 h-4 mr-2" />
+          Ver recibo
+        </Button>
+      )}
+
       {/* Botão Ver Itens */}
       <button
         onClick={handleExpand}

@@ -1,42 +1,21 @@
-import acaiCombo300Asset from "@/assets/acai-combo-300.jpg.asset.json";
-const acaiCombo300 = acaiCombo300Asset.url;
 import acaiCombo500Asset from "@/assets/acai-combo-500.jpg.asset.json";
 const acaiCombo500 = acaiCombo500Asset.url;
 import SectionTitle from "./SectionTitle";
 import ProductCardHorizontal from "./ProductCardHorizontal";
 
-const promoProducts = [
-  {
-    id: "promo-combo-300",
-    image: acaiCombo300,
-    title: "Combo premium 2 açaí 300ml + 4 complementos grátis",
-    description: "Combo 2 Açaís 300 ml (4 complementos grátis cada). Leve 2 açaís de 300 ml com nossa base super cremosa e ainda...",
-    price: "R$ 49,90"
-  },
-  {
-    id: "promo-combo-500",
-    image: acaiCombo500,
-    title: "Combo premium 2 açaí 500ml + 4 complementos grátis",
-    description: "Combo 2 Açaís 500 ml (4 complementos grátis cada). Leve 2 açaís de 500 ml com nossa base super cremosa e ainda...",
-    price: "R$ 59,90"
-  }
-];
-
 const PromoComboSection = () => {
   return (
     <section className="mb-4">
       <SectionTitle title="Promoção Combo Premium !" />
-      <div className="px-4 space-y-2">
-        {promoProducts.map((product) => (
-          <ProductCardHorizontal
-            key={product.id}
-            id={product.id}
-            image={product.image}
-            title={product.title}
-            description={product.description}
-            price={product.price}
-          />
-        ))}
+      <div className="px-4">
+        <ProductCardHorizontal
+          id="combo-500ml"
+          image={acaiCombo500}
+          title="Combo premium — 2 açaís + 4 complementos grátis"
+          description="Leve 2 açaís com nossa base super cremosa. Escolha o tamanho (300ml ou 500ml) dentro do produto."
+          price="A partir de R$ 49,90"
+          badge="Mais vendido"
+        />
       </div>
     </section>
   );

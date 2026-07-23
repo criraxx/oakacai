@@ -6,40 +6,53 @@ interface ProductCardHorizontalProps {
   title: string;
   description?: string;
   price: string;
+  badge?: string;
 }
 
-const ProductCardHorizontal = ({ id, image, title, description, price }: ProductCardHorizontalProps) => {
+const ProductCardHorizontal = ({ id, image, title, description, price, badge }: ProductCardHorizontalProps) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    // Converter preço string para número
-    const precoNumerico = parseFloat(price.replace("R$", "").replace(",", ".").trim());
-    
+    // Preço mostrado como "A partir de R$ X,XX" também é numérico após parse
+    const numeric = parseFloat(
+      price.replace("A partir de", "").replace("R$", "").replace(",", ".").trim()
+    );
+
     navigate(`/produto/${id}`, {
       state: {
         produto: {
           nome: title,
-          preco: precoNumerico,
+          preco: numeric,
           imagem: image,
-          descricao: description || ""
-        }
-      }
+          descricao: description || "",
+        },
+      },
     });
   };
 
   return (
     <div
       onClick={handleClick}
-      className="flex gap-2 py-1 cursor-pointer tap-highlight press-effect rounded-lg"
+      className="relative flex gap-3 p-3 cursor-pointer tap-highlight press-effect rounded-2xl bg-background border border-border/60 hover:border-border transition-colors"
     >
       <div className="flex-1 min-w-0">
-        <h3 className="text-foreground text-xs font-medium leading-tight mb-0.5">{title}</h3>
-        {description && (
-          <p className="text-muted-foreground text-[10px] leading-tight line-clamp-2 mb-1">{description}</p>
+        {badge && (
+          <span
+            className="inline-block text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full mb-1"
+            style={{ backgroundColor: "var(--brand-accent, #22c55e)", color: "#0a0a0a" }}
+          >
+            {badge}
+          </span>
         )}
-        <p className="text-foreground font-bold text-xs">{price}</p>
+        <h3 className="text-foreground text-sm font-semibold leading-tight mb-1">{title}</h3>
+        {description && (
+          <p className="text-muted-foreground text-xs leading-snug line-clamp-2 mb-1.5">
+            {description}
+          </p>
+        )}
+        <p className="text-foreground font-bold text-sm">{price}</p>
       </div>
-      <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0">
+      <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 shadow-sm">
         <img
           src={image}
           alt={title}

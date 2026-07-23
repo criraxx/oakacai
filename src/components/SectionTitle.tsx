@@ -1,10 +1,16 @@
 interface SectionTitleProps {
   title: string;
+  subtitle?: string;
 }
 
-const SectionTitle = ({ title }: SectionTitleProps) => {
+const SectionTitle = ({ title, subtitle }: SectionTitleProps) => {
   return (
-    <h2 className="text-foreground font-bold text-sm px-4 py-2">{title}</h2>
+    <div className="px-4 pt-4 pb-2">
+      <h2 className="text-foreground font-bold text-base tracking-tight">{title}</h2>
+      {subtitle && (
+        <p className="text-muted-foreground text-xs mt-0.5">{subtitle}</p>
+      )}
+    </div>
   );
 };
 

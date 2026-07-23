@@ -37,12 +37,15 @@ export interface Complemento {
   maxQuantidade?: number;
 }
 
+export type TipoSecao = "gratis" | "pago" | "premium";
+
 export interface SecaoComplemento {
   id: string;
   titulo: string;
   subtitulo: string;
   itens: Complemento[];
   maxItens?: number;
+  tipo?: TipoSecao;
 }
 
 // ============ MONTE O COPO ============
@@ -50,9 +53,10 @@ export interface SecaoComplemento {
 // Monte o Copo 1 - Grátis (Escolha 4 itens - Obrigatório)
 export const monteOCopo1: SecaoComplemento = {
   id: "monte-copo-1",
-  titulo: "monte o copo 1",
-  subtitulo: "Escolha 4 itens",
+  titulo: "Monte o copo 1",
+  subtitulo: "Escolha até 4 itens grátis",
   maxItens: 4,
+  tipo: "gratis",
   itens: [
     { id: "uva-m1", nome: "Uva", preco: null, imagem: uva, maxQuantidade: 3 },
     { id: "banana-m1", nome: "Banana", preco: null, imagem: banana, maxQuantidade: 3 },
@@ -75,9 +79,10 @@ export const monteOCopo1: SecaoComplemento = {
 // Monte o Copo 2 - Grátis (Escolha 4 itens - Obrigatório)
 export const monteOCopo2: SecaoComplemento = {
   id: "monte-copo-2",
-  titulo: "monte o copo 2",
-  subtitulo: "Escolha 4 itens",
+  titulo: "Monte o copo 2",
+  subtitulo: "Escolha até 4 itens grátis",
   maxItens: 4,
+  tipo: "gratis",
   itens: [
     { id: "uva-m2", nome: "Uva", preco: null, imagem: uva, maxQuantidade: 3 },
     { id: "banana-m2", nome: "Banana", preco: null, imagem: banana, maxQuantidade: 3 },
@@ -101,8 +106,9 @@ export const monteOCopo2: SecaoComplemento = {
 export const monteOCopoUnico: SecaoComplemento = {
   id: "monte-copo",
   titulo: "Monte seu copo",
-  subtitulo: "Escolha 4 itens grátis",
+  subtitulo: "Escolha até 4 itens grátis",
   maxItens: 4,
+  tipo: "gratis",
   itens: [
     { id: "uva-mc", nome: "Uva", preco: null, imagem: uva, maxQuantidade: 3 },
     { id: "banana-mc", nome: "Banana", preco: null, imagem: banana, maxQuantidade: 3 },
@@ -127,9 +133,10 @@ export const monteOCopoUnico: SecaoComplemento = {
 // Adicionais (Pagos - Escolha até 15 itens)
 export const adicionais: SecaoComplemento = {
   id: "adicionais",
-  titulo: "Adicionais",
-  subtitulo: "Escolha até 15 itens",
-  maxItens: 15,
+  titulo: "Adicionais pagos",
+  subtitulo: "Escolha até 20 itens",
+  maxItens: 20,
+  tipo: "pago",
   itens: [
     { id: "uva-a", nome: "Uva", preco: 3.99, imagem: uva, maxQuantidade: 15 },
     { id: "banana-a", nome: "Banana", preco: 1.99, imagem: banana, maxQuantidade: 15 },
@@ -162,8 +169,9 @@ export const adicionais: SecaoComplemento = {
 export const adicionaisPremium: SecaoComplemento = {
   id: "adicionais-premium",
   titulo: "Adicionais premium",
-  subtitulo: "Escolha até 14 itens",
-  maxItens: 14,
+  subtitulo: "Escolha até 20 itens",
+  maxItens: 20,
+  tipo: "premium",
   itens: [
     { id: "morango-p", nome: "Morango", preco: 4.99, imagem: morango, maxQuantidade: 15 },
     { id: "creme-avela-p", nome: "Creme de avela", preco: 5.99, imagem: cremeAvela, maxQuantidade: 15 },

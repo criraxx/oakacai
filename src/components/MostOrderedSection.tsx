@@ -1,7 +1,5 @@
 import acaiPuroAsset from "@/assets/acai-puro.jpg.asset.json";
 const acaiPuro = acaiPuroAsset.url;
-import acaiCombo300Asset from "@/assets/acai-combo-300.jpg.asset.json";
-const acaiCombo300 = acaiCombo300Asset.url;
 import acaiCombo500Asset from "@/assets/acai-combo-500.jpg.asset.json";
 const acaiCombo500 = acaiCombo500Asset.url;
 import acaiRafaeloAsset from "@/assets/acai-rafaelo.jpg.asset.json";
@@ -9,43 +7,26 @@ const acaiRafaelo = acaiRafaeloAsset.url;
 import ProductCardSmall from "./ProductCardSmall";
 import SectionTitle from "./SectionTitle";
 
+// 1 card por família — o tamanho é escolhido dentro do produto.
 const mostOrderedProducts = [
   {
-    id: "copo-500ml-puro",
+    id: "monte-500ml",
     image: acaiPuro,
-    title: "Copo 500ml Açaí Puro - monte do seu jeito",
-    price: "R$ 29,90"
-  },
-  {
-    id: "combo-300ml",
-    image: acaiCombo300,
-    title: "Combo premium 2 açaí 300ml + 4...",
-    price: "R$ 49,90"
+    title: "Açaí puro — monte do seu jeito",
+    price: "A partir de R$ 25,90",
   },
   {
     id: "combo-500ml",
     image: acaiCombo500,
-    title: "Combo premium 2 açaí 500ml + 4...",
-    price: "R$ 59,90"
+    title: "Combo premium 2 açaís + grátis",
+    price: "A partir de R$ 49,90",
   },
   {
     id: "trufado-rafaelo-500",
     image: acaiRafaelo,
-    title: "Copo trufado Rafaelo 500 ML",
-    price: "R$ 39,99"
+    title: "Copo trufado Rafaelo",
+    price: "A partir de R$ 34,99",
   },
-  {
-    id: "trufado-rafaelo-300",
-    image: acaiRafaelo,
-    title: "Copo trufado Rafaelo 300 ML",
-    price: "R$ 34,99"
-  },
-  {
-    id: "copo-300ml-puro",
-    image: acaiPuro,
-    title: "Copo 300ml Açaí Puro - Monte do seu jeito",
-    price: "R$ 25,90"
-  }
 ];
 
 const MostOrderedSection = () => {

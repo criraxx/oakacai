@@ -1,109 +1,64 @@
+# Plano — Home premium + Produto com tamanhos + Complementos claros
 
-# Plano — Experiência Premium do Catálogo Oak Açaí
+## 1. Home mais enxuta e premium
 
-O trabalho é grande, então proponho executar em **6 fases sequenciais**. Cada fase é entregável isoladamente e pode ser aprovada/revisada antes de seguir para a próxima.
+Reduzir a repetição de "mesmo produto em vários tamanhos" na home.
 
----
+- **"Os mais pedidos"**: manter carrossel, mas 1 card por família (ex: "Açaí Puro", "Trufado Rafaelo"), sem duplicar tamanhos. Etiqueta de preço vira `a partir de R$ 25,90`.
+- **"Promoção Combo Premium"**: reduzir para **1 card destacado** (combo hero, maior, com selo "Mais vendido") em vez de dois cards quase idênticos. O segundo tamanho aparece dentro, no seletor.
+- **"Monte seu copo"**: 1 card único (não um por tamanho). O tamanho é escolhido dentro do produto.
+- **Trufados / Tradicionais / Kids / Picolés / Bebidas / Balde / Roleta**: continuam como estão hoje (não têm repetição).
+- **Espaçamento e hierarquia**: mais respiro vertical entre seções, títulos de seção maiores e com um subtítulo curto, divisores sutis, remoção de badges redundantes.
 
-## Fase 1 — Banco de dados: personalização, order bump e downsell completos
+Resultado: home vira uma vitrine curada em vez de uma lista de tamanhos.
 
-Uma única migração que estende o modelo atual para suportar tudo que foi pedido.
+## 2. Página do produto — seletor de tamanho
 
-**`categorias`** — novos campos:
-- `cor_fundo_card`, `cor_borda`, `com_borda` (padrão visual da categoria)
+Novo bloco no topo do card de informações (`ProductDetail.tsx`), logo abaixo do nome:
 
-**`produtos`** — os campos `cor_fundo_card`, `cor_borda`, `com_borda` já existem; passam a **sobrescrever** o padrão da categoria quando preenchidos (NULL = herda da categoria).
+- Chips horizontais com os tamanhos disponíveis para aquele produto.
+- O tamanho pelo qual o usuário entrou vem **pré-selecionado**. Ele pode trocar.
+- Ao trocar, o preço base, o texto do botão e o cálculo do total atualizam ao vivo.
+- Tamanhos padrão por família:
+  - **Monte seu copo / Açaí Puro**: 300 · 500 · 700ml · 1L
+  - **Combo Premium**: 300ml · 500ml (2 copos cada)
+  - **Trufado Rafaelo**: 300 · 500 · 700ml
+  - **Balde** e **Roleta**: mantêm os tamanhos que já existem no sistema (não perdem nada).
+- Produtos "prontos" (Kids, Tradicional, Mega, Picolé, Bebidas) **não** mostram seletor.
 
-**`order_bumps`** — substituir a tabela atual por versão completa:
-- título, descrição, imagem, preço, `produto_ofertado_id`, `posicao` (`carrinho` | `checkout` | `pos_pagamento`), `ativo`, `ordem`
-- nova tabela `order_bump_produtos_gatilho(order_bump_id, produto_id)` para definir em quais produtos do carrinho o bump aparece (vazio = todos)
+Sugestão inicial de preços (você ajusta no `/admin/catalogo` depois):
 
-**`downsells`** — estender:
-- título, descrição, imagem, `produto_ofertado_id`, `preco_promocional`, `preco_original`, `ativo`, `max_exibicoes` (por sessão), `gatilho` (`sair_pix` | `fechar_checkout` | `ambos`)
+| Produto            | 300ml | 500ml | 700ml | 1L    |
+| ------------------ | ----- | ----- | ----- | ----- |
+| Açaí Puro (Monte)  | 25,90 | 29,90 | 34,90 | 44,90 |
+| Trufado Rafaelo    | 34,99 | 39,99 | 46,99 | —     |
+| Combo Premium (2×) | 49,90 | 59,90 | —     | —     |
 
-**`produto_secoes`** — já existe; será a única fonte da verdade para "quais complementos aparecem em cada produto". A lógica hardcoded em `ProductDetail.tsx` (função `getTipoProduto`) será removida.
+## 3. Complementos — fechados por padrão + regras claras
 
-Todas as tabelas mantêm RLS bloqueado para `anon`; leitura via `buscar-catalogo` e escrita via `admin-catalogo`.
+Hoje todas as seções abrem juntas e sobrecarregam a tela.
 
-## Fase 2 — Migração das imagens para o CDN (assets)
+- **Todas as seções começam fechadas.** O usuário toca para expandir.
+- **Três categorias visíveis por padrão**, cada uma com título e regra explícita no subtítulo:
+  1. **Monte seu copo — escolha até 4 grátis** (contador `x/4`, trava ao atingir)
+  2. **Adicionais pagos — escolha até 20** (mesmos itens dos grátis + extras pagos)
+  3. **Adicionais premium** (pagos, limite 20 no total combinado com pagos)
+- Selo colorido no header da seção: `Grátis`, `Pago`, `Premium`.
+- Quando fechada, mostra "3 selecionados · R$ 8,00" para o usuário saber o que já escolheu sem abrir.
+- Barra sticky no topo da lista de complementos com resumo total: `4/4 grátis · 2/20 pagos`.
 
-Hoje os produtos usam imports estáticos (`src/assets/acai-*.jpg`) espalhados no código. Vou:
+## 4. Detalhes técnicos
 
-1. Rodar o skill **migrate-to-assets** para subir todas as imagens de `src/assets/` para o CDN Lovable e substituir por `.asset.json`.
-2. Popular a coluna `produtos.imagem` no banco com a URL CDN correta de cada produto (script SQL de seed baseado no mapeamento atual `todosProutos.ts`).
-3. Atualizar `CatalogoAdmin` para que o upload de foto do produto suba direto para o CDN via `lovable-assets` (opcional — se preferir, mantemos base64 no banco como está hoje; me diga na revisão).
+- **Schema (migration)**: adicionar tabela `produto_variacoes` (produto_id, tamanho_label, tamanho_ordem, preco, ativo). Popular com os dados atuais + novos tamanhos sugeridos. GRANTs para anon/authenticated/service_role.
+- **Edge Function `buscar-catalogo`**: retornar variações agrupadas por produto.
+- **`useCatalogo.ts`**: expor `produto.variacoes[]`.
+- **`ProductDetail.tsx`**: novo componente `SizeSelector`; estado `tamanhoSelecionado`; preço base = variação escolhida; rota passa a aceitar `?tamanho=500`.
+- **`ComplementSection.tsx`**: `isOpen` inicial `false`; adicionar prop `badge` (`gratis` | `pago` | `premium`) e subtítulo com limite explícito; mostrar resumo quando fechada.
+- **`complementosData.ts`**: reestruturar em 3 seções (Grátis 4 · Pagos 20 · Premium dentro de pagos), consolidando os itens hoje espalhados.
+- **Home**: `MostOrderedSection`, `PromoComboSection`, `MonteSection` reduzem cards duplicados; adicionar prop `precoAPartir`.
 
-Resultado: cada produto tem sua imagem vinculada no banco, sem depender de assets locais.
+## 5. O que **não** muda
 
-## Fase 3 — Página do produto premium (redesign completo)
-
-Reescrever `src/pages/ProductDetail.tsx`:
-
-- Abertura como **rota animada** (`framer-motion` já é o padrão do stack shadcn — vou adicionar via `motion/react`): entrada com `fade + scale + slide-up`, saída inversa.
-- **Hero image full-width** no topo (16:9), com parallax leve no scroll e badge de promoção sobreposto quando aplicável.
-- Header sticky translúcido que ganha fundo ao rolar.
-- Título grande, preço destacado, descrição completa.
-- Seções de complementos vindas do banco via `produto_secoes` (não mais lista hardcoded).
-- Campo de observações sempre disponível.
-- Footer sticky com botão "Adicionar" que faz uma micro-animação (bounce + flying image até o ícone do carrinho no `BottomNavigation`).
-- Loading skeleton enquanto o catálogo carrega.
-
-## Fase 4 — Personalização visual por produto/categoria no admin
-
-Em `CatalogoAdmin.tsx`:
-
-**Aba Categorias (nova)** — CRUD com color pickers para `cor_fundo_card`, `cor_borda`, `com_borda` (defaults da categoria).
-
-**Aba Produtos** — no editor de cada produto, os campos de cor/borda passam a mostrar "Herdar da categoria" como opção (NULL). Preview ao vivo do card com as cores aplicadas.
-
-**Aba Complementos por Produto** — dentro do editor do produto, seletor com checkbox de todas as seções de complementos disponíveis + reordenação por drag. Remover um complemento de um produto **não** apaga do sistema, só desvincula.
-
-**Aba Order Bump** (reformulada) — múltiplos bumps, cada um com: título, descrição, imagem, preço, produto ofertado, posição de exibição, produtos-gatilho (multi-select) e toggle ativo.
-
-**Aba Downsell** (reformulada) — mesma estrutura + `max_exibicoes` e regra de gatilho.
-
-## Fase 5 — Order Bump e Downsell funcionais no fluxo
-
-- **Order Bump**: componente `<OrderBumpCard>` que aparece no `Cart.tsx` (posição `carrinho`) e/ou `Checkout.tsx` (`checkout`), filtrando bumps ativos cujo `produtos_gatilho` bate com itens do carrinho.
-- **Downsell**: hook `useDownsell()` que:
-  - Escuta `beforeunload` e o botão voltar em `PagamentoPix` / `Checkout`.
-  - Verifica `max_exibicoes` (contador em `sessionStorage`).
-  - Abre modal animado com a oferta configurada.
-  - Ao aceitar, substitui o item pelo `produto_ofertado_id` com o `preco_promocional`.
-
-## Fase 6 — Microinterações e polimento global
-
-Adicionar `motion/react` e aplicar transições em:
-
-- **Categorias** (`CategoryTabs`): underline animado ao trocar (`layoutId`).
-- **Cards de produto**: `hover:scale-[1.02]`, `tap:scale-98`, sombra suave. Aplicar as cores por produto/categoria vindas do banco.
-- **Banners** (`PromoBannerCarousel`): fade cross entre slides.
-- **Carrinho**: entrada dos itens em stagger; remoção com `AnimatePresence` slide-out; badge do carrinho anima ao adicionar.
-- **Complementos**: `+`/`-` com bounce; total anima com `<AnimatePresence mode="popLayout">`.
-- **Botões globais**: variant `premium` no shadcn com scale/tap feedback.
-- **Bottom navigation**: indicador ativo animado.
-
-Todas as cores continuam via tokens semânticos do `index.css` (nada de `text-white`/`bg-black` hardcoded).
-
----
-
-## Detalhes técnicos
-
-- **Nova dep**: `motion` (sucessor do `framer-motion`, ~30KB gz).
-- **Rotas**: não muda; ProductDetail continua em `/produto/:id`, mas envolvida em `<AnimatePresence>` no `App.tsx` para transições entre rotas.
-- **Edge functions**: `buscar-catalogo` passa a devolver `order_bumps[]` (com produtos-gatilho) e `downsells[]` completos. `admin-catalogo` ganha ações para as novas tabelas/campos.
-- **Retrocompatibilidade**: se o produto/categoria não tiver cor definida, cai no default do design system (bg `card`, sem borda) — nada quebra.
-- **Escopo intencionalmente fora**: refatorar o `Index.tsx` para consumir 100% do `useCatalogo` (algumas seções ainda usam `todosProutos.ts`). Isso pode ser feito junto se você quiser; por padrão, faço apenas o necessário para produto/carrinho/checkout consumirem dados do banco.
-
----
-
-## Ordem de entrega sugerida
-
-1. **Fase 1** (migração DB) — bloqueia tudo, começo por aqui.
-2. **Fase 2** (imagens para CDN) — pode rodar em paralelo mental, mas executo depois.
-3. **Fase 3** (ProductDetail premium) — impacto visual imediato.
-4. **Fase 4** (admin de personalização).
-5. **Fase 5** (bump + downsell no fluxo).
-6. **Fase 6** (microinterações finais).
-
-Se aprovar, começo executando Fase 1 + Fase 2 juntas (banco e assets), depois volto para revisão antes das fases visuais.
+- Checkout, carrinho, gateways, pixel, admin (o admin ganha só um subtab de "Tamanhos" no catálogo).
+- Categorias prontas (Kids, Tradicional, Bebidas, Picolés) continuam como cards diretos sem seletor.
+- Balde e Roleta preservam os tamanhos atuais.

@@ -1,12 +1,15 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { ArrowLeft, Search, X } from "lucide-react";
 import { useBranding } from "@/hooks/useBranding";
 import { secoesCombo, secoesMonteCopo, SecaoComplemento } from "@/data/complementosData";
+import { resolveFamilia, Tamanho } from "@/data/tamanhosData";
 import acaiCombo500Asset from "@/assets/acai-combo-500.jpg.asset.json";
 const acaiCombo500 = acaiCombo500Asset.url;
 import acaiPuroAsset from "@/assets/acai-puro.jpg.asset.json";
 const acaiPuro = acaiPuroAsset.url;
+import acaiRafaeloAsset from "@/assets/acai-rafaelo.jpg.asset.json";
+const acaiRafaelo = acaiRafaeloAsset.url;
 import ComplementSection from "@/components/ComplementSection";
 import AddToCartModal from "@/components/AddToCartModal";
 import { useCart, ItemCarrinho } from "@/contexts/CartContext";
@@ -46,6 +49,12 @@ const produtosPorId: Record<string, { nome: string; preco: number; imagem: strin
     imagem: acaiPuro,
     descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!"
   },
+  "monte-1l": {
+    nome: "Copo 1 Litro Açaí Puro - monte do seu jeito",
+    preco: 44.90,
+    imagem: acaiPuro,
+    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!"
+  },
   // IDs usados na seção "Mais Pedidos"
   "copo-500ml-puro": {
     nome: "Copo 500ml Açaí Puro - monte do seu jeito",
@@ -62,13 +71,19 @@ const produtosPorId: Record<string, { nome: string; preco: number; imagem: strin
   "trufado-rafaelo-500": {
     nome: "Copo trufado Rafaelo 500 ML",
     preco: 39.99,
-    imagem: acaiPuro,
+    imagem: acaiRafaelo,
     descricao: "Açaí trufado com Rafaelo"
   },
   "trufado-rafaelo-300": {
     nome: "Copo trufado Rafaelo 300 ML",
     preco: 34.99,
-    imagem: acaiPuro,
+    imagem: acaiRafaelo,
+    descricao: "Açaí trufado com Rafaelo"
+  },
+  "trufado-rafaelo-700": {
+    nome: "Copo trufado Rafaelo 700 ML",
+    preco: 46.99,
+    imagem: acaiRafaelo,
     descricao: "Açaí trufado com Rafaelo"
   }
 };
@@ -106,9 +121,31 @@ const ProductDetail = () => {
     };
   };
   
-  const produto = location.state?.produto || getProdutoPadrao();
+  const produtoBase = location.state?.produto || getProdutoPadrao();
 
-  // Determinar tipo de produto para exibir seções corretas
+  // Seletor de tamanho: se o produto pertence a uma família, oferece chips
+  const familiaInfo = useMemo(() => (id ? resolveFamilia(id) : null), [id]);
+  const [tamanhoSelecionado, setTamanhoSelecionado] = useState<Tamanho | null>(
+    familiaInfo?.tamanhoAtual ?? null
+  );
+
+  // Ao trocar de tamanho, sobrescreve nome/preço do produto exibido
+  const produto = useMemo(() => {
+    if (tamanhoSelecionado && familiaInfo) {
+      const alvo = produtosPorId[tamanhoSelecionado.id];
+      if (alvo) {
+        return {
+          ...produtoBase,
+          nome: alvo.nome,
+          preco: alvo.preco,
+          imagem: alvo.imagem || produtoBase.imagem,
+          descricao: alvo.descricao || produtoBase.descricao,
+        };
+      }
+      return { ...produtoBase, preco: tamanhoSelecionado.preco };
+    }
+    return produtoBase;
+  }, [tamanhoSelecionado, familiaInfo, produtoBase]);
   const getTipoProduto = (): "combo" | "monte" | "pronto" => {
     const nome = produto.nome.toLowerCase();
     
@@ -241,9 +278,10 @@ const ProductDetail = () => {
     // Para itens promocionais, só permite adicionar 1
     const qtdAdicionar = isPromocional ? 1 : quantidadeProduto;
     
+    const produtoIdFinal = tamanhoSelecionado?.id || id || "combo-500ml";
     const novoItem: ItemCarrinho = {
       id: "",
-      produtoId: id || "combo-500ml",
+      produtoId: produtoIdFinal,
       produtoNome: produto.nome,
       produtoPreco: produto.preco,
       produtoImagem: produto.imagem,
@@ -345,6 +383,41 @@ const ProductDetail = () => {
               </p>
             )}
           </div>
+
+          {/* Seletor de tamanho (só aparece para produtos com variações) */}
+          {familiaInfo && (
+            <div className="mb-4">
+              <p className="text-foreground text-xs font-semibold uppercase tracking-wide mb-2">
+                Escolha o tamanho
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {familiaInfo.familia.tamanhos.map((t) => {
+                  const ativo = tamanhoSelecionado?.id === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => setTamanhoSelecionado(t)}
+                      className={`px-4 py-2 rounded-full text-sm font-semibold border-2 transition-all ${
+                        ativo
+                          ? "text-[#0a0a0a] shadow-md scale-[1.03]"
+                          : "bg-background text-foreground border-border hover:border-foreground/40"
+                      }`}
+                      style={
+                        ativo
+                          ? { backgroundColor: brandAccent, borderColor: brandAccent }
+                          : undefined
+                      }
+                    >
+                      <span>{t.label}</span>
+                      <span className="ml-2 text-xs opacity-80">
+                        R$ {t.preco.toFixed(2).replace(".", ",")}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <p className="text-foreground/75 text-sm leading-relaxed whitespace-pre-line">
             {produto.descricao}

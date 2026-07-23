@@ -87,62 +87,112 @@ const Header = () => {
       </div>
 
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
-        <DialogContent className="top-4 translate-y-0 sm:top-[10%] p-0 gap-0 max-w-lg overflow-hidden">
-          <div className="flex items-center gap-2 border-b px-3 py-2">
-            <Search size={18} className="text-muted-foreground" />
-            <Input
-              autoFocus
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar produtos..."
-              className="border-0 focus-visible:ring-0 shadow-none px-1"
-            />
-            {query && (
-              <button
-                onClick={() => setQuery("")}
-                className="text-muted-foreground hover:text-foreground"
-                aria-label="Limpar"
-              >
-                <X size={16} />
-              </button>
-            )}
+        <DialogContent
+          className="top-4 translate-y-0 sm:top-[10%] p-0 gap-0 max-w-lg overflow-hidden rounded-2xl border-0 shadow-2xl bg-background"
+          style={{ borderTop: `4px solid ${cor_borda_logo}` }}
+        >
+          {/* Header do modal */}
+          <div className="px-5 pt-5 pb-3">
+            <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold mb-1">
+              Oak Açaí • Cardápio
+            </p>
+            <h2 className="text-foreground font-bold text-lg">O que você procura?</h2>
           </div>
-          <div className="max-h-80 overflow-y-auto">
+
+          {/* Campo de busca */}
+          <div className="px-5 pb-4">
+            <div
+              className="flex items-center gap-2 bg-muted/50 rounded-xl px-3 py-2.5 transition-all focus-within:bg-muted focus-within:ring-2"
+              style={{ ["--tw-ring-color" as any]: cor_borda_logo }}
+            >
+              <Search size={18} className="text-muted-foreground flex-shrink-0" strokeWidth={2.2} />
+              <Input
+                autoFocus
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Buscar açaí, sorvete, complemento..."
+                className="border-0 focus-visible:ring-0 shadow-none px-0 h-auto py-0 bg-transparent text-sm placeholder:text-muted-foreground/70"
+              />
+              {query && (
+                <button
+                  onClick={() => setQuery("")}
+                  className="w-6 h-6 rounded-full flex items-center justify-center bg-foreground/10 hover:bg-foreground/20 text-foreground transition-colors flex-shrink-0"
+                  aria-label="Limpar"
+                >
+                  <X size={12} strokeWidth={2.5} />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Resultados */}
+          <div className="max-h-[60vh] overflow-y-auto border-t border-border">
             {query.trim() === "" ? (
-              <p className="p-6 text-center text-sm text-muted-foreground">
-                Digite o nome de um produto
-              </p>
+              <div className="py-12 flex flex-col items-center justify-center text-center px-6">
+                <div
+                  className="w-14 h-14 rounded-full flex items-center justify-center mb-3"
+                  style={{ backgroundColor: `${cor_borda_logo}40` }}
+                >
+                  <Search size={22} className="text-foreground/70" strokeWidth={2} />
+                </div>
+                <p className="text-sm font-medium text-foreground">Comece a digitar</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Encontre seus produtos favoritos
+                </p>
+              </div>
             ) : resultados.length === 0 ? (
-              <p className="p-6 text-center text-sm text-muted-foreground">
-                Nenhum produto encontrado
-              </p>
+              <div className="py-12 flex flex-col items-center justify-center text-center px-6">
+                <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-3">
+                  <X size={22} className="text-muted-foreground" strokeWidth={2} />
+                </div>
+                <p className="text-sm font-medium text-foreground">Nada encontrado</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Tente buscar por outro nome
+                </p>
+              </div>
             ) : (
-              <ul>
+              <ul className="p-2">
                 {resultados.map((p) => (
                   <li key={p.id}>
                     <button
                       onClick={() => abrirProduto(p.id)}
-                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-muted transition-colors text-left"
+                      className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-muted transition-all text-left active:scale-[0.99]"
                     >
-                      {p.imagem && (
+                      {p.imagem ? (
                         <img
                           src={p.imagem}
                           alt={p.nome}
-                          className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                          className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                          style={{ border: `1.5px solid ${cor_borda_logo}` }}
+                        />
+                      ) : (
+                        <div
+                          className="w-12 h-12 rounded-lg flex-shrink-0 bg-muted"
+                          style={{ border: `1.5px solid ${cor_borda_logo}` }}
                         />
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{p.nome}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-sm font-semibold text-foreground truncate">{p.nome}</p>
+                        <p className="text-xs text-accent font-bold mt-0.5">
                           R$ {p.preco.toFixed(2).replace(".", ",")}
                         </p>
                       </div>
+                      <span className="text-muted-foreground text-xs font-medium">Ver →</span>
                     </button>
                   </li>
                 ))}
               </ul>
             )}
           </div>
+
+          {/* Rodapé sutil */}
+          {resultados.length > 0 && (
+            <div className="px-5 py-2 bg-muted/40 text-center border-t border-border">
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                {resultados.length} {resultados.length === 1 ? "resultado" : "resultados"}
+              </p>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </header>

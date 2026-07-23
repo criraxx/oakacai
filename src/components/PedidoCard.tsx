@@ -36,7 +36,7 @@ interface PedidoDB {
   numero_pedido: string;
   cliente_nome: string;
   cliente_telefone: string;
-  cliente_cpf: string | null;
+  cliente_cpf?: string | null;
   total: number;
   subtotal: number;
   desconto_pix: number | null;
@@ -48,7 +48,8 @@ interface PedidoDB {
   bairro: string | null;
   cidade: string | null;
   created_at: string;
-  payment_id: string | null;
+  payment_id?: string | null;
+  itens?: PedidoItem[];
 }
 
 const statusConfig: Record<

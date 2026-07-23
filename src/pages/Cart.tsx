@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Trash2, ShoppingBag, Plus, Minus, ArrowRight, Tag } from "lucide-react";
+import { ArrowLeft, Trash2, ShoppingBag, Plus, ArrowRight, Tag } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { todasSecoes } from "@/data/complementosData";
 import BottomNavigation from "@/components/BottomNavigation";

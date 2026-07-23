@@ -288,13 +288,15 @@ const CheckoutCartao = () => {
           <p className="text-muted-foreground text-[11px] uppercase tracking-wider font-semibold text-center mb-3">
             Pagamentos aceitos
           </p>
-          <div className="flex items-center justify-center">
-            <img
-              src={bandeirasCartoes.url}
-              alt="Bandeiras aceitas: Visa, Mastercard, Maestro, Elo, Alelo, American Express, Banco do Brasil, Hipercard e Diners Club"
-              className="max-w-full h-auto"
-              loading="lazy"
-            />
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-black">
+            {(["visa","mastercard","elo","amex","hipercard","diners"] as const).map((k) => (
+              <div
+                key={k}
+                aria-label={k}
+                className="h-7 [&_svg]:h-7 [&_svg]:w-auto"
+                dangerouslySetInnerHTML={{ __html: bandeirasSvg[k] }}
+              />
+            ))}
           </div>
 
           <p className="text-muted-foreground text-[11px] text-center mt-3 flex items-center justify-center gap-1">

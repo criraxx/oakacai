@@ -159,7 +159,10 @@ const Pedidos = () => {
               : "Digite seu telefone na barra acima para ver seu histórico."}
           </p>
           <Link to="/">
-            <button className="px-6 py-3 bg-card text-card-foreground font-semibold rounded-lg hover:opacity-90 transition-opacity">
+            <button
+              className="px-6 py-3 text-white font-semibold rounded-lg hover:opacity-90 transition-opacity shadow-md"
+              style={{ backgroundColor: cor_borda_logo }}
+            >
               Ver cardápio
             </button>
           </Link>

@@ -1,0 +1,1 @@
+ALTER TABLE public.pedido_itens ADD COLUMN IF NOT EXISTS quantidade INTEGER NOT NULL DEFAULT 1;

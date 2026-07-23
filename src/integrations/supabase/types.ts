@@ -471,6 +471,7 @@ export type Database = {
           pedido_id: string | null
           produto_nome: string
           produto_preco: number
+          quantidade: number
           total_adicionais: number | null
           total_item: number
         }
@@ -484,6 +485,7 @@ export type Database = {
           pedido_id?: string | null
           produto_nome: string
           produto_preco: number
+          quantidade?: number
           total_adicionais?: number | null
           total_item: number
         }
@@ -497,6 +499,7 @@ export type Database = {
           pedido_id?: string | null
           produto_nome?: string
           produto_preco?: number
+          quantidade?: number
           total_adicionais?: number | null
           total_item?: number
         }

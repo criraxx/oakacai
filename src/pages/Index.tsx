@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import Header from "@/components/Header";
 import HeroBanner from "@/components/HeroBanner";
 import InfoBar from "@/components/InfoBar";
@@ -14,9 +15,14 @@ import PicoleSection from "@/components/PicoleSection";
 import BebidasSection from "@/components/BebidasSection";
 import BottomNavigation from "@/components/BottomNavigation";
 import CategoryTabs from "@/components/CategoryTabs";
+import DownsellModal from "@/components/DownsellModal";
+
 
 const Index = () => {
+  const location = useLocation();
+  const showDownsell = (location.state as any)?.showDownsell === true;
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
 
   const categories = [
     "Promoção Combo Premium!",
@@ -68,8 +74,10 @@ const Index = () => {
       <CategoryTabs categories={categories} onSelect={setActiveCategory} initialCategory={activeCategory} />
       <main>{renderSections()}</main>
       <BottomNavigation />
+      {showDownsell && <DownsellModal posicao="saida" triggerOnMount />}
     </div>
   );
 };
+
 
 export default Index;

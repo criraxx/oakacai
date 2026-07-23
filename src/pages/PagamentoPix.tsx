@@ -38,10 +38,13 @@ const PagamentoPix = () => {
   const mountedRef = useRef(true);
   useEffect(() => {
     mountedRef.current = true;
+    // Marca que o usuário passou pelo fluxo PIX (para acionar downsell ao voltar do /checkout)
+    try { sessionStorage.setItem("oak_pix_flow", "1"); } catch {}
     return () => {
       mountedRef.current = false;
     };
   }, []);
+
 
   // Polling
   useEffect(() => {

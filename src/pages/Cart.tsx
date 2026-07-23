@@ -91,7 +91,7 @@ const Cart = () => {
   const descontoPix = subtotal * 0.06;
 
   return (
-    <div className="min-h-screen bg-muted/30 max-w-md mx-auto flex flex-col page-enter">
+    <div className="min-h-screen bg-muted/30 max-w-md mx-auto flex flex-col page-enter pb-20">
       {/* Header */}
       <header className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border">
         <div className="flex items-center justify-between px-4 py-3">

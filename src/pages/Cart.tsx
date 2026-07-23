@@ -91,8 +91,9 @@ const Cart = () => {
   }
 
   const subtotal = getSubtotal();
-  const total = getTotal();
   const descontoPix = subtotal * 0.06;
+  const total = getTotal() - descontoPix;
+
 
   return (
     <div className="min-h-screen bg-muted/30 max-w-md mx-auto flex flex-col page-enter pb-20">

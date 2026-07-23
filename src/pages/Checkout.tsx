@@ -104,7 +104,8 @@ const Checkout = () => {
       (pedidoExistente?.forma_pagamento === "pix" ? Math.max(pedidoSubtotal - pedidoTotal, 0) : 0)
   );
   const itensResumo = pedidoExistente
-    ? (pedidoExistente.itens || []).map((item, index) => {
+    ? (pedidoExistente.itens && pedidoExistente.itens.length > 0
+        ? pedidoExistente.itens.map((item, index) => {
         const quantidade = Number(item.quantidade) > 0 ? Number(item.quantidade) : 1;
         const totalItem = Number.isFinite(Number(item.total_item))
           ? Number(item.total_item)
@@ -116,6 +117,7 @@ const Checkout = () => {
           total: totalItem,
         };
       })
+        : [{ id: pedidoExistente.id, nome: pedidoExistente.numero_pedido, quantidade: 1, total: pedidoSubtotal }])
     : itens.map((item) => ({
         id: item.id,
         nome: item.produtoNome,
@@ -955,7 +957,20 @@ const Checkout = () => {
         onClose={() => setShowPixManutencao(false)}
         onIrParaCartao={() => {
           setShowPixManutencao(false);
-          navigate("/checkout-cartao", { state: { descontoCartao: 0.08 } });
+          navigate("/checkout-cartao", {
+            state: pedidoExistente
+              ? {
+                  pedidoExistente: {
+                    id: pedidoExistente.id,
+                    numero_pedido: pedidoExistente.numero_pedido,
+                    cliente_nome: pedidoExistente.cliente_nome,
+                    cliente_telefone: pedidoExistente.cliente_telefone,
+                    cliente_cpf: pedidoExistente.cliente_cpf || "",
+                    total: pedidoTotal,
+                  },
+                }
+              : { descontoCartao: 0.08 },
+          });
         }}
         totalOriginal={pedidoExistente ? pedidoTotal : getTotal()}
         totalComDesconto={(pedidoExistente ? pedidoTotal : getTotal()) * 0.92}

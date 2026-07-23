@@ -267,8 +267,8 @@ const Cart = () => {
         </div>
       </main>
 
-      {/* Footer fixo elegante */}
-      <footer className="fixed bottom-14 left-0 right-0 max-w-md mx-auto px-4 pb-3 z-40">
+      {/* Footer fixo no rodapé */}
+      <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-background border-t border-border px-4 py-3 z-40">
         <button
           onClick={() => navigate("/identificacao")}
           className="w-full bg-primary text-primary-foreground rounded-2xl shadow-lg press-effect flex items-center justify-between px-5 py-4 hover:opacity-95 transition-opacity"
@@ -283,7 +283,6 @@ const Cart = () => {
         </button>
       </footer>
 
-      <BottomNavigation />
       <DownsellModal posicao="saida" />
     </div>
   );

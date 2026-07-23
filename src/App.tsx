@@ -20,6 +20,7 @@ import Admin from "./pages/Admin";
 import CatalogoAdmin from "./pages/CatalogoAdmin";
 import Pedidos from "./pages/Pedidos";
 import WhatsAppRetorno from "./pages/WhatsAppRetorno";
+import Buscar from "./pages/Buscar";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,6 +61,7 @@ const AppContent = () => {
           <Route path="/admin/catalogo" element={<CatalogoAdmin />} />
           <Route path="/pedidos" element={<Pedidos />} />
           <Route path="/whatsapp-retorno" element={<WhatsAppRetorno />} />
+          <Route path="/buscar" element={<Buscar />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

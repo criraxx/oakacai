@@ -5,6 +5,8 @@ import { useCart } from "@/contexts/CartContext";
 import { useBranding } from "@/hooks/useBranding";
 import { supabase } from "@/integrations/supabase/client";
 import { trackPaymentFailed } from "@/lib/metaPixel";
+import bandeirasCartoes from "@/assets/bandeiras-cartoes.png.asset.json";
+
 
 const CheckoutCartao = () => {
   const navigate = useNavigate();
@@ -286,16 +288,15 @@ const CheckoutCartao = () => {
           <p className="text-muted-foreground text-[11px] uppercase tracking-wider font-semibold text-center mb-3">
             Pagamentos aceitos
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <BrandBadge label="Visa" color="#1A1F71" />
-            <BrandBadge label="Mastercard" color="#EB001B" />
-            <BrandBadge label="Elo" color="#000000" />
-            <BrandBadge label="Hipercard" color="#B3131B" />
-            <BrandBadge label="Amex" color="#2E77BB" />
-            <BrandBadge label="Diners" color="#0079BE" />
-            <BrandBadge label="Mercado Pago" color="#00B1EA" />
-            <BrandBadge label="iFood Benefícios" color="#EA1D2C" />
+          <div className="flex items-center justify-center">
+            <img
+              src={bandeirasCartoes.url}
+              alt="Bandeiras aceitas: Visa, Mastercard, Maestro, Elo, Alelo, American Express, Banco do Brasil, Hipercard e Diners Club"
+              className="max-w-full h-auto"
+              loading="lazy"
+            />
           </div>
+
           <p className="text-muted-foreground text-[11px] text-center mt-3 flex items-center justify-center gap-1">
             <Lock size={10} /> Compra 100% protegida
           </p>
@@ -380,13 +381,5 @@ const CardField = ({
   );
 };
 
-const BrandBadge = ({ label, color }: { label: string; color: string }) => (
-  <div
-    className="px-2.5 py-1.5 rounded-md text-[10px] font-bold tracking-wide text-white shadow-sm"
-    style={{ background: color }}
-  >
-    {label.toUpperCase()}
-  </div>
-);
-
 export default CheckoutCartao;
+

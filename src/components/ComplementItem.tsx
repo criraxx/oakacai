@@ -47,34 +47,40 @@ const ComplementItem = ({ complemento, quantidade, onQuantidadeChange, bloqueado
           <>
             <button
               onClick={handleRemove}
-              className="w-7 h-7 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-muted/80 transition-colors"
+              className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-foreground hover:bg-muted/80 transition-colors shadow-sm"
             >
               <Minus size={14} />
             </button>
-            <span className="w-5 text-center text-foreground text-sm font-medium">{quantidade}</span>
+            <span className="w-5 text-center text-foreground text-sm font-semibold">{quantidade}</span>
             <button
               onClick={handleAdd}
               disabled={bloqueadoAdicionar}
-              className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                bloqueadoAdicionar 
-                  ? 'bg-muted text-muted-foreground cursor-not-allowed' 
-                  : 'bg-foreground text-background hover:bg-foreground/90'
+              style={
+                bloqueadoAdicionar
+                  ? undefined
+                  : { backgroundColor: "var(--brand-accent, #22c55e)", color: "#0a0a0a" }
+              }
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-transform shadow-md hover:scale-105 active:scale-95 ${
+                bloqueadoAdicionar ? "bg-muted text-muted-foreground cursor-not-allowed" : ""
               }`}
             >
-              <Plus size={14} />
+              <Plus size={14} strokeWidth={3} />
             </button>
           </>
         ) : (
           <button
             onClick={handleAdd}
             disabled={bloqueadoAdicionar}
-            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${
-              bloqueadoAdicionar 
-                ? 'bg-muted text-muted-foreground cursor-not-allowed' 
-                : 'bg-foreground text-background hover:bg-foreground/90'
+            style={
+              bloqueadoAdicionar
+                ? undefined
+                : { backgroundColor: "var(--brand-accent, #22c55e)", color: "#0a0a0a" }
+            }
+            className={`w-9 h-9 rounded-full flex items-center justify-center transition-transform shadow-md hover:scale-105 active:scale-95 ${
+              bloqueadoAdicionar ? "bg-muted text-muted-foreground cursor-not-allowed" : ""
             }`}
           >
-            <Plus size={16} />
+            <Plus size={18} strokeWidth={3} />
           </button>
         )}
       </div>

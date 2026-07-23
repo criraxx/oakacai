@@ -103,19 +103,21 @@ const Checkout = () => {
   }, [navigate]);
 
 
-  // Redirecionar se carrinho estiver vazio
+  // Redirecionar se carrinho estiver vazio (exceto no fluxo de repagamento)
   useEffect(() => {
+    if (pedidoExistente) return;
     if (itens.length === 0) {
       navigate("/carrinho");
     }
-  }, [itens.length, navigate]);
+  }, [itens.length, navigate, pedidoExistente]);
 
-  // Redirecionar se não tiver dados do cliente
+  // Redirecionar se não tiver dados do cliente (exceto no fluxo de repagamento)
   useEffect(() => {
+    if (pedidoExistente) return;
     if (!dadosCliente) {
       navigate("/identificacao");
     }
-  }, [dadosCliente, navigate]);
+  }, [dadosCliente, navigate, pedidoExistente]);
 
   // Meta Pixel: InitiateCheckout e AddPaymentInfo - Disparar apenas uma vez
   useEffect(() => {
@@ -549,6 +551,10 @@ const Checkout = () => {
     : isPix
     ? getTotalComDesconto()
     : getTotal();
+
+  if (pedidoExistente) {
+    return <RepagamentoCheckout pedido={pedidoExistente} />;
+  }
 
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">

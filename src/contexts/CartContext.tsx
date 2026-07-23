@@ -222,6 +222,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       value={{
         itens,
         adicionarItem,
+        atualizarItem,
         removerItem,
         incrementarQuantidade,
         decrementarQuantidade,

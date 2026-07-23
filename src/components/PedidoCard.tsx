@@ -1,10 +1,11 @@
-import { useState } from "react";
-import { Clock, CheckCircle, Package, Truck, MapPin, ChevronDown, ChevronUp, CreditCard } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Clock, CheckCircle, Package, Truck, MapPin, ChevronDown, ChevronUp, CreditCard, Receipt } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import PaymentMethodModal from "./PaymentMethodModal";
+import ReciboModal from "./ReciboModal";
 
 interface PedidoItem {
   id: string;

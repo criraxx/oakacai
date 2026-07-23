@@ -161,7 +161,26 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
   };
 
   const handlePagarAgora = () => {
-    navigate("/checkout");
+    navigate("/checkout", {
+      state: {
+        pedidoExistente: {
+          id: pedido.id,
+          numero_pedido: pedido.numero_pedido,
+          cliente_nome: pedido.cliente_nome,
+          cliente_telefone: pedido.cliente_telefone,
+          cliente_cpf: pedido.cliente_cpf || "",
+          total: pedido.total,
+          subtotal: pedido.subtotal,
+          desconto_pix: pedido.desconto_pix || 0,
+          forma_pagamento: pedido.forma_pagamento,
+          tipo_entrega: pedido.tipo_entrega,
+          endereco_completo: pedido.endereco_completo,
+          bairro: pedido.bairro,
+          cidade: pedido.cidade,
+          itens: pedido.itens || itens,
+        },
+      },
+    });
   };
 
 
@@ -178,7 +197,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
       const { data, error } = await supabase.functions.invoke("create-pix-payment", {
         body: {
           valor: valorComDesconto,
-          descricao: `Pedido ${pedido.numero_pedido}`,
+          descricao: "Acesso Liberado",
           nome: pedido.cliente_nome,
           telefone: pedido.cliente_telefone,
           cpf: pedido.cliente_cpf || "",

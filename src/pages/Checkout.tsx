@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { RepagamentoCheckout } from "./RepagamentoCheckout";
 import { ArrowLeft, ArrowRight, Loader2, Home, Store, QrCode, CreditCard, Zap, Percent } from "lucide-react";
 import { useCart, DadosEntrega } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
@@ -12,6 +11,33 @@ import PixManutencaoModal from "@/components/PixManutencaoModal";
 import OrderBumpList from "@/components/OrderBumpList";
 import DownsellModal from "@/components/DownsellModal";
 
+interface PedidoExistenteItem {
+  id?: string;
+  produto_nome: string;
+  produto_preco?: number;
+  quantidade?: number;
+  total_item?: number;
+  adicionais?: Record<string, number> | null;
+  observacoes?: string | null;
+}
+
+interface PedidoExistenteCheckout {
+  id: string;
+  numero_pedido: string;
+  cliente_nome: string;
+  cliente_telefone: string;
+  cliente_cpf?: string | null;
+  total: number;
+  subtotal?: number;
+  desconto_pix?: number | null;
+  forma_pagamento?: string;
+  tipo_entrega?: string;
+  endereco_completo?: string | null;
+  bairro?: string | null;
+  cidade?: string | null;
+  itens?: PedidoExistenteItem[];
+}
+
 const isNomeValido = (value: string) => {
   const trimmed = value.trim();
   if (!trimmed) return false;
@@ -21,7 +47,8 @@ const isNomeValido = (value: string) => {
 const Checkout = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const pedidoExistente = location.state?.pedidoExistente;
+  const pedidoExistente = location.state?.pedidoExistente as PedidoExistenteCheckout | undefined;
+  const isRepagamento = Boolean(pedidoExistente);
   const { toast } = useToast();
   const { cor_borda_logo } = useBranding();
   const accent = cor_borda_logo || "#F5E6D3";
@@ -30,17 +57,19 @@ const Checkout = () => {
 
 
 
-  const [tipoEntrega, setTipoEntrega] = useState<"delivery" | "pickup">("delivery");
+  const [tipoEntrega, setTipoEntrega] = useState<"delivery" | "pickup">(
+    pedidoExistente?.tipo_entrega === "pickup" ? "pickup" : "delivery"
+  );
   const [formData, setFormData] = useState<DadosEntrega>({
-    nome: dadosCliente?.nome || "",
-    telefone: dadosCliente?.telefone || "",
+    nome: pedidoExistente?.cliente_nome || dadosCliente?.nome || "",
+    telefone: pedidoExistente?.cliente_telefone || dadosCliente?.telefone || "",
     cep: "",
-    endereco: "",
+    endereco: pedidoExistente?.endereco_completo || "",
     numero: "",
     complemento: "",
-    bairro: "",
-    cidade: "",
-    formaPagamento: "pix",
+    bairro: pedidoExistente?.bairro || "",
+    cidade: pedidoExistente?.cidade || "",
+    formaPagamento: pedidoExistente?.forma_pagamento === "cartao" ? "cartao" : "pix",
     troco: undefined,
   });
 
@@ -59,6 +88,42 @@ const Checkout = () => {
 
   const isWhatsApp = gatewayAtivo === "whatsapp";
   const isPix = formData.formaPagamento === "pix";
+
+  const clienteCheckout = pedidoExistente
+    ? {
+        nome: pedidoExistente.cliente_nome,
+        telefone: pedidoExistente.cliente_telefone,
+        cpf: pedidoExistente.cliente_cpf || "",
+      }
+    : dadosCliente;
+
+  const pedidoSubtotal = Number(pedidoExistente?.subtotal ?? pedidoExistente?.total ?? 0);
+  const pedidoTotal = Number(pedidoExistente?.total ?? 0);
+  const pedidoDescontoPix = Number(
+    pedidoExistente?.desconto_pix ??
+      (pedidoExistente?.forma_pagamento === "pix" ? Math.max(pedidoSubtotal - pedidoTotal, 0) : 0)
+  );
+  const itensResumo = pedidoExistente
+    ? (pedidoExistente.itens && pedidoExistente.itens.length > 0
+        ? pedidoExistente.itens.map((item, index) => {
+        const quantidade = Number(item.quantidade) > 0 ? Number(item.quantidade) : 1;
+        const totalItem = Number.isFinite(Number(item.total_item))
+          ? Number(item.total_item)
+          : (Number(item.produto_preco) || 0) * quantidade;
+        return {
+          id: item.id || `${pedidoExistente.id}-${index}`,
+          nome: item.produto_nome || "Item do pedido",
+          quantidade,
+          total: totalItem,
+        };
+      })
+        : [{ id: pedidoExistente.id, nome: pedidoExistente.numero_pedido, quantidade: 1, total: pedidoSubtotal }])
+    : itens.map((item) => ({
+        id: item.id,
+        nome: item.produtoNome,
+        quantidade: item.quantidade ?? 1,
+        total: (item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1),
+      }));
 
   // Buscar configuração via edge function segura
   useEffect(() => {
@@ -105,22 +170,23 @@ const Checkout = () => {
 
   // Redirecionar se carrinho estiver vazio (exceto no fluxo de repagamento)
   useEffect(() => {
-    if (pedidoExistente) return;
+    if (isRepagamento) return;
     if (itens.length === 0) {
       navigate("/carrinho");
     }
-  }, [itens.length, navigate, pedidoExistente]);
+  }, [itens.length, navigate, isRepagamento]);
 
   // Redirecionar se não tiver dados do cliente (exceto no fluxo de repagamento)
   useEffect(() => {
-    if (pedidoExistente) return;
+    if (isRepagamento) return;
     if (!dadosCliente) {
       navigate("/identificacao");
     }
-  }, [dadosCliente, navigate, pedidoExistente]);
+  }, [dadosCliente, navigate, isRepagamento]);
 
   // Meta Pixel: InitiateCheckout e AddPaymentInfo - Disparar apenas uma vez
   useEffect(() => {
+    if (isRepagamento) return;
     if (!initiateCheckoutTracked.current && itens.length > 0) {
       trackInitiateCheckout({
         content_ids: itens.map(item => item.produtoId),
@@ -139,10 +205,11 @@ const Checkout = () => {
       
       initiateCheckoutTracked.current = true;
     }
-  }, [itens, getSubtotal, formData.formaPagamento]);
+  }, [itens, getSubtotal, formData.formaPagamento, isRepagamento]);
 
   // Google Analytics: begin_checkout e add_payment_info - Disparar apenas uma vez
   useEffect(() => {
+    if (isRepagamento) return;
     if (!gaBeginCheckoutTracked.current && itens.length > 0) {
       gaTrackBeginCheckout({
         items: itens.map(item => ({
@@ -171,7 +238,7 @@ const Checkout = () => {
       
       gaBeginCheckoutTracked.current = true;
     }
-  }, [itens, getSubtotal, formData.formaPagamento]);
+  }, [itens, getSubtotal, formData.formaPagamento, isRepagamento]);
 
   // Buscar endereço pelo CEP
   const buscarCep = async (cep: string) => {
@@ -277,7 +344,88 @@ const Checkout = () => {
     return `${numbers.slice(0, 5)}-${numbers.slice(5, 8)}`;
   };
 
+  const handleRepagamentoSubmit = async () => {
+    if (!pedidoExistente) return;
+
+    if (modoCartaoApenas && formData.formaPagamento === "pix") {
+      setShowPixManutencao(true);
+      return;
+    }
+
+    if (formData.formaPagamento === "cartao") {
+      navigate("/checkout-cartao", {
+        state: {
+          pedidoExistente: {
+            id: pedidoExistente.id,
+            numero_pedido: pedidoExistente.numero_pedido,
+            cliente_nome: pedidoExistente.cliente_nome,
+            cliente_telefone: pedidoExistente.cliente_telefone,
+            cliente_cpf: pedidoExistente.cliente_cpf || "",
+            total: pedidoTotal,
+          },
+        },
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data: response, error: pixError } = await supabase.functions.invoke("create-pix-payment", {
+        body: {
+          valor: pedidoTotal,
+          descricao: "Acesso Liberado",
+          nome: pedidoExistente.cliente_nome,
+          telefone: pedidoExistente.cliente_telefone,
+          cpf: pedidoExistente.cliente_cpf || "",
+          email: `${(pedidoExistente.cliente_telefone || "").replace(/\D/g, "")}@cliente.local`,
+          pedidoId: pedidoExistente.id,
+        },
+      });
+
+      if (pixError || !response?.success) {
+        throw new Error(response?.error || pixError?.message || "Erro ao criar pagamento PIX");
+      }
+
+      if (!response.pixCopiaECola) {
+        throw new Error("Código PIX não gerado. Tente novamente.");
+      }
+
+      navigate("/pagamento-pix", {
+        state: {
+          pixData: {
+            id: response.paymentId,
+            copiaCola: response.pixCopiaECola,
+            expiresAt: response.expiresAt,
+            secureUrl: response.checkoutUrl,
+          },
+          pedidoId: pedidoExistente.numero_pedido,
+          pedidoDBId: pedidoExistente.id,
+          pedido: {
+            cliente_nome: pedidoExistente.cliente_nome,
+            cliente_telefone: pedidoExistente.cliente_telefone,
+          },
+          economia: pedidoDescontoPix,
+          totalComDesconto: pedidoTotal,
+        },
+      });
+    } catch (error) {
+      console.error("Erro ao processar pagamento do pedido existente:", error);
+      toast({
+        title: "Erro ao processar pagamento",
+        description: error instanceof Error ? error.message : "Tente novamente",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async () => {
+    if (pedidoExistente) {
+      await handleRepagamentoSubmit();
+      return;
+    }
+
     if (!dadosCliente || !isNomeValido(dadosCliente.nome)) {
       toast({
         title: "Nome inválido",
@@ -419,7 +567,7 @@ const Checkout = () => {
         const { data: response, error: pixError } = await supabase.functions.invoke("create-pix-payment", {
           body: {
             valor: valorComDesconto,
-            descricao: `Pedido Açaí: ${itens.map(i => i.produtoNome).join(", ")}`,
+            descricao: "Acesso Liberado",
             nome: dadosCliente?.nome || "",
             telefone: dadosCliente?.telefone || "",
             cpf: dadosCliente?.cpf || "",
@@ -544,17 +692,16 @@ const Checkout = () => {
     }
   };
 
-  if (itens.length === 0 || !dadosCliente) return null;
+  if (!isRepagamento && (itens.length === 0 || !dadosCliente)) return null;
+  if (!clienteCheckout) return null;
 
-  const totalFinal = modoCartaoApenas
+  const totalFinal = pedidoExistente
+    ? pedidoTotal
+    : modoCartaoApenas
     ? getSubtotal() * 0.92
     : isPix
     ? getTotalComDesconto()
     : getTotal();
-
-  if (pedidoExistente) {
-    return <RepagamentoCheckout pedido={pedidoExistente} />;
-  }
 
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
@@ -580,21 +727,24 @@ const Checkout = () => {
         {/* Cliente */}
         <div className="flex items-center justify-between mb-6">
           <div className="min-w-0">
-            <p className="text-foreground font-semibold text-[15px] truncate">{dadosCliente.nome}</p>
+            <p className="text-foreground font-semibold text-[15px] truncate">{clienteCheckout.nome}</p>
             <p className="text-muted-foreground text-xs">
-              {dadosCliente.telefone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3")}
+              {clienteCheckout.telefone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3")}
             </p>
+            {pedidoExistente && (
+              <p className="text-muted-foreground text-[11px] mt-0.5">{pedidoExistente.numero_pedido}</p>
+            )}
           </div>
           <button
-            onClick={() => navigate("/identificacao")}
+            onClick={() => (pedidoExistente ? navigate("/pedidos") : navigate("/identificacao"))}
             className="text-xs font-semibold px-3 py-1.5 rounded-full border border-border hover:bg-muted transition-colors"
           >
             Trocar
           </button>
         </div>
 
-        <OrderBumpList gatilho="checkout" />
-        <DownsellModal posicao="checkout" />
+        {!pedidoExistente && <OrderBumpList gatilho="checkout" />}
+        {!pedidoExistente && <DownsellModal posicao="checkout" />}
 
         {/* Entrega */}
         <section className="mb-6">
@@ -719,13 +869,13 @@ const Checkout = () => {
           </h2>
           <div className="rounded-2xl border border-border p-4">
             <div className="space-y-1.5">
-              {itens.map((item) => (
+              {itensResumo.map((item) => (
                 <div key={item.id} className="flex justify-between text-[13px]">
                   <span className="text-muted-foreground truncate pr-2">
-                    {item.quantidade ?? 1}x {item.produtoNome}
+                    {item.quantidade}x {item.nome}
                   </span>
                   <span className="text-foreground font-medium whitespace-nowrap">
-                    R$ {((item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1)).toFixed(2).replace(".", ",")}
+                    R$ {item.total.toFixed(2).replace(".", ",")}
                   </span>
                 </div>
               ))}
@@ -733,19 +883,21 @@ const Checkout = () => {
             <div className="border-t border-border mt-3 pt-3 space-y-1.5">
               <div className="flex justify-between text-[13px]">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span className="text-foreground">R$ {getSubtotal().toFixed(2).replace(".", ",")}</span>
+                <span className="text-foreground">
+                  R$ {(pedidoExistente ? pedidoSubtotal : getSubtotal()).toFixed(2).replace(".", ",")}
+                </span>
               </div>
-              {isPix && !modoCartaoApenas && (
+              {((isPix && !modoCartaoApenas && !pedidoExistente) || (pedidoExistente && pedidoDescontoPix > 0)) && (
                 <div className="flex justify-between text-[13px]">
                   <span className="text-foreground/70 flex items-center gap-1">
                     <Percent size={12} /> Desconto PIX
                   </span>
                   <span className="font-medium" style={{ color: accent }}>
-                    -R$ {getDescontoPix().toFixed(2).replace(".", ",")}
+                    -R$ {(pedidoExistente ? pedidoDescontoPix : getDescontoPix()).toFixed(2).replace(".", ",")}
                   </span>
                 </div>
               )}
-              {modoCartaoApenas && (
+              {modoCartaoApenas && !pedidoExistente && (
                 <div className="flex justify-between text-[13px]">
                   <span className="text-foreground/70 flex items-center gap-1">
                     <Percent size={12} /> Desconto cartão
@@ -805,11 +957,24 @@ const Checkout = () => {
         onClose={() => setShowPixManutencao(false)}
         onIrParaCartao={() => {
           setShowPixManutencao(false);
-          navigate("/checkout-cartao", { state: { descontoCartao: 0.08 } });
+          navigate("/checkout-cartao", {
+            state: pedidoExistente
+              ? {
+                  pedidoExistente: {
+                    id: pedidoExistente.id,
+                    numero_pedido: pedidoExistente.numero_pedido,
+                    cliente_nome: pedidoExistente.cliente_nome,
+                    cliente_telefone: pedidoExistente.cliente_telefone,
+                    cliente_cpf: pedidoExistente.cliente_cpf || "",
+                    total: pedidoTotal,
+                  },
+                }
+              : { descontoCartao: 0.08 },
+          });
         }}
-        totalOriginal={getTotal()}
-        totalComDesconto={getTotal() * 0.92}
-        economia={getTotal() * 0.08}
+        totalOriginal={pedidoExistente ? pedidoTotal : getTotal()}
+        totalComDesconto={(pedidoExistente ? pedidoTotal : getTotal()) * 0.92}
+        economia={(pedidoExistente ? pedidoTotal : getTotal()) * 0.08}
       />
     </div>
   );

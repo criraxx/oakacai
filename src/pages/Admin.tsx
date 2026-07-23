@@ -106,7 +106,7 @@ const Admin = () => {
   const [loading, setLoading] = useState(false);
   const [reconciling, setReconciling] = useState(false);
   const [filtroStatus, setFiltroStatus] = useState("todos");
-  const [abaAtiva, setAbaAtiva] = useState<"pedidos" | "vales" | "config">("pedidos");
+  const [abaAtiva, setAbaAtiva] = useState<"pedidos" | "vales" | "config" | "catalogo">("pedidos");
   const [gatewayAtivo, setGatewayAtivo] = useState<string>("umbrellapag");
   const [salvandoGateway, setSalvandoGateway] = useState(false);
   const [modoCartaoApenas, setModoCartaoApenas] = useState<boolean>(false);

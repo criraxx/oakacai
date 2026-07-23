@@ -48,6 +48,8 @@ interface CartContextType {
   itens: ItemCarrinho[];
   adicionarItem: (item: ItemCarrinho) => void;
   removerItem: (id: string) => void;
+  incrementarQuantidade: (id: string) => void;
+  decrementarQuantidade: (id: string) => void;
   limparCarrinho: () => void;
   getSubtotal: () => number;
   getSubtotalSemPromocional: () => number; // subtotal sem itens promocionais

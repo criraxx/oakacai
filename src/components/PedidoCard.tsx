@@ -36,7 +36,7 @@ interface PedidoDB {
   numero_pedido: string;
   cliente_nome: string;
   cliente_telefone: string;
-  cliente_cpf: string | null;
+  cliente_cpf?: string | null;
   total: number;
   subtotal: number;
   desconto_pix: number | null;
@@ -48,7 +48,8 @@ interface PedidoDB {
   bairro: string | null;
   cidade: string | null;
   created_at: string;
-  payment_id: string | null;
+  payment_id?: string | null;
+  itens?: PedidoItem[];
 }
 
 const statusConfig: Record<
@@ -73,7 +74,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
   const accent = cor_borda_logo || "#F5E6D3";
 
   const [expanded, setExpanded] = useState(false);
-  const [itens, setItens] = useState<PedidoItem[]>([]);
+  const [itens, setItens] = useState<PedidoItem[]>(pedido.itens || []);
   const [loadingItens, setLoadingItens] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [loadingPayment, setLoadingPayment] = useState(false);
@@ -139,14 +140,10 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
   };
 
   const handleExpand = async () => {
-    if (!expanded && itens.length === 0) {
+    if (!expanded && Object.keys(complementosMap).length === 0) {
       setLoadingItens(true);
       try {
-        const [itensRes, compRes] = await Promise.all([
-          supabase.from("pedido_itens").select("*").eq("pedido_id", pedido.id),
-          supabase.from("complementos").select("id, nome"),
-        ]);
-        if (!itensRes.error && itensRes.data) setItens(itensRes.data);
+        const compRes = await supabase.from("complementos").select("id, nome");
         if (compRes.data) {
           const map: Record<string, string> = {};
           compRes.data.forEach((c: any) => {
@@ -155,7 +152,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
           setComplementosMap(map);
         }
       } catch (err) {
-        console.error("Erro ao buscar itens:", err);
+        console.error("Erro ao buscar complementos:", err);
       } finally {
         setLoadingItens(false);
       }

@@ -118,7 +118,7 @@ const Cart = () => {
         </div>
       </header>
 
-      <main className="flex-1 pb-40 pt-3">
+      <main className="flex-1 pt-3">
         {/* Card: Resumo do pedido */}
         <section className="mx-4 mb-4 bg-background rounded-2xl border border-border overflow-hidden shadow-sm">
           <div className="px-4 py-3 border-b border-border flex items-center justify-between">

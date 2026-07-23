@@ -247,7 +247,12 @@ const ProductDetail = () => {
     const valorTotal = (produto.preco + totalAdicionais) * quantidadeProduto;
 
     if (modoEdicao && itemEdicao) {
+      const produtoIdEdicao = tamanhoSelecionado?.id || id || itemEdicao.produtoId;
       atualizarItem(itemEdicao.id, {
+        produtoId: produtoIdEdicao,
+        produtoNome: produto.nome,
+        produtoPreco: produto.preco,
+        produtoImagem: produto.imagem,
         complementos: quantidades,
         observacoes,
         totalAdicionais,
@@ -257,6 +262,7 @@ const ProductDetail = () => {
       navigate("/carrinho");
       return;
     }
+
 
     // Validações para itens promocionais
     if (isPromocional) {

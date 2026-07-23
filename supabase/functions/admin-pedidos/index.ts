@@ -118,9 +118,16 @@ Deno.serve(async (req) => {
 
       console.log(`Atualizando status do pedido ${pedidoId} para ${novoStatus}`)
 
+      const updatePayload: Record<string, string> = { status_pedido: novoStatus }
+      if (novoStatus === 'aprovado') {
+        updatePayload.status_pagamento = 'confirmado'
+      } else if (novoStatus === 'cancelado') {
+        updatePayload.status_pagamento = 'recusado'
+      }
+
       const { error: updateError } = await supabase
         .from('pedidos')
-        .update({ status_pedido: novoStatus })
+        .update(updatePayload)
         .eq('id', pedidoId)
 
       if (updateError) {

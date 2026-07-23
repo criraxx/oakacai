@@ -374,6 +374,9 @@ function BannersTab({ banners, produtos, categorias, onCrud }: {
 }) {
   return (
     <div className="space-y-3">
+      <div className="rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground">
+        <strong>Tamanho recomendado:</strong> 1983 × 793 px (proporção 2,5:1). Todos os banners serão exibidos nesse formato no site.
+      </div>
       <Button onClick={async () => {
         const inp = document.createElement("input");
         inp.type = "file"; inp.accept = "image/*";

@@ -721,6 +721,8 @@ const Admin = () => {
                 <SelectContent>
                   <SelectItem value="todos">Todos</SelectItem>
                   <SelectItem value="pendente">Pendente</SelectItem>
+                  <SelectItem value="aprovado">Aprovado</SelectItem>
+                  <SelectItem value="cancelado">Cancelado</SelectItem>
                   <SelectItem value="preparando">Preparando</SelectItem>
                   <SelectItem value="saiu">Saiu para entrega</SelectItem>
                   <SelectItem value="entregue">Entregue</SelectItem>

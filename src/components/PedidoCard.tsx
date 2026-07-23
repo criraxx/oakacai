@@ -57,6 +57,15 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
   const [loadingItens, setLoadingItens] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [loadingPayment, setLoadingPayment] = useState(false);
+  const [showRecibo, setShowRecibo] = useState(false);
+  const [corBorda, setCorBorda] = useState<string>("#F5E6D3");
+
+  useEffect(() => {
+    fetch("https://bgcwtnrimreruswogffr.supabase.co/functions/v1/buscar-config")
+      .then((r) => r.json())
+      .then((d) => d?.cor_borda_logo && setCorBorda(d.cor_borda_logo))
+      .catch(() => {});
+  }, []);
 
   const status = statusConfig[pedido.status_pedido] || statusConfig.pendente;
   const StatusIcon = status.icon;

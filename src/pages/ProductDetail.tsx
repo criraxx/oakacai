@@ -278,9 +278,10 @@ const ProductDetail = () => {
     // Para itens promocionais, só permite adicionar 1
     const qtdAdicionar = isPromocional ? 1 : quantidadeProduto;
     
+    const produtoIdFinal = tamanhoSelecionado?.id || id || "combo-500ml";
     const novoItem: ItemCarrinho = {
       id: "",
-      produtoId: id || "combo-500ml",
+      produtoId: produtoIdFinal,
       produtoNome: produto.nome,
       produtoPreco: produto.preco,
       produtoImagem: produto.imagem,

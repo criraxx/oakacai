@@ -15,7 +15,7 @@ const ProductCardSmall = ({ id, image, title, price }: ProductCardSmallProps) =>
       onClick={() => navigate(`/produto/${id}`)}
       className="flex-shrink-0 w-36 cursor-pointer card-lift press-effect"
     >
-      <div className="w-36 h-36 rounded-xl overflow-hidden mb-2 shadow-sm">
+      <div className="w-36 h-36 rounded-3xl overflow-hidden mb-2 shadow-sm">
         <img
           src={image}
           alt={title}

@@ -24,12 +24,13 @@ interface ReciboModalProps {
     total: number;
     forma_pagamento: string;
     created_at: string;
+    itens?: PedidoItemDB[];
   };
   corBorda?: string;
 }
 
 const ReciboModal = ({ open, onClose, pedido, corBorda = "#F5E6D3" }: ReciboModalProps) => {
-  const [itens, setItens] = useState<PedidoItemDB[]>([]);
+  const [itens, setItens] = useState<PedidoItemDB[]>(pedido.itens || []);
   const [complementosMap, setComplementosMap] = useState<Record<string, { nome: string; preco: number }>>({});
   const [loading, setLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -37,17 +38,11 @@ const ReciboModal = ({ open, onClose, pedido, corBorda = "#F5E6D3" }: ReciboModa
 
   useEffect(() => {
     if (!open) return;
+    setItens(pedido.itens || []);
     const carregar = async () => {
       setLoading(true);
       try {
-        const [itensRes, compRes] = await Promise.all([
-          supabase
-            .from("pedido_itens")
-            .select("id, produto_nome, produto_preco, quantidade, total_item, adicionais, observacoes")
-            .eq("pedido_id", pedido.id),
-          supabase.from("complementos").select("id, nome, preco"),
-        ]);
-        setItens((itensRes.data as PedidoItemDB[]) || []);
+        const compRes = await supabase.from("complementos").select("id, nome, preco");
         const map: Record<string, { nome: string; preco: number }> = {};
         (compRes.data || []).forEach((c: any) => {
           map[c.id] = { nome: c.nome, preco: Number(c.preco) };
@@ -60,7 +55,7 @@ const ReciboModal = ({ open, onClose, pedido, corBorda = "#F5E6D3" }: ReciboModa
       }
     };
     carregar();
-  }, [open, pedido.id]);
+  }, [open, pedido.id, pedido.itens]);
 
   const handleDownload = async () => {
     if (!reciboRef.current) return;

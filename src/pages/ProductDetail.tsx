@@ -212,23 +212,32 @@ const ProductDetail = () => {
   })).filter(secao => secao.itens.length > 0 || pesquisa === "");
 
   const handleAdicionarAoCarrinho = () => {
+    const valorTotal = (produto.preco + totalAdicionais) * quantidadeProduto;
+
+    if (modoEdicao && itemEdicao) {
+      atualizarItem(itemEdicao.id, {
+        complementos: quantidades,
+        observacoes,
+        totalAdicionais,
+        quantidade: quantidadeProduto,
+      });
+      toast.success("Item atualizado!");
+      navigate("/carrinho");
+      return;
+    }
+
     // Validações para itens promocionais
     if (isPromocional) {
-      // Verificar se já tem item promocional
       if (temItemPromocional()) {
         toast.error("Você já adicionou 1 item promocional. Limite de 1 por pedido!");
         return;
       }
-      
-      // Verificar se ainda tem R$50+ no carrinho
       if (getSubtotalSemPromocional() < 50) {
         toast.error("O carrinho precisa ter R$50 ou mais para adicionar item promocional!");
         return;
       }
     }
 
-    const valorTotal = (produto.preco + totalAdicionais) * quantidadeProduto;
-    
     // Para itens promocionais, só permite adicionar 1
     const qtdAdicionar = isPromocional ? 1 : quantidadeProduto;
     
@@ -246,7 +255,6 @@ const ProductDetail = () => {
     };
     adicionarItem(novoItem);
     
-    // Meta Pixel: AddToCart - Valor final considera produto + complementos
     trackAddToCart({
       content_ids: [id || 'produto'],
       content_name: produto.nome,
@@ -255,7 +263,6 @@ const ProductDetail = () => {
       num_items: qtdAdicionar,
     });
     
-    // Google Analytics: add_to_cart
     gaTrackAddToCart({
       item_id: id || 'produto',
       item_name: produto.nome,
@@ -269,6 +276,7 @@ const ProductDetail = () => {
     
     setModalAberto(true);
   };
+
 
   return (
     <div className="min-h-screen bg-muted max-w-md mx-auto flex flex-col">

@@ -222,7 +222,7 @@ const Pedidos = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
+    <div className="min-h-screen bg-muted max-w-md mx-auto flex flex-col">
       <Header />
       <main className="flex-1 p-4 space-y-4 pb-28">
         {pedidos.map((pedido) => (

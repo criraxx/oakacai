@@ -121,9 +121,31 @@ const ProductDetail = () => {
     };
   };
   
-  const produto = location.state?.produto || getProdutoPadrao();
+  const produtoBase = location.state?.produto || getProdutoPadrao();
 
-  // Determinar tipo de produto para exibir seções corretas
+  // Seletor de tamanho: se o produto pertence a uma família, oferece chips
+  const familiaInfo = useMemo(() => (id ? resolveFamilia(id) : null), [id]);
+  const [tamanhoSelecionado, setTamanhoSelecionado] = useState<Tamanho | null>(
+    familiaInfo?.tamanhoAtual ?? null
+  );
+
+  // Ao trocar de tamanho, sobrescreve nome/preço do produto exibido
+  const produto = useMemo(() => {
+    if (tamanhoSelecionado && familiaInfo) {
+      const alvo = produtosPorId[tamanhoSelecionado.id];
+      if (alvo) {
+        return {
+          ...produtoBase,
+          nome: alvo.nome,
+          preco: alvo.preco,
+          imagem: alvo.imagem || produtoBase.imagem,
+          descricao: alvo.descricao || produtoBase.descricao,
+        };
+      }
+      return { ...produtoBase, preco: tamanhoSelecionado.preco };
+    }
+    return produtoBase;
+  }, [tamanhoSelecionado, familiaInfo, produtoBase]);
   const getTipoProduto = (): "combo" | "monte" | "pronto" => {
     const nome = produto.nome.toLowerCase();
     

@@ -1,8 +1,6 @@
 import SectionTitle from "./SectionTitle";
 import ProductCardHorizontal from "./ProductCardHorizontal";
-import picoleTrufadoAsset from "@/assets/picole-trufado.jpg.asset.json";
-const picoleTrufado = picoleTrufadoAsset.url;
-
+import picoleTrufado from "@/assets/picole-trufado.jpg";
 const picoles = [
   { id: "picole-laka-oreo", title: "LAKA OREO", description: "Picolé trufado sabor Laka Oreo", price: "R$ 4,00" },
   { id: "picole-morango-ninho", title: "MORANGO COM NINHO", description: "Picolé trufado sabor Morango com Ninho", price: "R$ 4,00" },

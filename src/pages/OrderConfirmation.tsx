@@ -27,7 +27,7 @@ const OrderConfirmation = () => {
         content_name: pedido.itens.map(item => item.produtoNome).join(', '),
         content_type: 'product',
         value: pedido.total,
-        num_items: pedido.itens.length,
+        num_items: pedido.itens.reduce((acc, item) => acc + (item.quantidade ?? 1), 0),
         order_id: pedido.id,
         payment_method: formaPagamentoMap[pedido.dadosEntrega.formaPagamento] || pedido.dadosEntrega.formaPagamento,
       });
@@ -39,7 +39,7 @@ const OrderConfirmation = () => {
           item_id: item.produtoId,
           item_name: item.produtoNome,
           price: item.produtoPreco + item.totalAdicionais,
-          quantity: 1,
+          quantity: item.quantidade ?? 1,
         })),
         value: pedido.total,
         payment_type: formaPagamentoMap[pedido.dadosEntrega.formaPagamento] || pedido.dadosEntrega.formaPagamento,
@@ -153,7 +153,8 @@ const OrderConfirmation = () => {
               <div className="flex-1">
                 <p className="text-foreground text-sm font-medium">{item.produtoNome}</p>
                 <p className="text-muted-foreground text-xs">
-                  R$ {(item.produtoPreco + item.totalAdicionais).toFixed(2).replace(".", ",")}
+                  {item.quantidade ?? 1}x R$ {(item.produtoPreco + item.totalAdicionais).toFixed(2).replace(".", ",")}
+                  {" "}= R$ {((item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1)).toFixed(2).replace(".", ",")}
                 </p>
               </div>
             </div>

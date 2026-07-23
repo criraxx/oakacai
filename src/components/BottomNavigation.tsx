@@ -7,10 +7,11 @@ const BottomNavigation = () => {
   const location = useLocation();
   const { itens } = useCart();
 
+  const totalItens = itens.reduce((acc, item) => acc + (item.quantidade ?? 1), 0);
   const navItems = [
     { icon: Home, label: "Início", path: "/" },
     { icon: ClipboardList, label: "Pedidos", path: "/pedidos" },
-    { icon: ShoppingCart, label: "Carrinho", path: "/carrinho", badge: itens.length > 0 ? itens.length : null },
+    { icon: ShoppingCart, label: "Carrinho", path: "/carrinho", badge: totalItens > 0 ? totalItens : null },
   ];
 
   return (

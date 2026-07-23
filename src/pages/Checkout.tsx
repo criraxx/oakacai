@@ -96,7 +96,7 @@ const Checkout = () => {
       trackInitiateCheckout({
         content_ids: itens.map(item => item.produtoId),
         value: getSubtotal(),
-        num_items: itens.length,
+        num_items: itens.reduce((acc, item) => acc + (item.quantidade ?? 1), 0),
       });
       
       // Disparar AddPaymentInfo com a forma de pagamento inicial (PIX)
@@ -120,7 +120,7 @@ const Checkout = () => {
           item_id: item.produtoId,
           item_name: item.produtoNome,
           price: item.produtoPreco + item.totalAdicionais,
-          quantity: 1,
+          quantity: item.quantidade ?? 1,
         })),
         value: getSubtotal(),
       });
@@ -132,7 +132,7 @@ const Checkout = () => {
             item_id: item.produtoId,
             item_name: item.produtoNome,
             price: item.produtoPreco + item.totalAdicionais,
-            quantity: 1,
+            quantity: item.quantidade ?? 1,
           })),
           value: getSubtotal(),
           payment_type: 'PIX',
@@ -201,7 +201,7 @@ const Checkout = () => {
             item_id: item.produtoId,
             item_name: item.produtoNome,
             price: item.produtoPreco + item.totalAdicionais,
-            quantity: 1,
+            quantity: item.quantidade ?? 1,
           })),
           value: getSubtotal(),
           shipping_tier: 'delivery',
@@ -232,7 +232,7 @@ const Checkout = () => {
           item_id: item.produtoId,
           item_name: item.produtoNome,
           price: item.produtoPreco + item.totalAdicionais,
-          quantity: 1,
+          quantity: item.quantidade ?? 1,
         })),
         value: getSubtotal(),
         payment_type: paymentTypeMap[value as string] || value as string,
@@ -310,9 +310,10 @@ const Checkout = () => {
         const itensParaSalvar = itens.map((item) => ({
           produto_nome: item.produtoNome,
           produto_preco: item.produtoPreco,
+          quantidade: item.quantidade ?? 1,
           adicionais: item.complementos,
           total_adicionais: item.totalAdicionais,
-          total_item: item.produtoPreco + item.totalAdicionais,
+          total_item: (item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1),
           observacoes: item.observacoes || "",
         }));
 
@@ -353,7 +354,7 @@ const Checkout = () => {
         }
 
         // Montar mensagem do WhatsApp
-        const itensTexto = itens.map(i => `- ${i.produtoNome}: R$ ${(i.produtoPreco + i.totalAdicionais).toFixed(2).replace(".", ",")}`).join("\n");
+        const itensTexto = itens.map(i => `- ${i.quantidade ?? 1}x ${i.produtoNome}: R$ ${((i.produtoPreco + i.totalAdicionais) * (i.quantidade ?? 1)).toFixed(2).replace(".", ",")}`).join("\n");
         const enderecoTexto = tipoEntrega === "delivery" 
           ? `\n📍 *Endereço:* ${enderecoCompleto}, ${formData.bairro} - ${formData.cidade}`
           : "\n🏪 *Retirada no local*";
@@ -431,9 +432,10 @@ const Checkout = () => {
       const itensParaSalvar = itens.map((item) => ({
         produto_nome: item.produtoNome,
         produto_preco: item.produtoPreco,
+        quantidade: item.quantidade ?? 1,
         adicionais: item.complementos,
         total_adicionais: item.totalAdicionais,
-        total_item: item.produtoPreco + item.totalAdicionais,
+        total_item: (item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1),
         observacoes: item.observacoes || "",
       }));
 
@@ -747,9 +749,11 @@ const Checkout = () => {
           
           {itens.map((item) => (
             <div key={item.id} className="flex justify-between text-sm mb-2">
-              <span className="text-muted-foreground">{item.produtoNome}</span>
+              <span className="text-muted-foreground">
+                {item.quantidade ?? 1}x {item.produtoNome}
+              </span>
               <span className="text-foreground">
-                R$ {(item.produtoPreco + item.totalAdicionais).toFixed(2).replace(".", ",")}
+                R$ {((item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1)).toFixed(2).replace(".", ",")}
               </span>
             </div>
           ))}

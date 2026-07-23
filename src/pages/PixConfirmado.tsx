@@ -58,7 +58,7 @@ const PixConfirmado = () => {
         content_name: pedido.itens.map((item) => item.produtoNome).join(", "),
         content_type: "product",
         value: totalComDesconto,
-        num_items: pedido.itens.length,
+        num_items: pedido.itens.reduce((acc, item) => acc + (item.quantidade ?? 1), 0),
         order_id: pedido.id,
         payment_method: "PIX",
       });
@@ -68,7 +68,7 @@ const PixConfirmado = () => {
         content_ids: pedido.itens.map((item) => item.produtoId),
         content_name: pedido.itens.map((item) => item.produtoNome).join(", "),
         value: totalComDesconto,
-        num_items: pedido.itens.length,
+        num_items: pedido.itens.reduce((acc, item) => acc + (item.quantidade ?? 1), 0),
         order_id: pedido.id,
       });
 
@@ -79,7 +79,7 @@ const PixConfirmado = () => {
           item_id: item.produtoId,
           item_name: item.produtoNome,
           price: item.produtoPreco + item.totalAdicionais,
-          quantity: 1,
+          quantity: item.quantidade ?? 1,
         })),
         value: totalComDesconto,
         payment_type: "PIX",

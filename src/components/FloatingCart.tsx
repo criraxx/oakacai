@@ -35,7 +35,7 @@ const FloatingCart = () => {
               >
                 <div className="p-4 max-h-60 overflow-y-auto">
                   <h3 className="font-semibold text-foreground mb-3 text-sm">
-                    Itens no carrinho ({itens.length})
+                    Itens no carrinho ({itens.reduce((acc, item) => acc + (item.quantidade ?? 1), 0)})
                   </h3>
                   <div className="space-y-3">
                     {itens.map((item) => (
@@ -50,10 +50,10 @@ const FloatingCart = () => {
                         />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-foreground truncate">
-                            {item.produtoNome}
+                            {item.quantidade ?? 1}x {item.produtoNome}
                           </p>
                           <p className="text-xs text-accent font-semibold">
-                            {formatPrice(item.produtoPreco + item.totalAdicionais)}
+                            {formatPrice((item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1))}
                           </p>
                         </div>
                         <button

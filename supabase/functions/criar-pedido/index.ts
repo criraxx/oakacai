@@ -8,6 +8,7 @@ const corsHeaders = {
 interface PedidoItem {
   produto_nome: string;
   produto_preco: number;
+  quantidade: number;
   adicionais: Record<string, number>;
   total_adicionais: number;
   total_item: number;
@@ -113,6 +114,7 @@ Deno.serve(async (req) => {
         pedido_id: pedido.id,
         produto_nome: item.produto_nome,
         produto_preco: item.produto_preco,
+        quantidade: item.quantidade || 1,
         adicionais: item.adicionais || {},
         total_adicionais: item.total_adicionais || 0,
         total_item: item.total_item,

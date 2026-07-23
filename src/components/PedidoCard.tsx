@@ -10,6 +10,7 @@ interface PedidoItem {
   id: string;
   produto_nome: string;
   produto_preco: number;
+  quantidade: number;
   total_item: number;
   adicionais: any;
   observacoes: string | null;
@@ -320,7 +321,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
               <div key={item.id} className="bg-card-foreground/5 rounded-lg p-2">
                 <div className="flex justify-between">
                   <span className="text-card-foreground text-sm font-medium">
-                    {item.produto_nome}
+                    {item.quantidade ?? 1}x {item.produto_nome}
                   </span>
                   <span className="text-accent text-sm font-bold">
                     {formatCurrency(item.total_item)}

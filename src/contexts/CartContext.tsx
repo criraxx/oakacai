@@ -10,6 +10,7 @@ export interface ItemCarrinho {
   observacoes: string;
   totalAdicionais: number;
   isPromocional?: boolean; // indica se é item da promoção metade do preço
+  quantidade?: number;
 }
 
 export interface DadosCliente {
@@ -47,6 +48,8 @@ interface CartContextType {
   itens: ItemCarrinho[];
   adicionarItem: (item: ItemCarrinho) => void;
   removerItem: (id: string) => void;
+  incrementarQuantidade: (id: string) => void;
+  decrementarQuantidade: (id: string) => void;
   limparCarrinho: () => void;
   getSubtotal: () => number;
   getSubtotalSemPromocional: () => number; // subtotal sem itens promocionais
@@ -114,11 +117,33 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const adicionarItem = (item: ItemCarrinho) => {
-    setItens((prev) => [...prev, { ...item, id: `item-${Date.now()}` }]);
+    setItens((prev) => [...prev, { ...item, id: `item-${Date.now()}`, quantidade: item.quantidade ?? 1 }]);
   };
 
   const removerItem = (id: string) => {
     setItens((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const incrementarQuantidade = (id: string) => {
+    setItens((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, quantidade: (item.quantidade ?? 1) + 1 } : item
+      )
+    );
+  };
+
+  const decrementarQuantidade = (id: string) => {
+    setItens((prev) => {
+      const item = prev.find((i) => i.id === id);
+      if (!item) return prev;
+      const qtd = item.quantidade ?? 1;
+      if (qtd <= 1) {
+        return prev.filter((i) => i.id !== id);
+      }
+      return prev.map((i) =>
+        i.id === id ? { ...i, quantidade: qtd - 1 } : i
+      );
+    });
   };
 
   const limparCarrinho = () => {
@@ -127,7 +152,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const getSubtotal = () => {
     return itens.reduce((acc, item) => {
-      return acc + item.produtoPreco + item.totalAdicionais;
+      const qtd = item.quantidade ?? 1;
+      return acc + (item.produtoPreco + item.totalAdicionais) * qtd;
     }, 0);
   };
 
@@ -135,7 +161,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const getSubtotalSemPromocional = () => {
     return itens
       .filter(item => !item.isPromocional)
-      .reduce((acc, item) => acc + item.produtoPreco + item.totalAdicionais, 0);
+      .reduce((acc, item) => acc + (item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1), 0);
   };
 
   // Verifica se já tem item promocional no carrinho
@@ -190,6 +216,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         itens,
         adicionarItem,
         removerItem,
+        incrementarQuantidade,
+        decrementarQuantidade,
         limparCarrinho,
         getSubtotal,
         getSubtotalSemPromocional,

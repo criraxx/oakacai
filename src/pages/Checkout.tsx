@@ -85,6 +85,24 @@ const Checkout = () => {
     fetchConfig();
   }, []);
 
+  // Se o usuário veio de /pagamento-pix e clicou em voltar, intercepta o próximo
+  // "voltar" para levar à home e disparar o downsell de recuperação de venda.
+  useEffect(() => {
+    let veioDoPix = false;
+    try { veioDoPix = sessionStorage.getItem("oak_pix_flow") === "1"; } catch {}
+    if (!veioDoPix) return;
+
+    // Push dummy state para capturar o próximo popstate
+    window.history.pushState({ oakDownsellTrap: true }, "");
+    const onPop = () => {
+      try { sessionStorage.removeItem("oak_pix_flow"); } catch {}
+      navigate("/", { state: { showDownsell: true }, replace: true });
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [navigate]);
+
+
   // Redirecionar se carrinho estiver vazio
   useEffect(() => {
     if (itens.length === 0) {

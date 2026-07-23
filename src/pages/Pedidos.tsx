@@ -24,6 +24,15 @@ interface PedidoDB {
   cidade: string | null;
   created_at: string;
   payment_id: string | null;
+  itens?: {
+    id: string;
+    produto_nome: string;
+    produto_preco: number;
+    quantidade: number;
+    total_item: number;
+    adicionais: Record<string, number> | null;
+    observacoes: string | null;
+  }[];
 }
 
 const formatTelefone = (value: string) => {

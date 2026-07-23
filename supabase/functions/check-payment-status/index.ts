@@ -9,7 +9,7 @@ const corsHeaders = {
 // Gateway URLs
 const UMBRELLAPAG_BASE_URL = 'https://api-gateway.umbrellapag.com/api';
 const EVOPAY_URL = 'https://pix.evopay.cash/v1/pix';
-const BLACKCAT_URL = 'https://api.blackcatpagamentos.online/api';
+const BLACKCAT_URL = 'https://api.blackcatoficial.com/api';
 
 const getAdminClient = () => {
   const url = Deno.env.get('SUPABASE_URL');

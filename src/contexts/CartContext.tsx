@@ -239,8 +239,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       status: "confirmado",
     };
     setPedidoAtual(pedido);
-    // NÃO limpar carrinho aqui - será limpo após confirmação do pagamento
-    // O carrinho será limpo em PixConfirmado.tsx ou OrderConfirmation.tsx
+    // Esvaziar o carrinho assim que o pedido é criado
+    setItens([]);
     return pedido;
   };
 

@@ -327,7 +327,7 @@ async function createIronPayPix(body: CreatePixRequest, supabase: any, supabaseU
         name: nome,
         email: email || `${telefone.replace(/\D/g, '')}@cliente.local`,
         phone_number: telefone.replace(/\D/g, ''),
-        document: cpf.replace(/\D/g, ''),
+        document: ensureCPF(cpf),
       },
       cart: [
         {

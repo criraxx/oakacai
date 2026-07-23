@@ -17,6 +17,7 @@ const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
   const { cor_borda_logo } = useBranding();
   const accent = cor_borda_logo || "#86efac";
   const softGreen = "#86efac";
+  const defaultOrange = "#f97316";
 
   const handleContinuarComprando = () => {
     onClose();
@@ -85,8 +86,8 @@ const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
                 className="w-16 h-16 object-cover rounded-xl"
               />
               <div
-                className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-black shadow-md"
-                style={{ background: softGreen }}
+                className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-md"
+                style={{ background: defaultOrange }}
               >
                 1
               </div>
@@ -100,10 +101,10 @@ const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
           <div className="w-full flex flex-col gap-2.5">
             <button
               onClick={handleIrParaCarrinho}
-              className="group w-full py-3.5 rounded-2xl font-semibold text-black flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg"
+              className="group w-full py-3.5 rounded-2xl font-semibold text-white flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg"
               style={{
-                background: softGreen,
-                boxShadow: `0 10px 20px -10px #4ade80`,
+                background: defaultOrange,
+                boxShadow: `0 10px 20px -10px #f97316`,
               }}
             >
               <ShoppingBag size={18} strokeWidth={2.5} />

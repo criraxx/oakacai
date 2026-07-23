@@ -122,6 +122,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     setItens((prev) => [...prev, { ...item, id: `item-${Date.now()}`, quantidade: item.quantidade ?? 1 }]);
   };
 
+  const atualizarItem = (id: string, dados: Partial<ItemCarrinho>) => {
+    setItens((prev) => prev.map((i) => (i.id === id ? { ...i, ...dados, id: i.id } : i)));
+  };
+
+
   const removerItem = (id: string) => {
     setItens((prev) => prev.filter((item) => item.id !== id));
   };

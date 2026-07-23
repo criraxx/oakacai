@@ -49,6 +49,12 @@ const produtosPorId: Record<string, { nome: string; preco: number; imagem: strin
     imagem: acaiPuro,
     descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!"
   },
+  "monte-1l": {
+    nome: "Copo 1 Litro Açaí Puro - monte do seu jeito",
+    preco: 44.90,
+    imagem: acaiPuro,
+    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!"
+  },
   // IDs usados na seção "Mais Pedidos"
   "copo-500ml-puro": {
     nome: "Copo 500ml Açaí Puro - monte do seu jeito",
@@ -65,13 +71,19 @@ const produtosPorId: Record<string, { nome: string; preco: number; imagem: strin
   "trufado-rafaelo-500": {
     nome: "Copo trufado Rafaelo 500 ML",
     preco: 39.99,
-    imagem: acaiPuro,
+    imagem: acaiRafaelo,
     descricao: "Açaí trufado com Rafaelo"
   },
   "trufado-rafaelo-300": {
     nome: "Copo trufado Rafaelo 300 ML",
     preco: 34.99,
-    imagem: acaiPuro,
+    imagem: acaiRafaelo,
+    descricao: "Açaí trufado com Rafaelo"
+  },
+  "trufado-rafaelo-700": {
+    nome: "Copo trufado Rafaelo 700 ML",
+    preco: 46.99,
+    imagem: acaiRafaelo,
     descricao: "Açaí trufado com Rafaelo"
   }
 };

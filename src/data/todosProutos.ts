@@ -106,7 +106,7 @@ export const todosProdutos: Produto[] = [
   {
     id: "roleta-1k",
     image: acaiRoleta,
-    title: "Roleta de açaí puro 1k - Monte Do seu jeito",
+    title: "Roleta de açaí puro 1L - Monte Do seu jeito",
     description: "Turbine sua roleta do seu jeito com quantos adicionais quiser!",
     price: 59.90,
     categoria: "Roleta"

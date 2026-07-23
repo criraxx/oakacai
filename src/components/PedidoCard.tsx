@@ -10,7 +10,7 @@ import {
   CreditCard,
   Receipt,
   Store,
-  Motorcycle,
+  Bike,
   Wallet,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";

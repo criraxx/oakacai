@@ -152,7 +152,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const getSubtotal = () => {
     return itens.reduce((acc, item) => {
-      return acc + item.produtoPreco + item.totalAdicionais;
+      const qtd = item.quantidade ?? 1;
+      return acc + (item.produtoPreco + item.totalAdicionais) * qtd;
     }, 0);
   };
 

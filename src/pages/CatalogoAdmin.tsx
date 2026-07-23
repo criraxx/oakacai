@@ -123,25 +123,13 @@ export function CatalogoPanel({ password }: { password: string }) {
   }
 
   return (
-    <Tabs defaultValue="produtos">
-      <TabsList className="grid grid-cols-3 md:grid-cols-6 w-full h-auto">
-        <TabsTrigger value="produtos">Produtos</TabsTrigger>
-        <TabsTrigger value="categorias">Categorias</TabsTrigger>
-        <TabsTrigger value="complementos">Complementos</TabsTrigger>
+    <Tabs defaultValue="banners">
+      <TabsList className="grid grid-cols-3 w-full h-auto">
         <TabsTrigger value="banners">Banners</TabsTrigger>
         <TabsTrigger value="orderbump">Order Bump</TabsTrigger>
         <TabsTrigger value="downsell">Downsell</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="produtos" className="mt-4">
-        <ProdutosTab produtos={produtos} categorias={categorias} secoes={secoes} produtoSecoes={produtoSecoes} onCrud={crud} onReload={() => loadAll(password)} />
-      </TabsContent>
-      <TabsContent value="categorias" className="mt-4">
-        <CategoriasTab categorias={categorias} onCrud={crud} />
-      </TabsContent>
-      <TabsContent value="complementos" className="mt-4">
-        <ComplementosTab secoes={secoes} complementos={complementos} onCrud={crud} />
-      </TabsContent>
       <TabsContent value="banners" className="mt-4">
         <BannersTab banners={banners} produtos={produtos} categorias={categorias} onCrud={crud} />
       </TabsContent>

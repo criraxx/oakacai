@@ -223,7 +223,18 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
 
   const handleSelectCard = () => {
     setShowPaymentModal(false);
-    navigate("/checkout-cartao");
+    navigate("/checkout-cartao", {
+      state: {
+        pedidoExistente: {
+          id: pedido.id,
+          numero_pedido: pedido.numero_pedido,
+          cliente_nome: pedido.cliente_nome,
+          cliente_telefone: pedido.cliente_telefone,
+          cliente_cpf: pedido.cliente_cpf || "",
+          total: pedido.total,
+        },
+      },
+    });
   };
 
   const isDelivery = pedido.tipo_entrega === "delivery";

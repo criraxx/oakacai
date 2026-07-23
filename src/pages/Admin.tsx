@@ -87,6 +87,8 @@ const STATUS_COLORS: Record<string, string> = {
   pendente: "bg-yellow-500",
   confirmado: "bg-green-500",
   recusado: "bg-red-500",
+  aprovado: "bg-emerald-600",
+  cancelado: "bg-red-600",
   preparando: "bg-blue-500",
   saiu: "bg-purple-500",
   entregue: "bg-green-700",

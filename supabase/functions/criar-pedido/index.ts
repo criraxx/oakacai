@@ -95,7 +95,11 @@ Deno.serve(async (req) => {
         total: body.total,
         payment_id: body.payment_id || null,
         pix_copia_e_cola: body.pix_copia_e_cola || null,
-        pix_expires_at: body.pix_expires_at || null,
+        pix_expires_at: (() => {
+          if (!body.pix_expires_at) return null;
+          const d = new Date(body.pix_expires_at);
+          return isNaN(d.getTime()) ? null : d.toISOString();
+        })(),
         observacoes: body.observacoes || null,
       })
       .select()

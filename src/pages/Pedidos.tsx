@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import BottomNavigation from "@/components/BottomNavigation";
 import PedidoCard from "@/components/PedidoCard";
 import { useCart } from "@/contexts/CartContext";
+import { useBranding } from "@/hooks/useBranding";
 
 interface PedidoDB {
   id: string;
@@ -32,6 +33,7 @@ const Pedidos = () => {
   const [pedidos, setPedidos] = useState<PedidoDB[]>([]);
   const [loading, setLoading] = useState(true);
   const { dadosCliente } = useCart();
+  const { cor_borda_logo } = useBranding();
 
   const [telefoneBusca, setTelefoneBusca] = useState("");
   const [telefoneAtivo, setTelefoneAtivo] = useState<string>("");
@@ -159,7 +161,10 @@ const Pedidos = () => {
               : "Digite seu telefone na barra acima para ver seu histórico."}
           </p>
           <Link to="/">
-            <button className="px-6 py-3 bg-card text-card-foreground font-semibold rounded-lg hover:opacity-90 transition-opacity">
+            <button
+              className="px-6 py-3 text-white font-semibold rounded-lg hover:opacity-90 transition-opacity shadow-md"
+              style={{ backgroundColor: cor_borda_logo }}
+            >
               Ver cardápio
             </button>
           </Link>

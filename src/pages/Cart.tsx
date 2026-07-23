@@ -79,7 +79,8 @@ const Cart = () => {
           </p>
           <button
             onClick={() => navigate("/")}
-            className="px-8 py-3.5 bg-primary text-primary-foreground font-semibold rounded-full press-effect hover:opacity-90 transition-opacity"
+            className="px-8 py-3.5 text-white font-semibold rounded-full press-effect hover:opacity-90 transition-opacity shadow-md"
+            style={{ backgroundColor: cor_borda_logo }}
           >
             Ver cardápio
           </button>

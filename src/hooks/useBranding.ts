@@ -24,8 +24,8 @@ async function fetchBranding(): Promise<Branding> {
     );
     const data = await res.json();
     return {
-      logo_url: resolveImageUrl(data?.logo_url || DEFAULT_BRANDING.logo_url),
-      banner_url: resolveImageUrl(data?.banner_url || DEFAULT_BRANDING.banner_url),
+      logo_url: data?.logo_url || DEFAULT_BRANDING.logo_url,
+      banner_url: data?.banner_url || DEFAULT_BRANDING.banner_url,
       cor_borda_logo: data?.cor_borda_logo || DEFAULT_BRANDING.cor_borda_logo,
     };
   } catch {

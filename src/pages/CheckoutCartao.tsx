@@ -383,5 +383,3 @@ const CardField = ({
 
 export default CheckoutCartao;
 
-
-export default CheckoutCartao;

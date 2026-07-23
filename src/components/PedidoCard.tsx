@@ -140,14 +140,10 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
   };
 
   const handleExpand = async () => {
-    if (!expanded && itens.length === 0) {
+    if (!expanded && Object.keys(complementosMap).length === 0) {
       setLoadingItens(true);
       try {
-        const [itensRes, compRes] = await Promise.all([
-          supabase.from("pedido_itens").select("*").eq("pedido_id", pedido.id),
-          supabase.from("complementos").select("id, nome"),
-        ]);
-        if (!itensRes.error && itensRes.data) setItens(itensRes.data);
+        const compRes = await supabase.from("complementos").select("id, nome");
         if (compRes.data) {
           const map: Record<string, string> = {};
           compRes.data.forEach((c: any) => {
@@ -156,7 +152,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
           setComplementosMap(map);
         }
       } catch (err) {
-        console.error("Erro ao buscar itens:", err);
+        console.error("Erro ao buscar complementos:", err);
       } finally {
         setLoadingItens(false);
       }

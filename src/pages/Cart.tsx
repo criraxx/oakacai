@@ -265,24 +265,24 @@ const Cart = () => {
             Pague com PIX e ganhe <strong>6% de desconto</strong> automático!
           </p>
         </div>
+        {/* Botão Avançar inline */}
+        <div className="mx-4 mb-4">
+          <button
+            onClick={() => navigate("/identificacao")}
+            className="w-full bg-primary text-primary-foreground rounded-2xl shadow-lg press-effect flex items-center justify-between px-5 py-4 hover:opacity-95 transition-opacity"
+          >
+            <div className="flex flex-col items-start">
+              <span className="text-xs opacity-80">Total</span>
+              <span className="font-bold text-lg leading-none">{formatBRL(total)}</span>
+            </div>
+            <div className="flex items-center gap-2 font-semibold">
+              Avançar <ArrowRight size={18} />
+            </div>
+          </button>
+        </div>
       </main>
 
-      {/* Footer fixo no rodapé */}
-      <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-background border-t border-border px-4 py-3 z-40">
-        <button
-          onClick={() => navigate("/identificacao")}
-          className="w-full bg-primary text-primary-foreground rounded-2xl shadow-lg press-effect flex items-center justify-between px-5 py-4 hover:opacity-95 transition-opacity"
-        >
-          <div className="flex flex-col items-start">
-            <span className="text-xs opacity-80">Total</span>
-            <span className="font-bold text-lg leading-none">{formatBRL(total)}</span>
-          </div>
-          <div className="flex items-center gap-2 font-semibold">
-            Avançar <ArrowRight size={18} />
-          </div>
-        </button>
-      </footer>
-
+      <BottomNavigation />
       <DownsellModal posicao="saida" />
     </div>
   );

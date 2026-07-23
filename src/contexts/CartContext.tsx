@@ -216,6 +216,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         itens,
         adicionarItem,
         removerItem,
+        incrementarQuantidade,
+        decrementarQuantidade,
         limparCarrinho,
         getSubtotal,
         getSubtotalSemPromocional,

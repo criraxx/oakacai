@@ -19,7 +19,10 @@ import DownsellModal from "@/components/DownsellModal";
 
 
 const Index = () => {
+  const location = useLocation();
+  const showDownsell = (location.state as any)?.showDownsell === true;
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
 
   const categories = [
     "Promoção Combo Premium!",

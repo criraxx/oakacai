@@ -1,4 +1,4 @@
-import { Search, X, ArrowLeft } from "lucide-react";
+import { Search, X, ArrowLeft, ImageOff } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useBranding } from "@/hooks/useBranding";
@@ -10,6 +10,7 @@ const Buscar = () => {
   const navigate = useNavigate();
   const { cor_borda_logo } = useBranding();
   const [query, setQuery] = useState("");
+  const [imgErros, setImgErros] = useState<Record<string, boolean>>({});
 
   const resultados = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -19,106 +20,97 @@ const Buscar = () => {
       .slice(0, 50);
   }, [query]);
 
+  const iniciais = (title: string) =>
+    title
+      .split(" ")
+      .slice(0, 2)
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase();
+
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col pb-24">
-      <header
-        className="sticky top-0 z-20 bg-background/95 backdrop-blur border-b border-border"
-        style={{ borderBottomColor: `${cor_borda_logo}55` }}
-      >
-        <div className="flex items-center gap-3 px-4 py-3">
+      <header className="sticky top-0 z-20 bg-background border-b border-border px-4 py-4">
+        <div className="flex items-center gap-3 mb-3">
           <button
             onClick={() => navigate(-1)}
             aria-label="Voltar"
-            className="w-10 h-10 rounded-full flex items-center justify-center bg-muted/60 hover:bg-muted transition-all active:scale-95"
-            style={{ border: `1.5px solid ${cor_borda_logo}` }}
+            className="w-9 h-9 rounded-full flex items-center justify-center text-foreground hover:bg-muted transition-colors"
           >
-            <ArrowLeft size={18} strokeWidth={2} />
+            <ArrowLeft size={20} strokeWidth={2} />
           </button>
-          <div className="flex-1">
-            <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground font-semibold">
-              Oak Açaí • Cardápio
-            </p>
-            <h1 className="text-foreground font-bold text-base leading-tight">O que você procura?</h1>
-          </div>
+          <h1 className="text-lg font-semibold text-foreground">Buscar</h1>
         </div>
 
-        <div className="px-4 pb-3">
-          <div
-            className="flex items-center gap-2 bg-muted/50 rounded-xl px-3 py-2.5 transition-all focus-within:bg-muted focus-within:ring-2"
-            style={{ ["--tw-ring-color" as any]: cor_borda_logo }}
-          >
-            <Search size={18} className="text-muted-foreground flex-shrink-0" strokeWidth={2.2} />
-            <Input
-              autoFocus
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar açaí, sorvete, complemento..."
-              className="border-0 focus-visible:ring-0 shadow-none px-0 h-auto py-0 bg-transparent text-sm placeholder:text-muted-foreground/70"
-            />
-            {query && (
-              <button
-                onClick={() => setQuery("")}
-                className="w-6 h-6 rounded-full flex items-center justify-center bg-foreground/10 hover:bg-foreground/20 text-foreground transition-colors flex-shrink-0"
-                aria-label="Limpar"
-              >
-                <X size={12} strokeWidth={2.5} />
-              </button>
-            )}
-          </div>
+        <div className="relative">
+          <Search
+            size={18}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            strokeWidth={2}
+          />
+          <Input
+            autoFocus
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar produtos..."
+            className="pl-10 pr-9 h-11 rounded-xl border border-input bg-muted text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-ring"
+          />
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Limpar"
+            >
+              <X size={18} strokeWidth={2} />
+            </button>
+          )}
         </div>
       </header>
 
       <main className="flex-1">
         {query.trim() === "" ? (
-          <div className="py-16 flex flex-col items-center justify-center text-center px-6">
-            <div
-              className="w-16 h-16 rounded-full flex items-center justify-center mb-4"
-              style={{ backgroundColor: `${cor_borda_logo}40` }}
-            >
-              <Search size={26} className="text-foreground/70" strokeWidth={2} />
-            </div>
-            <p className="text-base font-semibold text-foreground">Comece a digitar</p>
-            <p className="text-sm text-muted-foreground mt-1">Encontre seus produtos favoritos</p>
+          <div className="py-20 flex flex-col items-center justify-center text-center px-6">
+            <Search size={32} className="text-muted-foreground mb-3" strokeWidth={1.5} />
+            <p className="text-base font-medium text-foreground">O que você procura?</p>
+            <p className="text-sm text-muted-foreground mt-1">Digite o nome de um produto</p>
           </div>
         ) : resultados.length === 0 ? (
-          <div className="py-16 flex flex-col items-center justify-center text-center px-6">
-            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
-              <X size={26} className="text-muted-foreground" strokeWidth={2} />
-            </div>
-            <p className="text-base font-semibold text-foreground">Nada encontrado</p>
-            <p className="text-sm text-muted-foreground mt-1">Tente buscar por outro nome</p>
+          <div className="py-20 flex flex-col items-center justify-center text-center px-6">
+            <X size={32} className="text-muted-foreground mb-3" strokeWidth={1.5} />
+            <p className="text-base font-medium text-foreground">Nenhum resultado</p>
+            <p className="text-sm text-muted-foreground mt-1">Tente outro termo de busca</p>
           </div>
         ) : (
-          <ul className="p-3 space-y-2.5">
+          <ul className="divide-y divide-border">
             {resultados.map((p) => (
               <li key={p.id}>
                 <button
                   onClick={() => navigate(`/produto/${p.id}`)}
-                  className="w-full flex items-center gap-3 p-2.5 rounded-2xl bg-background hover:bg-muted/40 transition-all text-left active:scale-[0.99] shadow-sm"
-                  style={{ border: `1.5px solid ${cor_borda_logo}55` }}
+                  className="w-full flex items-center gap-4 px-4 py-3 text-left hover:bg-muted/50 transition-colors active:bg-muted"
                 >
-                  <div
-                    className="w-16 h-16 rounded-xl flex-shrink-0 bg-muted overflow-hidden flex items-center justify-center"
-                    style={{ border: `1.5px solid ${cor_borda_logo}` }}
-                  >
-                    {p.image ? (
-                      <img src={p.image} alt={p.title} className="w-full h-full object-cover" />
+                  <div className="w-[72px] h-[72px] rounded-lg bg-muted overflow-hidden flex-shrink-0 flex items-center justify-center">
+                    {p.image && !imgErros[p.id] ? (
+                      <img
+                        src={p.image}
+                        alt={p.title}
+                        className="w-full h-full object-cover"
+                        onError={() => setImgErros((prev) => ({ ...prev, [p.id]: true }))}
+                      />
                     ) : (
-                      <Search size={16} className="text-muted-foreground" />
+                      <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground">
+                        <ImageOff size={20} strokeWidth={1.5} />
+                        <span className="text-[10px] mt-1 font-medium">{iniciais(p.title)}</span>
+                      </div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground line-clamp-2 leading-snug">{p.title}</p>
-                    <p className="text-sm font-bold mt-1" style={{ color: cor_borda_logo }}>
+                    <p className="text-[15px] font-medium text-foreground leading-snug line-clamp-2">
+                      {p.title}
+                    </p>
+                    <p className="text-sm font-bold mt-1 text-foreground">
                       R$ {p.price.toFixed(2).replace(".", ",")}
                     </p>
                   </div>
-                  <span
-                    className="text-xs font-semibold px-2.5 py-1 rounded-full"
-                    style={{ background: `${cor_borda_logo}25`, color: cor_borda_logo }}
-                  >
-                    Ver →
-                  </span>
                 </button>
               </li>
             ))}

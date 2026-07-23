@@ -7,16 +7,9 @@ const roletaProducts = [
   {
     id: "roleta-500g",
     image: acaiRoleta,
-    title: "Roleta de açaí puro 500g - Monte Do seu jeito",
-    description: "Turbine sua roleta do seu jeito com quantos adicionais quiser !",
-    price: "R$ 32,90"
-  },
-  {
-    id: "roleta-1k",
-    image: acaiRoleta,
-    title: "Roleta de açaí puro 1k - Monte Do seu jeito",
-    description: "Turbine sua roleta do seu jeito com quantos adicionais quiser !",
-    price: "R$ 59,90"
+    title: "Roleta de açaí puro — Monte Do seu jeito",
+    description: "Escolha o tamanho (500g ou 1L) e turbine com quantos adicionais quiser!",
+    price: "A partir de R$ 32,90"
   }
 ];
 

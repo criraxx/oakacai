@@ -278,77 +278,97 @@ const ProductDetail = () => {
   };
 
 
+  // Cor de destaque: usa a cor da borda da logo; se for a padrão (bege) ou vazia, cai no verde
+  const DEFAULT_BEIGE = "#F5E6D3";
+  const brandAccent =
+    cor_borda_logo && cor_borda_logo.toUpperCase() !== DEFAULT_BEIGE.toUpperCase()
+      ? cor_borda_logo
+      : "#22c55e";
+
   return (
-    <div className="min-h-screen bg-muted max-w-md mx-auto flex flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-10 bg-background border-b border-border">
+    <div
+      className="min-h-screen bg-muted max-w-md mx-auto flex flex-col"
+      style={{ ["--brand-accent" as any]: brandAccent }}
+    >
+      {/* Header transparente sobre a imagem */}
+      <header className="absolute top-0 left-0 right-0 z-20 max-w-md mx-auto">
         <div className="flex items-center gap-3 px-4 py-3">
           <button
             onClick={() => navigate(-1)}
-            className="w-8 h-8 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
+            aria-label="Voltar"
+            className="w-10 h-10 flex items-center justify-center bg-black/50 backdrop-blur-md text-white rounded-full transition-transform hover:scale-105 active:scale-95 shadow-lg"
           >
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-foreground font-semibold text-base">
-            {temComplementos ? "Personalize seu Açaí" : "Detalhes do Produto"}
-          </h1>
         </div>
       </header>
 
       {/* Conteúdo */}
-      <main className="flex-1 pb-24">
-        {/* Seção do Produto */}
-        <div className="bg-background p-4 border-b border-border">
-          {/* Badge promocional */}
-          {isPromocional && (
-            <div className="mb-3 flex items-center gap-2">
-              <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-bold animate-pulse">
-                🔥 -50% PROMOÇÃO
-              </span>
-              <span className="text-yellow-400 text-xs">
-                (Limite: 1 por pedido)
-              </span>
-            </div>
-          )}
-          
-          <div className="flex gap-4">
-            {/* Imagem do Produto */}
-            {produto.imagem && (
-              <div className="flex-shrink-0 relative">
-                <img 
-                  src={produto.imagem} 
-                  alt={produto.nome}
-                  onClick={() => setImagemAmpliada(true)}
-                  className="w-28 h-28 object-cover rounded-lg cursor-zoom-in press-effect"
-                />
-                {isPromocional && (
-                  <div className="absolute inset-0 bg-gradient-to-t from-green-500/40 to-transparent rounded-lg pointer-events-none" />
-                )}
+      <main className="flex-1 pb-28">
+        {/* Hero Image Premium */}
+        {produto.imagem && (
+          <div className="relative w-full aspect-square bg-background overflow-hidden">
+            <img
+              src={produto.imagem}
+              alt={produto.nome}
+              onClick={() => setImagemAmpliada(true)}
+              className="w-full h-full object-cover cursor-zoom-in"
+            />
+            {/* Gradiente sutil para legibilidade do header */}
+            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/40 to-transparent pointer-events-none" />
+            {isPromocional && (
+              <div className="absolute top-4 right-4">
+                <span className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-full font-bold shadow-lg animate-pulse">
+                  🔥 -50% PROMOÇÃO
+                </span>
               </div>
             )}
-            {/* Informações do Produto */}
-            <div className="flex-1">
-              <h2 className="text-foreground font-bold text-lg leading-tight mb-1">
-                {produto.nome}
-              </h2>
-              {isPromocional && produto.precoOriginal && (
-                <p className="text-muted-foreground line-through text-sm">
-                  R$ {produto.precoOriginal.toFixed(2).replace(".", ",")}
-                </p>
-              )}
-              <p className={`font-semibold text-base mb-2 ${isPromocional ? "text-green-400" : "text-foreground"}`}>
-                R$ {produto.preco.toFixed(2).replace(".", ",")}
-              </p>
-              <p className="text-foreground/80 text-sm leading-relaxed whitespace-pre-line">
-                {produto.descricao}
-              </p>
-            </div>
           </div>
+        )}
+
+        {/* Card de informações do produto (elevado sobre a imagem) */}
+        <div className="relative -mt-6 bg-background rounded-t-3xl px-5 pt-6 pb-5 shadow-[0_-8px_24px_rgba(0,0,0,0.06)]">
+          <h2 className="text-foreground font-bold text-2xl leading-tight tracking-tight mb-2">
+            {produto.nome}
+          </h2>
+
+          <div className="flex items-baseline gap-3 mb-3">
+            <p
+              className="font-bold text-2xl"
+              style={{ color: brandAccent }}
+            >
+              R$ {produto.preco.toFixed(2).replace(".", ",")}
+            </p>
+            {isPromocional && produto.precoOriginal && (
+              <p className="text-muted-foreground line-through text-base">
+                R$ {produto.precoOriginal.toFixed(2).replace(".", ",")}
+              </p>
+            )}
+          </div>
+
+          <p className="text-foreground/75 text-sm leading-relaxed whitespace-pre-line">
+            {produto.descricao}
+          </p>
+
+          {isPromocional && (
+            <p className="mt-3 text-xs text-muted-foreground italic">
+              Limite: 1 por pedido
+            </p>
+          )}
         </div>
 
-        {/* Campo de Pesquisa - só mostra se tem complementos */}
+        {/* Título de seção de personalização */}
         {temComplementos && (
-          <div className="bg-background px-4 py-3 border-b border-border">
+          <div className="px-5 pt-5 pb-2 bg-background">
+            <h3 className="text-foreground font-semibold text-base">
+              Personalize seu pedido
+            </h3>
+          </div>
+        )}
+
+        {/* Campo de Pesquisa */}
+        {temComplementos && (
+          <div className="bg-background px-4 py-3">
             <div className="relative">
               <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <input
@@ -356,13 +376,14 @@ const ProductDetail = () => {
                 value={pesquisa}
                 onChange={(e) => setPesquisa(e.target.value)}
                 placeholder="Pesquise pelo nome"
-                className="w-full pl-10 pr-4 py-2 bg-muted border border-border rounded-lg text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-secondary"
+                className="w-full pl-10 pr-4 py-2.5 bg-muted border border-border rounded-xl text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2"
+                style={{ ["--tw-ring-color" as any]: brandAccent }}
               />
             </div>
           </div>
         )}
 
-        {/* Seções de Complementos - só mostra se tem complementos */}
+        {/* Seções de Complementos */}
         {temComplementos && (pesquisa ? secoesFiltradas : secoesProduto).map((secao) => (
           <ComplementSection
             key={secao.id}
@@ -381,46 +402,47 @@ const ProductDetail = () => {
             value={observacoes}
             onChange={(e) => setObservacoes(e.target.value)}
             placeholder="Alguma observação para o seu pedido?"
-            className="w-full h-20 px-3 py-2 bg-muted border border-border rounded-lg text-foreground text-sm placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-secondary"
+            className="w-full h-20 px-3 py-2 bg-muted border border-border rounded-xl text-foreground text-sm placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2"
+            style={{ ["--tw-ring-color" as any]: brandAccent }}
           />
         </div>
       </main>
 
-      {/* Footer Fixo */}
-      <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-background border-t border-border p-4">
+      {/* Footer Fixo Premium */}
+      <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-background/95 backdrop-blur-md border-t border-border p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
         <div className="flex items-center gap-3">
-          {/* Seletor de Quantidade - esconde para itens promocionais */}
           {!isPromocional && (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 bg-muted rounded-full p-1">
               <button
                 onClick={() => setQuantidadeProduto(Math.max(1, quantidadeProduto - 1))}
-                className="w-8 h-8 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors border border-border"
+                className="w-9 h-9 flex items-center justify-center text-foreground rounded-full hover:bg-background transition-colors"
+                aria-label="Diminuir"
               >
                 −
               </button>
-              <span className="w-6 text-center text-foreground font-medium">
+              <span className="w-6 text-center text-foreground font-semibold">
                 {quantidadeProduto}
               </span>
               <button
                 onClick={() => setQuantidadeProduto(quantidadeProduto + 1)}
-                className="w-8 h-8 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors border border-border"
+                className="w-9 h-9 flex items-center justify-center text-foreground rounded-full hover:bg-background transition-colors"
+                aria-label="Aumentar"
+                style={{ backgroundColor: brandAccent, color: "#0a0a0a" }}
               >
                 +
               </button>
             </div>
           )}
 
-          {/* Botão Adicionar */}
           <button
             onClick={handleAdicionarAoCarrinho}
-            className={`flex-1 py-3 font-semibold rounded-lg transition-colors flex items-center justify-between px-4 ${
-              isPromocional 
-                ? "bg-green-500 text-white hover:bg-green-600" 
-                : "bg-foreground text-background hover:bg-foreground/90"
-            }`}
+            style={{ backgroundColor: brandAccent, color: "#0a0a0a" }}
+            className="flex-1 py-3.5 font-bold rounded-full transition-transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-between px-5 shadow-lg"
           >
-            <span>{modoEdicao ? "Salvar alterações" : isPromocional ? "🔥 Adicionar Promoção" : "Adicionar"}</span>
-            <span>
+            <span className="text-sm">
+              {modoEdicao ? "Salvar alterações" : isPromocional ? "Adicionar Promoção" : "Adicionar"}
+            </span>
+            <span className="text-sm font-extrabold">
               R$ {((produto.preco + totalAdicionais) * (isPromocional ? 1 : quantidadeProduto)).toFixed(2).replace(".", ",")}
             </span>
           </button>

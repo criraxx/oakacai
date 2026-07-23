@@ -1,13 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, CreditCard, Loader2, XCircle, Percent } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, XCircle, Percent, Lock } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useBranding } from "@/hooks/useBranding";
 import { supabase } from "@/integrations/supabase/client";
 import { trackPaymentFailed } from "@/lib/metaPixel";
 
 const CheckoutCartao = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { cor_borda_logo } = useBranding();
+  const accent = cor_borda_logo || "#F5E6D3";
   const { itens, getTotal, dadosCliente, pedidoAtual } = useCart();
 
   // Desconto recebido via state (ex: 0.08 quando vem do modo PIX-em-manutenção)

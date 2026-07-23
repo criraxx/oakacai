@@ -98,7 +98,7 @@ const Pedidos = () => {
   const telValid = telefoneBusca.replace(/\D/g, "").length >= 10;
   const active = focused || telefoneBusca.length > 0;
 
-  const Header = () => (
+  const header = (
     <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/60">
       <div
         className="h-1.5 w-full"
@@ -169,6 +169,7 @@ const Pedidos = () => {
       </div>
     </header>
   );
+
 
   if (loading) {
     return (

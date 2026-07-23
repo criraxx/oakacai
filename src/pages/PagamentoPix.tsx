@@ -178,50 +178,57 @@ const PagamentoPix = () => {
               Abra o app do seu banco e leia o QR Code abaixo.
             </p>
 
-            {/* Card com QR Code */}
-            <div className="rounded-2xl border border-border bg-card p-5 mb-4 flex flex-col items-center">
-              {/* Timer inline */}
-              <div
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full mb-4 text-xs font-semibold"
-                style={{ background: `${accent}25`, color: "hsl(var(--foreground))" }}
-              >
-                <Clock size={14} />
-                Expira em {formatTime(timeLeft)}
+            {/* Card destaque: Valor + Timer */}
+            <div
+              className="rounded-2xl p-5 mb-4 border"
+              style={{ background: `${accent}15`, borderColor: `${accent}55` }}
+            >
+              <div className="flex items-end justify-between mb-3">
+                <div>
+                  <span className="text-[11px] text-muted-foreground uppercase tracking-wide font-medium">
+                    Valor a pagar
+                  </span>
+                  {totalComDesconto && (
+                    <p className="text-foreground font-bold text-[30px] leading-none mt-1">
+                      R$ {totalComDesconto.toFixed(2).replace(".", ",")}
+                    </p>
+                  )}
+                  {economia && economia > 0 && (
+                    <p className="text-[11px] font-semibold mt-1.5" style={{ color: accent }}>
+                      Você economizou R$ {economia.toFixed(2).replace(".", ",")}
+                    </p>
+                  )}
+                </div>
+                <div
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-background border border-border"
+                  style={{ color: "hsl(var(--foreground))" }}
+                >
+                  <Clock size={12} style={{ color: accent }} />
+                  {formatTime(timeLeft)}
+                </div>
               </div>
-
-              {/* Progress bar do timer */}
-              <div className="w-full h-1 bg-muted rounded-full overflow-hidden mb-5">
+              <div className="h-1 bg-background/60 rounded-full overflow-hidden">
                 <div
                   className="h-full transition-all duration-1000"
                   style={{ width: `${timerProgress}%`, background: accent }}
                 />
               </div>
+            </div>
 
-              {/* QR */}
-              <div className="bg-white rounded-xl p-3 mb-4 border border-border">
-                <QRCodeSVG value={pixData.copiaCola} size={190} level="M" includeMargin={false} />
+            {/* QR Code */}
+            <div className="rounded-2xl border border-border bg-background p-5 mb-4 flex flex-col items-center">
+              <div className="bg-white rounded-xl p-3 border border-border shadow-sm">
+                <QRCodeSVG value={pixData.copiaCola} size={200} level="M" includeMargin={false} />
               </div>
-
-              {/* Valor */}
-              {totalComDesconto && (
-                <>
-                  <span className="text-[11px] text-muted-foreground uppercase tracking-wide">Valor a pagar</span>
-                  <p className="text-foreground font-bold text-[28px] leading-tight">
-                    R$ {totalComDesconto.toFixed(2).replace(".", ",")}
-                  </p>
-                  {economia && economia > 0 && (
-                    <p className="text-xs font-medium mt-0.5" style={{ color: accent }}>
-                      Você economizou R$ {economia.toFixed(2).replace(".", ",")}
-                    </p>
-                  )}
-                </>
-              )}
+              <p className="text-muted-foreground text-xs text-center mt-3">
+                Aponte a câmera do app do seu banco para o código
+              </p>
             </div>
 
             {/* Copia e cola */}
-            <div className="rounded-2xl border border-border bg-card p-4 mb-4">
-              <p className="text-[11px] text-muted-foreground uppercase tracking-wide mb-2">
-                Pix copia e cola
+            <div className="rounded-2xl border border-border bg-background p-4 mb-4">
+              <p className="text-[11px] text-muted-foreground uppercase tracking-wide font-medium mb-2">
+                Ou use o Pix copia e cola
               </p>
               <div className="bg-muted rounded-lg p-3 mb-3">
                 <p className="text-foreground text-xs font-mono break-all leading-relaxed">
@@ -251,15 +258,15 @@ const PagamentoPix = () => {
             </div>
 
             {/* Como pagar */}
-            <div className="rounded-2xl border border-border bg-card p-4 mb-4">
+            <div className="rounded-2xl border border-border bg-background p-4 mb-4">
               <p className="text-[13px] font-semibold text-foreground mb-3">Como pagar</p>
-              <ol className="space-y-2.5">
+              <ol className="space-y-3">
                 {[
                   "Abra o app do seu banco",
                   "Escolha pagar via Pix com QR Code ou copia e cola",
                   "Confirme e aguarde a confirmação automática",
                 ].map((t, i) => (
-                  <li key={i} className="flex gap-3 text-sm text-muted-foreground">
+                  <li key={i} className="flex gap-3 text-sm text-foreground/80">
                     <span
                       className="flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-bold text-black"
                       style={{ background: accent }}
@@ -271,6 +278,7 @@ const PagamentoPix = () => {
                 ))}
               </ol>
             </div>
+
           </>
         )}
 

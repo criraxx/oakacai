@@ -25,6 +25,8 @@ const formatBRL = (v: number) => `R$ ${v.toFixed(2).replace(".", ",")}`;
 
 const Cart = () => {
   const navigate = useNavigate();
+  const { cor_borda_logo } = useBranding();
+  const accent = cor_borda_logo || "#F5E6D3";
   const { itens, removerItem, limparCarrinho, adicionarItem, incrementarQuantidade, decrementarQuantidade, getSubtotal, getTotal } = useCart();
 
   const getNomeComplemento = (complementoId: string): string => {

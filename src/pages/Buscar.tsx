@@ -1,4 +1,4 @@
-import { Search, X, ArrowLeft } from "lucide-react";
+import { Search, X, ArrowLeft, ImageOff } from "lucide-react";
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useBranding } from "@/hooks/useBranding";
@@ -10,6 +10,7 @@ const Buscar = () => {
   const navigate = useNavigate();
   const { cor_borda_logo } = useBranding();
   const [query, setQuery] = useState("");
+  const [imgErros, setImgErros] = useState<Record<string, boolean>>({});
 
   const resultados = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -18,6 +19,14 @@ const Buscar = () => {
       .filter((p) => p.title.toLowerCase().includes(q))
       .slice(0, 50);
   }, [query]);
+
+  const iniciais = (title: string) =>
+    title
+      .split(" ")
+      .slice(0, 2)
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase();
 
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col pb-24">
@@ -80,20 +89,25 @@ const Buscar = () => {
                   className="w-full flex items-center gap-4 px-4 py-3 text-left hover:bg-muted/50 transition-colors active:bg-muted"
                 >
                   <div className="w-[72px] h-[72px] rounded-lg bg-muted overflow-hidden flex-shrink-0 flex items-center justify-center">
-                    {p.image ? (
-                      <img src={p.image} alt={p.title} className="w-full h-full object-cover" />
+                    {p.image && !imgErros[p.id] ? (
+                      <img
+                        src={p.image}
+                        alt={p.title}
+                        className="w-full h-full object-cover"
+                        onError={() => setImgErros((prev) => ({ ...prev, [p.id]: true }))}
+                      />
                     ) : (
-                      <Search size={18} className="text-muted-foreground" />
+                      <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground">
+                        <ImageOff size={20} strokeWidth={1.5} />
+                        <span className="text-[10px] mt-1 font-medium">{iniciais(p.title)}</span>
+                      </div>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[15px] font-medium text-foreground leading-snug line-clamp-2">
                       {p.title}
                     </p>
-                    <p
-                      className="text-sm font-semibold mt-1"
-                      style={{ color: cor_borda_logo || "hsl(var(--primary))" }}
-                    >
+                    <p className="text-sm font-bold mt-1 text-foreground">
                       R$ {p.price.toFixed(2).replace(".", ",")}
                     </p>
                   </div>

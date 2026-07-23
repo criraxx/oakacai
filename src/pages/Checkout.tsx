@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { RepagamentoCheckout } from "./RepagamentoCheckout";
 import { ArrowLeft, ArrowRight, Loader2, Home, Store, QrCode, CreditCard, Zap, Percent } from "lucide-react";
 import { useCart, DadosEntrega } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";

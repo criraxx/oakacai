@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
-import { ClipboardList, Search, ArrowLeft, Phone } from "lucide-react";
+import { ClipboardList, Search, ArrowLeft } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import BottomNavigation from "@/components/BottomNavigation";
 import PedidoCard from "@/components/PedidoCard";
 import { useCart } from "@/contexts/CartContext";
@@ -28,19 +26,30 @@ interface PedidoDB {
   payment_id: string | null;
 }
 
+const formatTelefone = (value: string) => {
+  const n = value.replace(/\D/g, "");
+  if (n.length <= 2) return n;
+  if (n.length <= 7) return `(${n.slice(0, 2)}) ${n.slice(2)}`;
+  if (n.length <= 11) return `(${n.slice(0, 2)}) ${n.slice(2, 7)}-${n.slice(7)}`;
+  return `(${n.slice(0, 2)}) ${n.slice(2, 7)}-${n.slice(7, 11)}`;
+};
+
 const Pedidos = () => {
   const navigate = useNavigate();
   const [pedidos, setPedidos] = useState<PedidoDB[]>([]);
   const [loading, setLoading] = useState(true);
   const { dadosCliente } = useCart();
   const { cor_borda_logo } = useBranding();
+  const accent = cor_borda_logo || "#F5E6D3";
 
   const [telefoneBusca, setTelefoneBusca] = useState("");
   const [telefoneAtivo, setTelefoneAtivo] = useState<string>("");
+  const [focused, setFocused] = useState(false);
 
   useEffect(() => {
     if (dadosCliente?.telefone && !telefoneBusca) {
-      setTelefoneBusca(dadosCliente.telefone);
+      const formatted = formatTelefone(dadosCliente.telefone);
+      setTelefoneBusca(formatted);
       setTelefoneAtivo(dadosCliente.telefone);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -52,7 +61,6 @@ const Pedidos = () => {
         setLoading(false);
         return;
       }
-
       try {
         const response = await fetch(
           "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/buscar-pedidos",
@@ -62,9 +70,7 @@ const Pedidos = () => {
             body: JSON.stringify({ telefone: telefoneAtivo.trim() }),
           }
         );
-
         const result = await response.json();
-
         if (result.error) {
           console.error("Erro ao buscar pedidos:", result.error);
           setPedidos([]);
@@ -78,55 +84,84 @@ const Pedidos = () => {
         setLoading(false);
       }
     };
-
     buscarPedidos();
   }, [telefoneAtivo]);
 
   const handleBuscar = () => {
+    const clean = telefoneBusca.replace(/\D/g, "");
+    if (clean.length < 10) return;
     setLoading(true);
     setPedidos([]);
-    setTelefoneAtivo(telefoneBusca);
+    setTelefoneAtivo(clean);
   };
+
+  const telValid = telefoneBusca.replace(/\D/g, "").length >= 10;
+  const active = focused || telefoneBusca.length > 0;
 
   const Header = () => (
     <header className="sticky top-0 z-10 bg-background border-b border-border">
-      <div className="flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-8 h-8 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
-          >
-            <ArrowLeft size={20} />
-          </button>
-          <h1 className="text-foreground font-semibold text-lg">Meus Pedidos</h1>
-        </div>
+      <div className="flex items-center gap-3 px-4 py-3.5">
+        <button
+          onClick={() => navigate(-1)}
+          className="w-9 h-9 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
+          aria-label="Voltar"
+        >
+          <ArrowLeft size={20} />
+        </button>
+        <h1 className="text-foreground font-semibold text-base">Meus pedidos</h1>
         {pedidos.length > 0 && (
-          <span className="text-xs text-muted-foreground font-medium">
+          <span className="ml-auto text-xs text-muted-foreground font-medium">
             {pedidos.length} {pedidos.length === 1 ? "pedido" : "pedidos"}
           </span>
         )}
       </div>
+      <div className="h-1 bg-muted">
+        <div className="h-full transition-all" style={{ width: telValid ? "100%" : "35%", background: accent }} />
+      </div>
 
-      <div className="px-4 pb-3">
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-            <Input
+      <div className="px-4 pt-4 pb-4">
+        <div className="flex gap-2 items-stretch">
+          <div
+            className="relative flex-1 rounded-xl border transition-all bg-background"
+            style={{
+              borderColor: focused ? accent : "hsl(var(--border))",
+              borderWidth: focused ? 2 : 1,
+            }}
+          >
+            <label
+              htmlFor="tel-busca"
+              className={`absolute left-3.5 pointer-events-none transition-all ${
+                active
+                  ? "top-1.5 text-[11px] font-medium text-muted-foreground"
+                  : "top-1/2 -translate-y-1/2 text-[15px] text-muted-foreground"
+              }`}
+            >
+              WhatsApp
+            </label>
+            <input
+              id="tel-busca"
+              type="tel"
+              inputMode="numeric"
               value={telefoneBusca}
-              onChange={(e) => setTelefoneBusca(e.target.value)}
-              placeholder="Buscar pelo seu telefone"
-              className="pl-9 bg-muted border-border"
-              inputMode="tel"
+              onChange={(e) => setTelefoneBusca(formatTelefone(e.target.value))}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
               onKeyDown={(e) => e.key === "Enter" && handleBuscar()}
+              placeholder={active ? "(00) 00000-0000" : ""}
+              maxLength={15}
+              className="w-full pt-6 pb-2 px-3.5 bg-transparent text-foreground text-[15px] placeholder:text-muted-foreground/50 focus:outline-none"
             />
           </div>
-          <Button
+          <button
             type="button"
             onClick={handleBuscar}
-            className="shrink-0 bg-card text-card-foreground hover:opacity-90"
+            disabled={!telValid}
+            aria-label="Buscar"
+            className="shrink-0 w-14 rounded-xl flex items-center justify-center transition-all active:scale-95 disabled:opacity-40"
+            style={{ background: accent, color: "#000" }}
           >
-            <Search className="w-4 h-4" />
-          </Button>
+            <Search className="w-5 h-5" />
+          </button>
         </div>
       </div>
     </header>
@@ -149,21 +184,24 @@ const Pedidos = () => {
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
         <Header />
         <main className="flex-1 flex flex-col items-center justify-center px-6 py-12 pb-24 text-center">
-          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
-            <ClipboardList size={40} className="text-muted-foreground" />
+          <div
+            className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
+            style={{ background: `${accent}30`, border: `1.5px solid ${accent}` }}
+          >
+            <ClipboardList size={36} style={{ color: accent }} />
           </div>
-          <h2 className="text-foreground font-semibold text-lg mb-2">
+          <h2 className="text-foreground font-bold text-[19px] mb-2">
             {telefoneAtivo ? "Nenhum pedido encontrado" : "Busque seus pedidos"}
           </h2>
-          <p className="text-muted-foreground text-sm mb-6">
+          <p className="text-muted-foreground text-sm mb-7 max-w-[280px] leading-relaxed">
             {telefoneAtivo
-              ? "Faça seu primeiro pedido e acompanhe o status por aqui!"
-              : "Digite seu telefone na barra acima para ver seu histórico."}
+              ? "Não achamos pedidos com esse telefone. Faça seu primeiro pedido e acompanhe por aqui!"
+              : "Digite seu WhatsApp na barra acima para ver seu histórico de pedidos."}
           </p>
           <Link to="/">
             <button
-              className="px-6 py-3 text-white font-semibold rounded-lg hover:opacity-90 transition-opacity shadow-md"
-              style={{ backgroundColor: cor_borda_logo }}
+              className="px-7 py-3.5 font-semibold rounded-xl transition-all active:scale-[0.98] text-[15px]"
+              style={{ background: accent, color: "#000" }}
             >
               Ver cardápio
             </button>
@@ -188,3 +226,4 @@ const Pedidos = () => {
 };
 
 export default Pedidos;
+

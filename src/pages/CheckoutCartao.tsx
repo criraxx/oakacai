@@ -15,12 +15,28 @@ const CheckoutCartao = () => {
   const accent = cor_borda_logo || "#F5E6D3";
   const { itens, getTotal, dadosCliente, pedidoAtual } = useCart();
 
+  // Pedido pré-existente vindo de /pedidos (repagamento) — evita duplicação
+  const pedidoExistente = location.state?.pedidoExistente as
+    | { id: string; numero_pedido: string; cliente_nome: string; cliente_telefone: string; cliente_cpf: string; total: number }
+    | undefined;
+
   // Desconto recebido via state (ex: 0.08 quando vem do modo PIX-em-manutenção)
   const descontoCartao: number =
     typeof location.state?.descontoCartao === "number" ? location.state.descontoCartao : 0;
-  const totalOriginal = getTotal();
+  const totalOriginal = pedidoExistente ? pedidoExistente.total : getTotal();
   const valorComDesconto = totalOriginal * (1 - descontoCartao);
   const economiaCartao = totalOriginal - valorComDesconto;
+
+  // Dados do cliente: do pedido existente ou do contexto do carrinho
+  const clienteInfo = pedidoExistente
+    ? {
+        nome: pedidoExistente.cliente_nome,
+        telefone: pedidoExistente.cliente_telefone,
+        cpf: pedidoExistente.cliente_cpf,
+      }
+    : dadosCliente
+    ? { nome: dadosCliente.nome, telefone: dadosCliente.telefone, cpf: dadosCliente.cpf }
+    : null;
 
   const [cardData, setCardData] = useState({
     numero: "",

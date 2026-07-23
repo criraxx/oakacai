@@ -74,8 +74,10 @@ const Index = () => {
       <CategoryTabs categories={categories} onSelect={setActiveCategory} initialCategory={activeCategory} />
       <main>{renderSections()}</main>
       <BottomNavigation />
+      {showDownsell && <DownsellModal posicao="saida" triggerOnMount />}
     </div>
   );
 };
+
 
 export default Index;

@@ -96,7 +96,7 @@ const Checkout = () => {
       trackInitiateCheckout({
         content_ids: itens.map(item => item.produtoId),
         value: getSubtotal(),
-        num_items: itens.length,
+        num_items: itens.reduce((acc, item) => acc + (item.quantidade ?? 1), 0),
       });
       
       // Disparar AddPaymentInfo com a forma de pagamento inicial (PIX)

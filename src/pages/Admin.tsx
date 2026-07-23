@@ -28,6 +28,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { CatalogoPanel } from "./CatalogoAdmin";
+
 
 interface ValePresente {
   id: string;
@@ -104,7 +106,7 @@ const Admin = () => {
   const [loading, setLoading] = useState(false);
   const [reconciling, setReconciling] = useState(false);
   const [filtroStatus, setFiltroStatus] = useState("todos");
-  const [abaAtiva, setAbaAtiva] = useState<"pedidos" | "vales" | "config">("pedidos");
+  const [abaAtiva, setAbaAtiva] = useState<"pedidos" | "vales" | "config" | "catalogo">("pedidos");
   const [gatewayAtivo, setGatewayAtivo] = useState<string>("umbrellapag");
   const [salvandoGateway, setSalvandoGateway] = useState(false);
   const [modoCartaoApenas, setModoCartaoApenas] = useState<boolean>(false);
@@ -703,9 +705,15 @@ const Admin = () => {
             <Settings className="w-4 h-4" />
             Configurações
           </Button>
-          <Button variant="outline" onClick={() => window.location.assign("/admin/catalogo")} className="gap-2">
+          <Button
+            variant={abaAtiva === "catalogo" ? "default" : "outline"}
+            onClick={() => setAbaAtiva("catalogo")}
+            className="gap-2"
+          >
+            <Package className="w-4 h-4" />
             Catálogo
           </Button>
+
         </div>
 
 
@@ -1383,7 +1391,14 @@ const Admin = () => {
             </Card>
           </div>
         )}
+
+        {abaAtiva === "catalogo" && (
+          <div className="mt-2">
+            <CatalogoPanel password={password} />
+          </div>
+        )}
       </div>
+
     </div>
   );
 };

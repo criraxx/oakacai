@@ -8,6 +8,7 @@ const corsHeaders = {
 interface PedidoItem {
   produto_nome: string;
   produto_preco: number;
+  quantidade: number;
   adicionais: Record<string, number>;
   total_adicionais: number;
   total_item: number;

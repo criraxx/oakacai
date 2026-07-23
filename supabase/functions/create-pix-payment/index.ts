@@ -32,6 +32,25 @@ const sanitizeName = (name: string): string => {
     .trim() || 'Cliente';
 };
 
+// Gera um CPF válido aleatoriamente (para gateways que exigem CPF)
+const generateValidCPF = (): string => {
+  const rand = (n: number) => Math.floor(Math.random() * n);
+  const n = Array.from({ length: 9 }, () => rand(10));
+  const calc = (base: number[]) => {
+    const sum = base.reduce((acc, v, i) => acc + v * (base.length + 1 - i), 0);
+    const r = (sum * 10) % 11;
+    return r === 10 ? 0 : r;
+  };
+  const d1 = calc(n);
+  const d2 = calc([...n, d1]);
+  return [...n, d1, d2].join('');
+};
+
+const ensureCPF = (cpf: string): string => {
+  const clean = (cpf || '').replace(/\D/g, '');
+  return clean.length === 11 ? clean : generateValidCPF();
+};
+
 // Criar PIX via UmbrellaPag
 // deno-lint-ignore no-explicit-any
 async function createUmbrellaPagPix(body: CreatePixRequest, supabase: any, supabaseUrl: string) {

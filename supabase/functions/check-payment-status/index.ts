@@ -154,6 +154,26 @@ serve(async (req) => {
     const gateway = config?.gateway_pix || 'umbrellapag';
     console.log('[check-payment-status] Gateway ativo:', gateway);
 
+    // Verificação prévia no banco: se o admin já aprovou ou o pagamento já foi confirmado, retornar como pago
+    try {
+      const { data: pedidoDb } = await supabaseAdmin
+        .from('pedidos')
+        .select('status_pagamento, status_pedido')
+        .eq('payment_id', String(paymentId))
+        .limit(1)
+        .maybeSingle();
+
+      if (pedidoDb && (pedidoDb.status_pagamento === 'confirmado' || pedidoDb.status_pedido === 'aprovado')) {
+        console.log('[check-payment-status] Pedido já aprovado/confirmado no banco');
+        return new Response(
+          JSON.stringify({ success: true, status: 'paid', rawStatus: 'ADMIN_APPROVED', gateway }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    } catch (e) {
+      console.error('[check-payment-status] Erro consulta prévia:', e);
+    }
+
     let result: { status: string; rawStatus: string };
     
     try {

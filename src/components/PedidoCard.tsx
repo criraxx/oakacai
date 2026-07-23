@@ -1,9 +1,23 @@
 import { useEffect, useState } from "react";
-import { Clock, CheckCircle, Package, Truck, MapPin, ChevronDown, ChevronUp, CreditCard, Receipt } from "lucide-react";
+import {
+  Clock,
+  CheckCircle,
+  Package,
+  Truck,
+  MapPin,
+  ChevronDown,
+  ChevronUp,
+  CreditCard,
+  Receipt,
+  Store,
+  Bike,
+  Wallet,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useBranding } from "@/hooks/useBranding";
 import PaymentMethodModal from "./PaymentMethodModal";
 import ReciboModal from "./ReciboModal";
 
@@ -37,12 +51,15 @@ interface PedidoDB {
   payment_id: string | null;
 }
 
-const statusConfig: Record<string, { label: string; icon: React.ElementType; color: string; step: number }> = {
-  pendente: { label: "Pendente", icon: Clock, color: "text-yellow-500", step: 1 },
-  confirmado: { label: "Confirmado", icon: CheckCircle, color: "text-green-500", step: 2 },
-  preparando: { label: "Preparando", icon: Package, color: "text-blue-500", step: 3 },
-  saiu: { label: "Saiu para entrega", icon: Truck, color: "text-purple-500", step: 4 },
-  entregue: { label: "Entregue", icon: MapPin, color: "text-green-600", step: 5 },
+const statusConfig: Record<
+  string,
+  { label: string; short: string; icon: React.ElementType; step: number }
+> = {
+  pendente: { label: "Pendente", short: "Pendente", icon: Clock, step: 1 },
+  confirmado: { label: "Confirmado", short: "Confirmado", icon: CheckCircle, step: 2 },
+  preparando: { label: "Preparando", short: "Preparando", icon: Package, step: 3 },
+  saiu: { label: "Saiu para entrega", short: "Saiu", icon: Truck, step: 4 },
+  entregue: { label: "Entregue", short: "Entregue", icon: MapPin, step: 5 },
 };
 
 interface PedidoCardProps {
@@ -52,21 +69,16 @@ interface PedidoCardProps {
 const PedidoCard = ({ pedido }: PedidoCardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { cor_borda_logo } = useBranding();
+  const accent = cor_borda_logo || "#F5E6D3";
+
   const [expanded, setExpanded] = useState(false);
   const [itens, setItens] = useState<PedidoItem[]>([]);
   const [loadingItens, setLoadingItens] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [showRecibo, setShowRecibo] = useState(false);
-  const [corBorda, setCorBorda] = useState<string>("#F5E6D3");
   const [complementosMap, setComplementosMap] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    fetch("https://bgcwtnrimreruswogffr.supabase.co/functions/v1/buscar-config")
-      .then((r) => r.json())
-      .then((d) => d?.cor_borda_logo && setCorBorda(d.cor_borda_logo))
-      .catch(() => {});
-  }, []);
 
   // Tick para reavaliar status automático baseado em tempo
   const [, setTick] = useState(0);
@@ -76,7 +88,6 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
   }, []);
 
   // Progressão automática do status quando pagamento confirmado
-  // 0min: confirmado (Em processamento) -> 5min: preparando -> 10min: saiu -> 20min: entregue
   const statusOrder = ["pendente", "confirmado", "preparando", "saiu", "entregue"];
   const computeAutoStatus = () => {
     if (pedido.status_pagamento !== "confirmado") return pedido.status_pedido;
@@ -101,6 +112,13 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
     if (effectiveStatus === "saiu") return statusConfig.saiu.label;
     return "Em processamento";
   })();
+
+  const isPaid = pedido.status_pagamento === "confirmado";
+  const statusColor = isPaid
+    ? effectiveStatus === "entregue"
+      ? "#22c55e"
+      : "#3b82f6"
+    : "#eab308";
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -131,7 +149,9 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
         if (!itensRes.error && itensRes.data) setItens(itensRes.data);
         if (compRes.data) {
           const map: Record<string, string> = {};
-          compRes.data.forEach((c: any) => { map[c.id] = c.nome; });
+          compRes.data.forEach((c: any) => {
+            map[c.id] = c.nome;
+          });
           setComplementosMap(map);
         }
       } catch (err) {
@@ -152,10 +172,10 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
     setLoadingPayment(true);
 
     try {
-      // Gerar novo PIX via função unificada
-      const valorComDesconto = pedido.forma_pagamento === "pix" 
-        ? pedido.total 
-        : (pedido.subtotal - pedido.subtotal * 0.06);
+      const valorComDesconto =
+        pedido.forma_pagamento === "pix"
+          ? pedido.total
+          : pedido.subtotal - pedido.subtotal * 0.06;
 
       const { data, error } = await supabase.functions.invoke("create-pix-payment", {
         body: {
@@ -179,7 +199,6 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
         expiresAt: data.expiresAt || new Date(Date.now() + 15 * 60 * 1000).toISOString(),
       };
 
-      // Navegar para pagamento PIX
       navigate("/pagamento-pix", {
         state: {
           pixData,
@@ -207,186 +226,249 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
 
   const handleSelectCard = () => {
     setShowPaymentModal(false);
-    // Navegar para tela de cartão
     navigate("/checkout-cartao");
   };
 
   const isDelivery = pedido.tipo_entrega === "delivery";
   const isPagamentoPendente = pedido.status_pagamento !== "confirmado";
 
+  const timelineSteps = [
+    { key: "confirmado", label: "Confirmado" },
+    { key: "preparando", label: "Preparando" },
+    { key: "saiu", label: "Saiu" },
+    { key: "entregue", label: "Entregue" },
+  ];
+
   return (
-    <div className="bg-card rounded-xl p-4 shadow-sm border border-border">
+    <div className="bg-card rounded-2xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-border/60 overflow-hidden relative">
+      {/* Faixa sutil de cor da marca no topo */}
+      <div
+        className="absolute top-0 left-0 right-0 h-1"
+        style={{ background: accent }}
+      />
+
       {/* Header do pedido */}
-      <div className="flex justify-between items-start mb-3">
-        <div>
-          <p className="font-bold text-card-foreground text-sm">
+      <div className="flex justify-between items-start mb-4 pt-1">
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-card-foreground text-base tracking-tight">
             {pedido.numero_pedido}
           </p>
-          <p className="text-xs text-card-foreground/70">
+          <p className="text-xs text-muted-foreground mt-0.5">
             {formatDate(pedido.created_at)}
           </p>
         </div>
-        <div className={`flex items-center gap-1 ${status.color}`}>
-          <StatusIcon className="w-4 h-4" />
-          <span className="text-xs font-medium">{statusLabel}</span>
+        <div
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs font-semibold shrink-0"
+          style={{
+            background: `${statusColor}15`,
+            color: statusColor,
+          }}
+        >
+          <StatusIcon className="w-3.5 h-3.5" />
+          <span>{statusLabel}</span>
         </div>
       </div>
 
-      {/* Status de entrega (timeline) */}
+      {/* Timeline de entrega */}
       {isDelivery && (
-        <div className="mb-4">
-          <div className="flex items-center justify-between mb-2">
-            {Object.entries(statusConfig).map(([key, config], index) => {
+        <div className="mb-5 bg-muted/40 rounded-xl p-3.5">
+          <div className="flex items-center justify-between relative">
+            {timelineSteps.map((step, index) => {
+              const config = statusConfig[step.key];
               const isActive = status.step >= config.step;
+              const isCurrent = status.step === config.step;
               const Icon = config.icon;
               return (
-                <div key={key} className="flex flex-col items-center">
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-                    isActive ? "bg-accent" : "bg-card-foreground/20"
-                  }`}>
-                    <Icon className={`w-3 h-3 ${isActive ? "text-accent-foreground" : "text-card-foreground/50"}`} />
+                <div key={step.key} className="flex flex-col items-center relative z-10 flex-1">
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center transition-all"
+                    style={{
+                      background: isActive ? accent : "hsl(var(--muted))",
+                      boxShadow: isCurrent ? `0 0 0 3px ${accent}30` : "none",
+                    }}
+                  >
+                    <Icon
+                      className="w-4 h-4"
+                      style={{
+                        color: isActive ? "#000" : "hsl(var(--muted-foreground))",
+                      }}
+                    />
                   </div>
-                  {index < 4 && (
-                    <div className={`hidden sm:block absolute h-0.5 w-8 ${
-                      status.step > config.step ? "bg-accent" : "bg-card-foreground/20"
-                    }`} style={{ marginLeft: "2rem" }} />
+                  <span
+                    className="text-[9px] mt-1.5 font-medium"
+                    style={{
+                      color: isActive ? "hsl(var(--card-foreground))" : "hsl(var(--muted-foreground))",
+                    }}
+                  >
+                    {step.label}
+                  </span>
+                  {index < timelineSteps.length - 1 && (
+                    <div
+                      className="absolute top-4 left-1/2 w-full h-0.5 -z-10"
+                      style={{
+                        background:
+                          status.step > config.step
+                            ? accent
+                            : "hsl(var(--border))",
+                      }}
+                    />
                   )}
                 </div>
               );
             })}
           </div>
-          <div className="flex justify-between text-[10px] text-card-foreground/60">
-            <span>Pendente</span>
-            <span>Confirmado</span>
-            <span>Preparando</span>
-            <span>Saiu</span>
-            <span>Entregue</span>
-          </div>
         </div>
       )}
 
-      {/* Detalhes */}
-      <div className="space-y-2 text-sm">
-        <div className="flex justify-between">
-          <span className="text-card-foreground/70">Tipo:</span>
+      {/* Detalhes do pedido */}
+      <div className="space-y-2.5 text-sm">
+        <div className="flex justify-between items-center">
+          <span className="text-muted-foreground flex items-center gap-2">
+            {isDelivery ? (
+              <>
+                <Bike className="w-3.5 h-3.5" /> Entrega
+              </>
+            ) : (
+              <>
+                <Store className="w-3.5 h-3.5" /> Retirada
+              </>
+            )}
+          </span>
           <span className="text-card-foreground font-medium">
-            {isDelivery ? "Entrega" : "Retirada"}
+            {isDelivery ? "Delivery" : "Retirada"}
           </span>
         </div>
 
         {isDelivery && pedido.endereco_completo && (
           <div className="flex justify-between">
-            <span className="text-card-foreground/70">Endereço:</span>
-            <span className="text-card-foreground text-right text-xs max-w-[200px]">
+            <span className="text-muted-foreground">Endereço:</span>
+            <span className="text-card-foreground text-right text-xs max-w-[200px] leading-relaxed">
               {pedido.endereco_completo}
               {pedido.bairro && `, ${pedido.bairro}`}
             </span>
           </div>
         )}
 
-        <div className="flex justify-between">
-          <span className="text-card-foreground/70">Pagamento:</span>
-          <span className="text-card-foreground font-medium uppercase">
+        <div className="flex justify-between items-center">
+          <span className="text-muted-foreground flex items-center gap-2">
+            <Wallet className="w-3.5 h-3.5" /> Pagamento
+          </span>
+          <span className="text-card-foreground font-medium uppercase tracking-wide">
             {pedido.forma_pagamento}
           </span>
         </div>
 
-        <div className="flex justify-between">
-          <span className="text-card-foreground/70">Status Pgto:</span>
-          <span className={`font-medium ${
-            pedido.status_pagamento === "confirmado" 
-              ? "text-green-500" 
-              : "text-yellow-500"
-          }`}>
-            {pedido.status_pagamento === "confirmado" ? "Pago" : "Pendente"}
+        <div className="flex justify-between items-center">
+          <span className="text-muted-foreground">Status Pgto:</span>
+          <span
+            className="font-semibold text-xs px-2 py-1 rounded-full"
+            style={{
+              background: isPaid ? "#22c55e15" : "#eab30815",
+              color: isPaid ? "#22c55e" : "#eab308",
+            }}
+          >
+            {isPaid ? "Pago" : "Pendente"}
           </span>
         </div>
 
         {pedido.desconto_pix && pedido.desconto_pix > 0 && (
-          <div className="flex justify-between text-green-500">
-            <span>Desconto PIX:</span>
-            <span>-{formatCurrency(pedido.desconto_pix)}</span>
+          <div className="flex justify-between text-green-500 text-sm">
+            <span>Desconto PIX</span>
+            <span className="font-medium">-{formatCurrency(pedido.desconto_pix)}</span>
           </div>
         )}
 
-        <div className="flex justify-between pt-2 border-t border-card-foreground/20">
-          <span className="font-bold text-card-foreground">Total:</span>
-          <span className="font-bold text-accent text-lg">
+        <div
+          className="flex justify-between items-center pt-3 mt-1 border-t border-border/60"
+          style={{ borderColor: `${accent}20` }}
+        >
+          <span className="font-bold text-card-foreground text-sm">Total</span>
+          <span
+            className="font-bold text-xl tracking-tight"
+            style={{ color: accent }}
+          >
             {formatCurrency(pedido.total)}
           </span>
         </div>
       </div>
 
-      {/* Botão Pagar Agora */}
-      {isPagamentoPendente && (
-        <Button
-          onClick={handlePagarAgora}
-          disabled={loadingPayment}
-          className="w-full mt-3 bg-accent hover:bg-accent/90 text-accent-foreground disabled:opacity-50"
-        >
-          <CreditCard className="w-4 h-4 mr-2" />
-          {loadingPayment ? "Processando..." : "Pagar Agora"}
-        </Button>
-      )}
-
-      {/* Botão Ver Recibo (apenas pagos) */}
-      {!isPagamentoPendente && (
-        <Button
-          onClick={() => setShowRecibo(true)}
-          variant="outline"
-          className="w-full mt-3 border-border text-foreground hover:bg-muted"
-        >
-          <Receipt className="w-4 h-4 mr-2" />
-          Ver recibo
-        </Button>
-      )}
-
-      {/* Botão Ver Itens */}
-      <button
-        onClick={handleExpand}
-        className="w-full mt-3 flex items-center justify-center gap-2 text-card-foreground/70 hover:text-card-foreground text-sm py-2 border-t border-card-foreground/10"
-      >
-        {expanded ? (
-          <>
-            <ChevronUp className="w-4 h-4" />
-            Ocultar itens
-          </>
+      {/* Botões de ação */}
+      <div className="mt-4 space-y-2.5">
+        {isPagamentoPendente ? (
+          <Button
+            onClick={handlePagarAgora}
+            disabled={loadingPayment}
+            className="w-full h-12 rounded-xl font-semibold text-[15px] transition-all active:scale-[0.98] disabled:opacity-50 shadow-md"
+            style={{ background: accent, color: "#000" }}
+          >
+            <CreditCard className="w-4 h-4 mr-2" />
+            {loadingPayment ? "Processando..." : "Pagar agora"}
+          </Button>
         ) : (
-          <>
-            <ChevronDown className="w-4 h-4" />
-            Ver itens do pedido
-          </>
+          <Button
+            onClick={() => setShowRecibo(true)}
+            variant="outline"
+            className="w-full h-12 rounded-xl font-semibold text-[15px] border-2 transition-all active:scale-[0.98] hover:bg-muted"
+            style={{ borderColor: `${accent}40`, color: "hsl(var(--card-foreground))" }}
+          >
+            <Receipt className="w-4 h-4 mr-2" style={{ color: accent }} />
+            Ver recibo
+          </Button>
         )}
-      </button>
+
+        <button
+          onClick={handleExpand}
+          className="w-full flex items-center justify-center gap-2 text-sm font-medium py-2.5 rounded-xl transition-colors hover:bg-muted"
+          style={{ color: "hsl(var(--muted-foreground))" }}
+        >
+          {expanded ? (
+            <>
+              <ChevronUp className="w-4 h-4" />
+              Ocultar itens
+            </>
+          ) : (
+            <>
+              <ChevronDown className="w-4 h-4" />
+              Ver itens do pedido
+            </>
+          )}
+        </button>
+      </div>
 
       {/* Lista de Itens */}
       {expanded && (
-        <div className="mt-3 pt-3 border-t border-card-foreground/10 space-y-2">
+        <div className="mt-4 pt-4 border-t border-border/40 space-y-3">
           {loadingItens ? (
-            <p className="text-card-foreground/60 text-xs text-center">Carregando...</p>
+            <p className="text-muted-foreground text-xs text-center py-2">Carregando itens...</p>
           ) : itens.length === 0 ? (
-            <p className="text-card-foreground/60 text-xs text-center">Nenhum item encontrado</p>
+            <p className="text-muted-foreground text-xs text-center py-2">Nenhum item encontrado</p>
           ) : (
             itens.map((item) => {
               const adicionaisList = Object.entries(item.adicionais || {}).filter(
                 ([, v]) => v && (v as number) > 0
               );
               return (
-                <div key={item.id} className="bg-card-foreground/5 rounded-lg p-3">
-                  <div className="flex justify-between gap-2">
-                    <span className="text-card-foreground text-sm font-medium flex-1">
+                <div
+                  key={item.id}
+                  className="bg-muted/40 rounded-xl p-3.5 border border-border/30"
+                >
+                  <div className="flex justify-between gap-3 items-start">
+                    <span className="text-card-foreground text-sm font-medium flex-1 leading-snug">
                       {item.quantidade ?? 1}x {item.produto_nome}
                     </span>
-                    <span className="text-accent text-sm font-bold whitespace-nowrap">
+                    <span
+                      className="text-sm font-bold whitespace-nowrap"
+                      style={{ color: accent }}
+                    >
                       {formatCurrency(item.total_item)}
                     </span>
                   </div>
                   {adicionaisList.length > 0 && (
-                    <div className="mt-2 pl-2 border-l-2 border-card-foreground/10">
-                      <p className="text-[10px] uppercase tracking-wider text-card-foreground/50 mb-1">
+                    <div className="mt-2.5 pl-3 border-l-2 border-border">
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5 font-medium">
                         Adicionais
                       </p>
-                      <ul className="space-y-0.5">
+                      <ul className="space-y-1">
                         {adicionaisList.map(([id, qtd]) => (
                           <li key={id} className="text-xs text-card-foreground/80">
                             + {qtd as number}x {complementosMap[id] || id}
@@ -396,11 +478,11 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
                     </div>
                   )}
                   {item.observacoes && (
-                    <div className="mt-2 pl-2 border-l-2 border-accent/40">
-                      <p className="text-[10px] uppercase tracking-wider text-card-foreground/50 mb-0.5">
+                    <div className="mt-2.5 pl-3 border-l-2 rounded-r-lg" style={{ borderColor: `${accent}60` }}>
+                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 font-medium">
                         Observações
                       </p>
-                      <p className="text-xs text-card-foreground/80 italic whitespace-pre-wrap">
+                      <p className="text-xs text-card-foreground/80 italic whitespace-pre-wrap leading-relaxed">
                         {item.observacoes}
                       </p>
                     </div>
@@ -431,7 +513,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
           forma_pagamento: pedido.forma_pagamento,
           created_at: pedido.created_at,
         }}
-        corBorda={corBorda}
+        corBorda={accent}
       />
     </div>
   );

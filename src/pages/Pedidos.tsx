@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ClipboardList, Search, ArrowLeft } from "lucide-react";
+import { ClipboardList, Search, ArrowLeft, MessageCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import BottomNavigation from "@/components/BottomNavigation";
 import PedidoCard from "@/components/PedidoCard";
@@ -99,45 +99,48 @@ const Pedidos = () => {
   const active = focused || telefoneBusca.length > 0;
 
   const Header = () => (
-    <header className="sticky top-0 z-10 bg-background border-b border-border">
+    <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/60">
+      <div
+        className="h-1.5 w-full"
+        style={{
+          background: `linear-gradient(90deg, ${accent} 0%, ${accent} 60%, transparent 100%)`,
+        }}
+      />
       <div className="flex items-center gap-3 px-4 py-3.5">
         <button
           onClick={() => navigate(-1)}
-          className="w-9 h-9 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
+          className="w-10 h-10 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
           aria-label="Voltar"
         >
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-foreground font-semibold text-base">Meus pedidos</h1>
+        <div className="flex-1">
+          <h1 className="text-foreground font-bold text-lg tracking-tight">Meus pedidos</h1>
+          <p className="text-xs text-muted-foreground">Acompanhe suas compras</p>
+        </div>
         {pedidos.length > 0 && (
-          <span className="ml-auto text-xs text-muted-foreground font-medium">
+          <span
+            className="px-3 py-1 rounded-full text-xs font-semibold"
+            style={{ background: `${accent}25`, color: "#000" }}
+          >
             {pedidos.length} {pedidos.length === 1 ? "pedido" : "pedidos"}
           </span>
         )}
       </div>
-      <div className="h-1 bg-muted">
-        <div className="h-full transition-all" style={{ width: telValid ? "100%" : "35%", background: accent }} />
-      </div>
 
-      <div className="px-4 pt-4 pb-4">
-        <div className="flex gap-2 items-stretch">
+      <div className="px-4 pt-2 pb-4">
+        <div className="flex gap-3 items-stretch">
           <div
-            className="relative flex-1 rounded-xl border transition-all bg-background"
+            className="relative flex-1 rounded-2xl border bg-background transition-all shadow-sm"
             style={{
               borderColor: focused ? accent : "hsl(var(--border))",
               borderWidth: focused ? 2 : 1,
+              boxShadow: focused ? `0 0 0 4px ${accent}15` : "none",
             }}
           >
-            <label
-              htmlFor="tel-busca"
-              className={`absolute left-3.5 pointer-events-none transition-all ${
-                active
-                  ? "top-1.5 text-[11px] font-medium text-muted-foreground"
-                  : "top-1/2 -translate-y-1/2 text-[15px] text-muted-foreground"
-              }`}
-            >
-              WhatsApp
-            </label>
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60">
+              <MessageCircle className="w-5 h-5" />
+            </div>
             <input
               id="tel-busca"
               type="tel"
@@ -147,9 +150,9 @@ const Pedidos = () => {
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
               onKeyDown={(e) => e.key === "Enter" && handleBuscar()}
-              placeholder={active ? "(00) 00000-0000" : ""}
+              placeholder="(00) 00000-0000"
               maxLength={15}
-              className="w-full pt-6 pb-2 px-3.5 bg-transparent text-foreground text-[15px] placeholder:text-muted-foreground/50 focus:outline-none"
+              className="w-full py-3.5 pl-11 pr-4 bg-transparent text-foreground text-[15px] placeholder:text-muted-foreground/50 focus:outline-none rounded-2xl"
             />
           </div>
           <button
@@ -157,7 +160,7 @@ const Pedidos = () => {
             onClick={handleBuscar}
             disabled={!telValid}
             aria-label="Buscar"
-            className="shrink-0 w-14 rounded-xl flex items-center justify-center transition-all active:scale-95 disabled:opacity-40"
+            className="shrink-0 w-14 rounded-2xl flex items-center justify-center transition-all active:scale-95 disabled:opacity-40 shadow-md"
             style={{ background: accent, color: "#000" }}
           >
             <Search className="w-5 h-5" />
@@ -171,8 +174,14 @@ const Pedidos = () => {
     return (
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col page-enter">
         <Header />
-        <main className="flex-1 flex items-center justify-center pb-20">
-          <div className="animate-pulse text-muted-foreground text-sm">Carregando pedidos...</div>
+        <main className="flex-1 flex flex-col items-center justify-center pb-24 px-6">
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 animate-pulse"
+            style={{ background: `${accent}20` }}
+          >
+            <ClipboardList size={32} style={{ color: accent }} />
+          </div>
+          <p className="text-muted-foreground text-sm font-medium">Carregando pedidos...</p>
         </main>
         <BottomNavigation />
       </div>
@@ -183,24 +192,24 @@ const Pedidos = () => {
     return (
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
         <Header />
-        <main className="flex-1 flex flex-col items-center justify-center px-6 py-12 pb-24 text-center">
+        <main className="flex-1 flex flex-col items-center justify-center px-6 py-12 pb-28 text-center">
           <div
-            className="w-20 h-20 rounded-full flex items-center justify-center mb-5"
-            style={{ background: `${accent}30`, border: `1.5px solid ${accent}` }}
+            className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-lg"
+            style={{ background: `${accent}18`, border: `2px solid ${accent}40` }}
           >
-            <ClipboardList size={36} style={{ color: accent }} />
+            <ClipboardList size={44} style={{ color: accent }} />
           </div>
-          <h2 className="text-foreground font-bold text-[19px] mb-2">
+          <h2 className="text-foreground font-bold text-xl mb-2 tracking-tight">
             {telefoneAtivo ? "Nenhum pedido encontrado" : "Busque seus pedidos"}
           </h2>
-          <p className="text-muted-foreground text-sm mb-7 max-w-[280px] leading-relaxed">
+          <p className="text-muted-foreground text-sm mb-8 max-w-[280px] leading-relaxed">
             {telefoneAtivo
               ? "Não achamos pedidos com esse telefone. Faça seu primeiro pedido e acompanhe por aqui!"
               : "Digite seu WhatsApp na barra acima para ver seu histórico de pedidos."}
           </p>
           <Link to="/">
             <button
-              className="px-7 py-3.5 font-semibold rounded-xl transition-all active:scale-[0.98] text-[15px]"
+              className="px-8 py-4 font-semibold rounded-2xl transition-all active:scale-[0.98] text-[15px] shadow-lg"
               style={{ background: accent, color: "#000" }}
             >
               Ver cardápio
@@ -215,7 +224,7 @@ const Pedidos = () => {
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
       <Header />
-      <main className="flex-1 p-4 space-y-3 pb-24">
+      <main className="flex-1 p-4 space-y-4 pb-28">
         {pedidos.map((pedido) => (
           <PedidoCard key={pedido.id} pedido={pedido} />
         ))}

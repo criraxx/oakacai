@@ -10,6 +10,7 @@ export interface ItemCarrinho {
   observacoes: string;
   totalAdicionais: number;
   isPromocional?: boolean; // indica se é item da promoção metade do preço
+  quantidade?: number;
 }
 
 export interface DadosCliente {

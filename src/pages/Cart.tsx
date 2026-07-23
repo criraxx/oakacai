@@ -306,10 +306,11 @@ const Cart = () => {
         <div className="mx-4 mb-4">
           <button
             onClick={() => navigate("/identificacao")}
-            className="w-full bg-primary text-primary-foreground rounded-2xl shadow-lg press-effect flex items-center justify-between px-5 py-4 hover:opacity-95 transition-opacity"
+            className="w-full rounded-2xl flex items-center justify-between px-5 py-4 active:scale-[0.98] transition-all"
+            style={{ background: accent, color: "#000" }}
           >
             <div className="flex flex-col items-start">
-              <span className="text-xs opacity-80">Total</span>
+              <span className="text-xs opacity-70">Total</span>
               <span className="font-bold text-lg leading-none">{formatBRL(total)}</span>
             </div>
             <div className="flex items-center gap-2 font-semibold">

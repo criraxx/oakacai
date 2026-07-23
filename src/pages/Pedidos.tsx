@@ -101,9 +101,9 @@ const Pedidos = () => {
   const Header = () => (
     <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/60">
       <div
-        className="h-1 w-full"
+        className="h-1.5 w-full"
         style={{
-          background: `linear-gradient(90deg, ${accent} 0%, ${accent}80 50%, ${accent}40 100%)`,
+          background: `linear-gradient(90deg, ${accent} 0%, ${accent} 60%, transparent 100%)`,
         }}
       />
       <div className="flex items-center gap-3 px-4 py-3.5">
@@ -121,7 +121,7 @@ const Pedidos = () => {
         {pedidos.length > 0 && (
           <span
             className="px-3 py-1 rounded-full text-xs font-semibold"
-            style={{ background: `${accent}20`, color: accent }}
+            style={{ background: `${accent}25`, color: "#000" }}
           >
             {pedidos.length} {pedidos.length === 1 ? "pedido" : "pedidos"}
           </span>
@@ -138,16 +138,9 @@ const Pedidos = () => {
               boxShadow: focused ? `0 0 0 4px ${accent}15` : "none",
             }}
           >
-            <label
-              htmlFor="tel-busca"
-              className={`absolute left-4 pointer-events-none transition-all ${
-                active
-                  ? "top-2 text-[11px] font-semibold text-muted-foreground"
-                  : "top-1/2 -translate-y-1/2 text-[15px] text-muted-foreground"
-              }`}
-            >
-              WhatsApp
-            </label>
+            <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60">
+              <MessageCircle className="w-5 h-5" />
+            </div>
             <input
               id="tel-busca"
               type="tel"
@@ -157,9 +150,9 @@ const Pedidos = () => {
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
               onKeyDown={(e) => e.key === "Enter" && handleBuscar()}
-              placeholder={active ? "(00) 00000-0000" : ""}
+              placeholder="(00) 00000-0000"
               maxLength={15}
-              className="w-full pt-6 pb-3 px-4 bg-transparent text-foreground text-[15px] placeholder:text-muted-foreground/50 focus:outline-none rounded-2xl"
+              className="w-full py-3.5 pl-11 pr-4 bg-transparent text-foreground text-[15px] placeholder:text-muted-foreground/50 focus:outline-none rounded-2xl"
             />
           </div>
           <button

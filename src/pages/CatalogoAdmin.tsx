@@ -40,7 +40,42 @@ const CatalogoAdmin = () => {
   const [authed, setAuthed] = useState(false);
   const [inputPw, setInputPw] = useState("");
 
-  // Data
+  useEffect(() => {
+    if (password) {
+      // Se já tem senha salva, marca como autenticado (o painel valida internamente)
+      setAuthed(true);
+      sessionStorage.setItem("admin_pw", password);
+    }
+  }, [password]);
+
+  if (!authed) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="p-6 w-full max-w-sm space-y-4">
+          <h1 className="text-xl font-bold">Admin · Catálogo</h1>
+          <Input type="password" placeholder="Senha admin" value={inputPw} onChange={(e) => setInputPw(e.target.value)} />
+          <Button className="w-full" onClick={() => setPassword(inputPw)}>Entrar</Button>
+          <Button variant="ghost" className="w-full" onClick={() => navigate("/admin")}>Voltar</Button>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-10 bg-background border-b border-border px-4 py-3 flex items-center gap-3">
+        <Button variant="ghost" size="icon" onClick={() => navigate("/admin")}><ArrowLeft size={20} /></Button>
+        <h1 className="font-bold text-lg">Catálogo</h1>
+      </header>
+      <main className="max-w-5xl mx-auto p-4">
+        <CatalogoPanel password={password} />
+      </main>
+    </div>
+  );
+};
+
+// Painel reutilizável (sem auth/header) — usado embutido em /admin
+export function CatalogoPanel({ password }: { password: string }) {
   const [produtos, setProdutos] = useState<Row[]>([]);
   const [categorias, setCategorias] = useState<Row[]>([]);
   const [secoes, setSecoes] = useState<Row[]>([]);
@@ -70,17 +105,12 @@ const CatalogoAdmin = () => {
       setBanners((b as { rows: Row[] }).rows);
       setOrderBumps((ob as { rows: Row[] }).rows);
       setDownsells((ds as { rows: Row[] }).rows);
-      setAuthed(true);
-      sessionStorage.setItem("admin_pw", pw);
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Erro";
-      toast.error(msg);
+      toast.error(e instanceof Error ? e.message : "Erro");
     }
   }
 
-  useEffect(() => {
-    if (password) loadAll(password);
-  }, [password]);
+  useEffect(() => { if (password) loadAll(password); }, [password]);
 
   async function crud(action: "create" | "update" | "delete", entity: Entity, payload: { id?: string; data?: Record<string, unknown> } = {}) {
     try {
@@ -92,60 +122,39 @@ const CatalogoAdmin = () => {
     }
   }
 
-  if (!authed) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="p-6 w-full max-w-sm space-y-4">
-          <h1 className="text-xl font-bold">Admin · Catálogo</h1>
-          <Input type="password" placeholder="Senha admin" value={inputPw} onChange={(e) => setInputPw(e.target.value)} />
-          <Button className="w-full" onClick={() => setPassword(inputPw)}>Entrar</Button>
-          <Button variant="ghost" className="w-full" onClick={() => navigate("/admin")}>Voltar</Button>
-        </Card>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-10 bg-background border-b border-border px-4 py-3 flex items-center gap-3">
-        <Button variant="ghost" size="icon" onClick={() => navigate("/admin")}><ArrowLeft size={20} /></Button>
-        <h1 className="font-bold text-lg">Catálogo</h1>
-      </header>
+    <Tabs defaultValue="produtos">
+      <TabsList className="grid grid-cols-3 md:grid-cols-6 w-full h-auto">
+        <TabsTrigger value="produtos">Produtos</TabsTrigger>
+        <TabsTrigger value="categorias">Categorias</TabsTrigger>
+        <TabsTrigger value="complementos">Complementos</TabsTrigger>
+        <TabsTrigger value="banners">Banners</TabsTrigger>
+        <TabsTrigger value="orderbump">Order Bump</TabsTrigger>
+        <TabsTrigger value="downsell">Downsell</TabsTrigger>
+      </TabsList>
 
-      <main className="max-w-5xl mx-auto p-4">
-        <Tabs defaultValue="produtos">
-          <TabsList className="grid grid-cols-6 w-full">
-            <TabsTrigger value="produtos">Produtos</TabsTrigger>
-            <TabsTrigger value="categorias">Categorias</TabsTrigger>
-            <TabsTrigger value="complementos">Complementos</TabsTrigger>
-            <TabsTrigger value="banners">Banners</TabsTrigger>
-            <TabsTrigger value="orderbump">Order Bump</TabsTrigger>
-            <TabsTrigger value="downsell">Downsell</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="produtos" className="mt-4">
-            <ProdutosTab produtos={produtos} categorias={categorias} secoes={secoes} produtoSecoes={produtoSecoes} onCrud={crud} onReload={() => loadAll(password)} />
-          </TabsContent>
-          <TabsContent value="categorias" className="mt-4">
-            <CategoriasTab categorias={categorias} onCrud={crud} />
-          </TabsContent>
-          <TabsContent value="complementos" className="mt-4">
-            <ComplementosTab secoes={secoes} complementos={complementos} onCrud={crud} />
-          </TabsContent>
-          <TabsContent value="banners" className="mt-4">
-            <BannersTab banners={banners} produtos={produtos} categorias={categorias} onCrud={crud} />
-          </TabsContent>
-          <TabsContent value="orderbump" className="mt-4">
-            <OfertaTab entity="order_bumps" rows={orderBumps} produtos={produtos} onCrud={crud} label="Order Bump" />
-          </TabsContent>
-          <TabsContent value="downsell" className="mt-4">
-            <OfertaTab entity="downsells" rows={downsells} produtos={produtos} onCrud={crud} label="Downsell" />
-          </TabsContent>
-        </Tabs>
-      </main>
-    </div>
+      <TabsContent value="produtos" className="mt-4">
+        <ProdutosTab produtos={produtos} categorias={categorias} secoes={secoes} produtoSecoes={produtoSecoes} onCrud={crud} onReload={() => loadAll(password)} />
+      </TabsContent>
+      <TabsContent value="categorias" className="mt-4">
+        <CategoriasTab categorias={categorias} onCrud={crud} />
+      </TabsContent>
+      <TabsContent value="complementos" className="mt-4">
+        <ComplementosTab secoes={secoes} complementos={complementos} onCrud={crud} />
+      </TabsContent>
+      <TabsContent value="banners" className="mt-4">
+        <BannersTab banners={banners} produtos={produtos} categorias={categorias} onCrud={crud} />
+      </TabsContent>
+      <TabsContent value="orderbump" className="mt-4">
+        <OfertaTab entity="order_bumps" rows={orderBumps} produtos={produtos} onCrud={crud} label="Order Bump" />
+      </TabsContent>
+      <TabsContent value="downsell" className="mt-4">
+        <OfertaTab entity="downsells" rows={downsells} produtos={produtos} onCrud={crud} label="Downsell" />
+      </TabsContent>
+    </Tabs>
   );
-};
+}
+
 
 // ================== PRODUTOS ==================
 function ProdutosTab({ produtos, categorias, secoes, produtoSecoes, onCrud, onReload }: {

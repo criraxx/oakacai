@@ -178,42 +178,35 @@ const PagamentoPix = () => {
               Abra o app do seu banco e leia o QR Code abaixo.
             </p>
 
-            {/* Card destaque: Valor + Timer */}
-            <div
-              className="rounded-2xl p-5 mb-4 border"
-              style={{ background: `${accent}15`, borderColor: `${accent}55` }}
-            >
-              <div className="flex items-end justify-between mb-3">
-                <div>
-                  <span className="text-[11px] text-muted-foreground uppercase tracking-wide font-medium">
-                    Valor a pagar
-                  </span>
-                  {totalComDesconto && (
-                    <p className="text-foreground font-bold text-[30px] leading-none mt-1">
-                      R$ {totalComDesconto.toFixed(2).replace(".", ",")}
-                    </p>
-                  )}
-                  {economia && economia > 0 && (
-                    <p className="text-[11px] font-semibold mt-1.5" style={{ color: accent }}>
-                      Você economizou R$ {economia.toFixed(2).replace(".", ",")}
-                    </p>
-                  )}
-                </div>
-                <div
-                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-background border border-border"
-                  style={{ color: "hsl(var(--foreground))" }}
-                >
-                  <Clock size={12} style={{ color: accent }} />
-                  {formatTime(timeLeft)}
-                </div>
+            {/* Valor + Timer — minimalista */}
+            <div className="flex items-end justify-between mb-3">
+              <div>
+                <span className="text-[11px] text-muted-foreground uppercase tracking-wide font-medium">
+                  Valor a pagar
+                </span>
+                {totalComDesconto && (
+                  <p className="text-foreground font-bold text-[28px] leading-none mt-1">
+                    R$ {totalComDesconto.toFixed(2).replace(".", ",")}
+                  </p>
+                )}
+                {economia && economia > 0 && (
+                  <p className="text-[11px] text-muted-foreground mt-1.5">
+                    Economia de R$ {economia.toFixed(2).replace(".", ",")}
+                  </p>
+                )}
               </div>
-              <div className="h-1 bg-background/60 rounded-full overflow-hidden">
-                <div
-                  className="h-full transition-all duration-1000"
-                  style={{ width: `${timerProgress}%`, background: accent }}
-                />
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
+                <Clock size={13} className="text-muted-foreground" />
+                {formatTime(timeLeft)}
               </div>
             </div>
+            <div className="h-1 bg-muted rounded-full overflow-hidden mb-5">
+              <div
+                className="h-full transition-all duration-1000"
+                style={{ width: `${timerProgress}%`, background: accent }}
+              />
+            </div>
+
 
             {/* QR Code */}
             <div className="rounded-2xl border border-border bg-background p-5 mb-4 flex flex-col items-center">

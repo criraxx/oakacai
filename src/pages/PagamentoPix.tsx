@@ -34,17 +34,25 @@ const PagamentoPix = () => {
   const [copied, setCopied] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Ref de montagem estável (não é resetado quando o effect re-executa)
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   // Polling
   useEffect(() => {
     if (status !== "pending" || !pixData?.id) return;
-    let isMounted = true;
 
     const checkPaymentStatus = async () => {
       try {
         const { data, error } = await supabase.functions.invoke("check-payment-status", {
           body: { paymentId: pixData.id },
         });
-        if (!isMounted) return;
+        if (!mountedRef.current) return;
         if (error) return;
 
         if (data?.status === "paid") {
@@ -54,7 +62,7 @@ const PagamentoPix = () => {
             pollingRef.current = null;
           }
           setTimeout(() => {
-            if (isMounted) {
+            if (mountedRef.current) {
               navigate("/pix-confirmado", {
                 state: { pedidoId, pedidoDBId, pedido, totalComDesconto, fromPixPayment: true },
               });
@@ -72,10 +80,9 @@ const PagamentoPix = () => {
       }
     };
 
-    const initialTimeout = setTimeout(() => { if (isMounted) checkPaymentStatus(); }, 5000);
-    pollingRef.current = setInterval(checkPaymentStatus, 10000);
+    const initialTimeout = setTimeout(() => { checkPaymentStatus(); }, 3000);
+    pollingRef.current = setInterval(checkPaymentStatus, 8000);
     return () => {
-      isMounted = false;
       clearTimeout(initialTimeout);
       if (pollingRef.current) {
         clearInterval(pollingRef.current);

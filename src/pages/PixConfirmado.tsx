@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { CheckCircle, MessageCircle, Download, ClipboardList, Receipt } from "lucide-react";
+import { CheckCircle, MessageCircle, Download, ClipboardList, Receipt, Loader2 } from "lucide-react";
 import Barcode from "react-barcode";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import { useCart, Pedido } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { trackPurchase, trackPurchaseWithPix } from "@/lib/metaPixel";

@@ -153,7 +153,8 @@ const OrderConfirmation = () => {
               <div className="flex-1">
                 <p className="text-foreground text-sm font-medium">{item.produtoNome}</p>
                 <p className="text-muted-foreground text-xs">
-                  R$ {(item.produtoPreco + item.totalAdicionais).toFixed(2).replace(".", ",")}
+                  {item.quantidade ?? 1}x R$ {(item.produtoPreco + item.totalAdicionais).toFixed(2).replace(".", ",")}
+                  {" "}= R$ {((item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1)).toFixed(2).replace(".", ",")}
                 </p>
               </div>
             </div>

@@ -39,7 +39,7 @@ const OrderConfirmation = () => {
           item_id: item.produtoId,
           item_name: item.produtoNome,
           price: item.produtoPreco + item.totalAdicionais,
-          quantity: 1,
+          quantity: item.quantidade ?? 1,
         })),
         value: pedido.total,
         payment_type: formaPagamentoMap[pedido.dadosEntrega.formaPagamento] || pedido.dadosEntrega.formaPagamento,

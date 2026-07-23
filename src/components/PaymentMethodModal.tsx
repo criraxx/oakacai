@@ -35,8 +35,8 @@ const PaymentMethodModal = ({ open, onClose, onSelectPix, onSelectCard }: Paymen
           >
             <CreditCard className="w-8 h-8 text-blue-500" />
             <div className="text-center">
-              <p className="font-bold">Cartão</p>
-              <p className="text-xs text-muted-foreground">Vale presente (simulação)</p>
+              <p className="font-bold">Cartão de crédito</p>
+              <p className="text-xs text-muted-foreground">Pague com Visa, Master, Elo e mais</p>
             </div>
           </Button>
         </div>

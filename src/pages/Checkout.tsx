@@ -552,6 +552,10 @@ const Checkout = () => {
     ? getTotalComDesconto()
     : getTotal();
 
+  if (pedidoExistente) {
+    return <RepagamentoCheckout pedido={pedidoExistente} />;
+  }
+
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
       {/* Header */}

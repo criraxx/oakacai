@@ -24,7 +24,7 @@ const formatBRL = (v: number) => `R$ ${v.toFixed(2).replace(".", ",")}`;
 
 const Cart = () => {
   const navigate = useNavigate();
-  const { itens, removerItem, limparCarrinho, adicionarItem, getSubtotal, getTotal } = useCart();
+  const { itens, removerItem, limparCarrinho, adicionarItem, incrementarQuantidade, decrementarQuantidade, getSubtotal, getTotal } = useCart();
 
   const getNomeComplemento = (complementoId: string): string => {
     for (const secao of todasSecoes) {

@@ -79,7 +79,7 @@ const PixConfirmado = () => {
           item_id: item.produtoId,
           item_name: item.produtoNome,
           price: item.produtoPreco + item.totalAdicionais,
-          quantity: 1,
+          quantity: item.quantidade ?? 1,
         })),
         value: totalComDesconto,
         payment_type: "PIX",

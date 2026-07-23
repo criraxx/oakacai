@@ -55,6 +55,22 @@ const Pedidos = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dadosCliente?.telefone]);
 
+  // Auto-busca com debounce quando telefone tem 10+ dígitos
+  useEffect(() => {
+    const clean = telefoneBusca.replace(/\D/g, "");
+    if (clean.length < 10) {
+      if (!telefoneAtivo) setLoading(false);
+      return;
+    }
+    if (clean === telefoneAtivo) return;
+    const t = setTimeout(() => {
+      setLoading(true);
+      setPedidos([]);
+      setTelefoneAtivo(clean);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [telefoneBusca, telefoneAtivo]);
+
   useEffect(() => {
     const buscarPedidos = async () => {
       if (!telefoneAtivo?.trim()) {
@@ -90,6 +106,7 @@ const Pedidos = () => {
   const handleBuscar = () => {
     const clean = telefoneBusca.replace(/\D/g, "");
     if (clean.length < 10) return;
+    if (clean === telefoneAtivo) return;
     setLoading(true);
     setPedidos([]);
     setTelefoneAtivo(clean);

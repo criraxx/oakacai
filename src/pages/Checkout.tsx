@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { RepagamentoCheckout } from "./RepagamentoCheckout";
 import { ArrowLeft, ArrowRight, Loader2, Home, Store, QrCode, CreditCard, Zap, Percent } from "lucide-react";
 import { useCart, DadosEntrega } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
@@ -19,10 +20,18 @@ const isNomeValido = (value: string) => {
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const pedidoExistente = location.state?.pedidoExistente;
   const { toast } = useToast();
   const { cor_borda_logo } = useBranding();
   const accent = cor_borda_logo || "#F5E6D3";
   const { itens, getSubtotal, getTotal, getDescontoPix, getTotalComDesconto, finalizarPedido, dadosCliente } = useCart();
+
+  // Modo repagamento: vindo de /pedidos com pedido já criado
+  if (pedidoExistente) {
+    return <RepagamentoCheckout pedido={pedidoExistente} />;
+  }
+
 
   const [tipoEntrega, setTipoEntrega] = useState<"delivery" | "pickup">("delivery");
   const [formData, setFormData] = useState<DadosEntrega>({

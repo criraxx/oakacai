@@ -354,7 +354,7 @@ const Checkout = () => {
         }
 
         // Montar mensagem do WhatsApp
-        const itensTexto = itens.map(i => `- ${i.produtoNome}: R$ ${(i.produtoPreco + i.totalAdicionais).toFixed(2).replace(".", ",")}`).join("\n");
+        const itensTexto = itens.map(i => `- ${i.quantidade ?? 1}x ${i.produtoNome}: R$ ${((i.produtoPreco + i.totalAdicionais) * (i.quantidade ?? 1)).toFixed(2).replace(".", ",")}`).join("\n");
         const enderecoTexto = tipoEntrega === "delivery" 
           ? `\n📍 *Endereço:* ${enderecoCompleto}, ${formData.bairro} - ${formData.cidade}`
           : "\n🏪 *Retirada no local*";

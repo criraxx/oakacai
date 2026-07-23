@@ -74,7 +74,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
   const accent = cor_borda_logo || "#F5E6D3";
 
   const [expanded, setExpanded] = useState(false);
-  const [itens, setItens] = useState<PedidoItem[]>([]);
+  const [itens, setItens] = useState<PedidoItem[]>(pedido.itens || []);
   const [loadingItens, setLoadingItens] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [loadingPayment, setLoadingPayment] = useState(false);

@@ -159,34 +159,18 @@ const Header = () => {
                       className="w-full flex items-center gap-3 p-2 rounded-xl hover:bg-muted transition-all text-left active:scale-[0.99]"
                     >
                       <div
-                        className="w-12 h-12 rounded-lg flex-shrink-0 overflow-hidden flex items-center justify-center relative"
-                        style={{
-                          border: `1.5px solid ${cor_borda_logo}`,
-                          background: `linear-gradient(135deg, ${cor_borda_logo}22, ${cor_borda_logo}44)`,
-                        }}
+                        className="w-12 h-12 rounded-lg flex-shrink-0 bg-muted overflow-hidden flex items-center justify-center"
+                        style={{ border: `1.5px solid ${cor_borda_logo}` }}
                       >
                         {p.imagem ? (
                           <img
                             src={p.imagem}
-                            alt=""
+                            alt={p.nome}
                             className="w-full h-full object-cover"
-                            onError={(e) => {
-                              const img = e.currentTarget as HTMLImageElement;
-                              img.style.display = "none";
-                              const fb = img.nextElementSibling as HTMLElement | null;
-                              if (fb) fb.style.display = "flex";
-                            }}
                           />
-                        ) : null}
-                        <div
-                          className="absolute inset-0 items-center justify-center text-[10px] font-black uppercase tracking-tight text-center px-1"
-                          style={{
-                            display: p.imagem ? "none" : "flex",
-                            color: cor_borda_logo,
-                          }}
-                        >
-                          {p.nome.slice(0, 2)}
-                        </div>
+                        ) : (
+                          <Search size={16} className="text-muted-foreground" />
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-foreground truncate">{p.nome}</p>

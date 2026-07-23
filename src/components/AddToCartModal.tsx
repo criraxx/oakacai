@@ -15,7 +15,8 @@ interface AddToCartModalProps {
 const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
   const navigate = useNavigate();
   const { cor_borda_logo } = useBranding();
-  const accent = cor_borda_logo || "#16a34a";
+  const accent = cor_borda_logo || "#86efac";
+  const softGreen = "#86efac";
 
   const handleContinuarComprando = () => {
     onClose();
@@ -34,31 +35,31 @@ const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
       >
         <DialogTitle className="sr-only">Produto adicionado ao carrinho</DialogTitle>
 
-        {/* Faixa superior decorativa com cor de destaque */}
+        {/* Faixa superior decorativa com verde suave */}
         <div
           className="relative h-24 flex items-end justify-center"
           style={{
-            background: `linear-gradient(135deg, ${accent}, ${accent}cc)`,
+            background: `linear-gradient(135deg, ${softGreen}, #4ade80)`,
           }}
         >
           <button
             onClick={onClose}
             aria-label="Fechar"
-            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-background/25 hover:bg-background/40 backdrop-blur-sm flex items-center justify-center transition-colors"
+            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
           >
-            <X className="w-4 h-4 text-white" strokeWidth={2.5} />
+            <X className="w-4 h-4 text-black" strokeWidth={2.5} />
           </button>
 
           {/* Selo de check flutuante */}
           <div
             className="absolute -bottom-8 w-16 h-16 rounded-full bg-background flex items-center justify-center shadow-lg ring-4"
-            style={{ boxShadow: `0 8px 24px -8px ${accent}80`, ['--tw-ring-color' as string]: 'transparent' }}
+            style={{ boxShadow: `0 8px 24px -8px #4ade8080`, ['--tw-ring-color' as string]: 'transparent' }}
           >
             <div
               className="w-14 h-14 rounded-full flex items-center justify-center animate-in zoom-in-50 duration-300"
-              style={{ background: accent }}
+              style={{ background: softGreen }}
             >
-              <Check className="w-8 h-8 text-white" strokeWidth={3} />
+              <Check className="w-8 h-8 text-black" strokeWidth={3} />
             </div>
           </div>
         </div>
@@ -67,7 +68,7 @@ const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
         <div className="pt-12 pb-6 px-6 flex flex-col items-center">
           <p
             className="text-xs font-bold uppercase tracking-widest mb-1"
-            style={{ color: accent }}
+            style={{ color: "#16a34a" }}
           >
             Tudo certo
           </p>
@@ -84,8 +85,8 @@ const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
                 className="w-16 h-16 object-cover rounded-xl"
               />
               <div
-                className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-md"
-                style={{ background: accent }}
+                className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-black shadow-md"
+                style={{ background: softGreen }}
               >
                 1
               </div>
@@ -99,10 +100,10 @@ const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
           <div className="w-full flex flex-col gap-2.5">
             <button
               onClick={handleIrParaCarrinho}
-              className="group w-full py-3.5 rounded-2xl font-semibold text-white flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg"
+              className="group w-full py-3.5 rounded-2xl font-semibold text-black flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg"
               style={{
-                background: `linear-gradient(135deg, ${accent}, ${accent}dd)`,
-                boxShadow: `0 10px 20px -10px ${accent}`,
+                background: softGreen,
+                boxShadow: `0 10px 20px -10px #4ade80`,
               }}
             >
               <ShoppingBag size={18} strokeWidth={2.5} />

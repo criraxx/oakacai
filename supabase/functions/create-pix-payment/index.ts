@@ -241,6 +241,7 @@ async function createBlackCatPix(body: CreatePixRequest, supabase: any, supabase
     },
     body: JSON.stringify({
       amount: valorCentavos,
+      currency: 'BRL',
       paymentMethod: 'pix',
       items: [
         {
@@ -256,8 +257,11 @@ async function createBlackCatPix(body: CreatePixRequest, supabase: any, supabase
         phone: telefone.replace(/\D/g, ''),
         document: {
           number: cpf.replace(/\D/g, ''),
-          type: 'CPF',
+          type: 'cpf',
         },
+      },
+      pix: {
+        expiresInDays: 1,
       },
       postbackUrl: webhookUrl,
       externalReference: pedidoId || `pedido-${Date.now()}`,

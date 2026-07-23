@@ -86,8 +86,8 @@ const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
                 className="w-16 h-16 object-cover rounded-xl"
               />
               <div
-                className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-black shadow-md"
-                style={{ background: softGreen }}
+                className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-md"
+                style={{ background: defaultOrange }}
               >
                 1
               </div>

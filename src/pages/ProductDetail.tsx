@@ -77,11 +77,13 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
-  const { adicionarItem, temItemPromocional, getSubtotalSemPromocional } = useCart();
-  const [quantidades, setQuantidades] = useState<Record<string, number>>({});
-  const [observacoes, setObservacoes] = useState("");
+  const { adicionarItem, atualizarItem, temItemPromocional, getSubtotalSemPromocional } = useCart();
+  const itemEdicao: ItemCarrinho | undefined = location.state?.editandoItem;
+  const modoEdicao = !!itemEdicao;
+  const [quantidades, setQuantidades] = useState<Record<string, number>>(itemEdicao?.complementos ?? {});
+  const [observacoes, setObservacoes] = useState(itemEdicao?.observacoes ?? "");
   const [pesquisa, setPesquisa] = useState("");
-  const [quantidadeProduto, setQuantidadeProduto] = useState(1);
+  const [quantidadeProduto, setQuantidadeProduto] = useState(itemEdicao?.quantidade ?? 1);
   const [modalAberto, setModalAberto] = useState(false);
   const [imagemAmpliada, setImagemAmpliada] = useState(false);
   const { cor_borda_logo } = useBranding();

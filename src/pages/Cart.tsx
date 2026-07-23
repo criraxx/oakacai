@@ -105,7 +105,7 @@ const Cart = () => {
             <div>
               <h1 className="text-foreground font-semibold text-lg leading-tight">Meu carrinho</h1>
               <p className="text-muted-foreground text-xs">
-                {itens.length} {itens.length === 1 ? "item" : "itens"}
+                {itens.reduce((acc, item) => acc + (item.quantidade ?? 1), 0)} {itens.reduce((acc, item) => acc + (item.quantidade ?? 1), 0) === 1 ? "item" : "itens"}
               </p>
             </div>
           </div>

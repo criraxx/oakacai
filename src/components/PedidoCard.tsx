@@ -326,7 +326,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
           <span className="text-muted-foreground flex items-center gap-2">
             {isDelivery ? (
               <>
-                <Motorcycle className="w-3.5 h-3.5" /> Entrega
+                <Bike className="w-3.5 h-3.5" /> Entrega
               </>
             ) : (
               <>

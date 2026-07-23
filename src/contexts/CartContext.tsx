@@ -71,12 +71,26 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 const CART_STORAGE_KEY = "vibe-carrinho";
 const CLIENTE_STORAGE_KEY = "vibe-cliente";
 
+// Sanitiza item vindo do storage — garante numéricos válidos para evitar NaN/R$ 0,00
+const sanitizeItem = (item: any): ItemCarrinho => ({
+  ...item,
+  produtoPreco: Number.isFinite(Number(item?.produtoPreco)) ? Number(item.produtoPreco) : 0,
+  totalAdicionais: Number.isFinite(Number(item?.totalAdicionais)) ? Number(item.totalAdicionais) : 0,
+  quantidade: Number.isFinite(Number(item?.quantidade)) && Number(item.quantidade) > 0 ? Number(item.quantidade) : 1,
+  complementos: item?.complementos ?? {},
+  observacoes: item?.observacoes ?? "",
+});
+
 // Função para carregar itens do localStorage
 const loadCartFromStorage = (): ItemCarrinho[] => {
   try {
     const stored = localStorage.getItem(CART_STORAGE_KEY);
     if (stored) {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) {
+        // Descarta itens sem preço válido (>0) para não exibir R$ 0,00 no carrinho
+        return parsed.map(sanitizeItem).filter((i) => i.produtoPreco > 0);
+      }
     }
   } catch (error) {
     console.error("Erro ao carregar carrinho:", error);

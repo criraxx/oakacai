@@ -144,7 +144,9 @@ const ProductDetail = () => {
     return produtoBase;
   }, [tamanhoSelecionado, familiaInfo, produtoBase]);
 
+  const getTipoProduto = (): "combo" | "monte" | "pronto" => {
     const nome = produto.nome.toLowerCase();
+
     
     // Combo Premium (2 copos) - tem monte copo 1 e 2 + adicionais
     if (nome.includes("combo premium") || nome.includes("combo 2")) {

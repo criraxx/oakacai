@@ -194,8 +194,9 @@ export const secoesCombo: SecaoComplemento[] = [
   { ...adicionaisPremium, id: "adicionais-premium-copo-2", titulo: "Adicionais premium copo 2", itens: adicionaisPremium.itens.map(item => ({ ...item, id: item.id.replace('-p', '-p2') })) }
 ];
 
-// Para Monte Seu Copo do Seu Jeito (apenas adicionais pagos)
+// Para Monte Seu Copo / Trufados / Tradicionais (grátis + pago + premium)
 export const secoesMonteCopo: SecaoComplemento[] = [
+  { ...monteOCopoUnico, titulo: "Monte seu açaí", subtitulo: "Escolha até 4 itens grátis" },
   adicionais,
   adicionaisPremium
 ];

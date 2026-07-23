@@ -117,11 +117,33 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const adicionarItem = (item: ItemCarrinho) => {
-    setItens((prev) => [...prev, { ...item, id: `item-${Date.now()}` }]);
+    setItens((prev) => [...prev, { ...item, id: `item-${Date.now()}`, quantidade: item.quantidade ?? 1 }]);
   };
 
   const removerItem = (id: string) => {
     setItens((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const incrementarQuantidade = (id: string) => {
+    setItens((prev) =>
+      prev.map((item) =>
+        item.id === id ? { ...item, quantidade: (item.quantidade ?? 1) + 1 } : item
+      )
+    );
+  };
+
+  const decrementarQuantidade = (id: string) => {
+    setItens((prev) => {
+      const item = prev.find((i) => i.id === id);
+      if (!item) return prev;
+      const qtd = item.quantidade ?? 1;
+      if (qtd <= 1) {
+        return prev.filter((i) => i.id !== id);
+      }
+      return prev.map((i) =>
+        i.id === id ? { ...i, quantidade: qtd - 1 } : i
+      );
+    });
   };
 
   const limparCarrinho = () => {

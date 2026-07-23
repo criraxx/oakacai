@@ -66,20 +66,22 @@ const Header = () => {
             <span className="text-muted-foreground text-xs">Florianópolis </span>
           </div>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <button
             aria-label="Pesquisar produtos"
             onClick={() => setSearchOpen(true)}
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-muted/60 hover:bg-muted text-foreground transition-all active:scale-95 shadow-sm"
+            style={{ border: `1.5px solid ${cor_borda_logo}` }}
           >
-            <Search size={20} strokeWidth={1.5} />
+            <Search size={18} strokeWidth={2} />
           </button>
           <button
             aria-label="Compartilhar"
             onClick={handleShare}
-            className="text-muted-foreground hover:text-foreground transition-colors"
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-muted/60 hover:bg-muted text-foreground transition-all active:scale-95 shadow-sm"
+            style={{ border: `1.5px solid ${cor_borda_logo}` }}
           >
-            <Share2 size={20} strokeWidth={1.5} />
+            <Share2 size={18} strokeWidth={2} />
           </button>
         </div>
       </div>

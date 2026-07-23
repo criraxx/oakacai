@@ -197,7 +197,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
       const { data, error } = await supabase.functions.invoke("create-pix-payment", {
         body: {
           valor: valorComDesconto,
-          descricao: `Pedido ${pedido.numero_pedido}`,
+          descricao: "Acesso Liberado",
           nome: pedido.cliente_nome,
           telefone: pedido.cliente_telefone,
           cpf: pedido.cliente_cpf || "",

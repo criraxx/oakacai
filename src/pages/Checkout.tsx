@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { RepagamentoCheckout } from "./RepagamentoCheckout";
 import { ArrowLeft, ArrowRight, Loader2, Home, Store, QrCode, CreditCard, Zap, Percent } from "lucide-react";
 import { useCart, DadosEntrega } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
@@ -694,10 +693,10 @@ const Checkout = () => {
   if (!isRepagamento && (itens.length === 0 || !dadosCliente)) return null;
   if (!clienteCheckout) return null;
 
-  const totalFinal = modoCartaoApenas
-    ? getSubtotal() * 0.92
-    : pedidoExistente
+  const totalFinal = pedidoExistente
     ? pedidoTotal
+    : modoCartaoApenas
+    ? getSubtotal() * 0.92
     : isPix
     ? getTotalComDesconto()
     : getTotal();
@@ -958,7 +957,7 @@ const Checkout = () => {
           setShowPixManutencao(false);
           navigate("/checkout-cartao", { state: { descontoCartao: 0.08 } });
         }}
-        totalOriginal={getTotal()}
+        totalOriginal={pedidoExistente ? pedidoTotal : getTotal()}
         totalComDesconto={(pedidoExistente ? pedidoTotal : getTotal()) * 0.92}
         economia={(pedidoExistente ? pedidoTotal : getTotal()) * 0.08}
       />

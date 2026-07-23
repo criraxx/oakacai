@@ -130,24 +130,20 @@ const ProductDetail = () => {
     familiaInfo?.tamanhoAtual ?? null
   );
 
-  // Ao trocar de tamanho, sobrescreve nome/preço do produto exibido
+  // Ao trocar de tamanho, sobrescreve nome/preço/imagem do produto exibido
   const produto = useMemo(() => {
     if (tamanhoSelecionado && familiaInfo) {
-      const alvo = produtosPorId[tamanhoSelecionado.id];
-      if (alvo) {
-        return {
-          ...produtoBase,
-          nome: alvo.nome,
-          preco: alvo.preco,
-          imagem: alvo.imagem || produtoBase.imagem,
-          descricao: alvo.descricao || produtoBase.descricao,
-        };
-      }
-      return { ...produtoBase, preco: tamanhoSelecionado.preco };
+      const alvoMap = produtosPorId[tamanhoSelecionado.id];
+      const alvoList = todosProdutos.find((p) => p.id === tamanhoSelecionado.id);
+      const nome = alvoMap?.nome ?? alvoList?.title ?? produtoBase.nome;
+      const preco = alvoMap?.preco ?? alvoList?.price ?? tamanhoSelecionado.preco;
+      const imagem = alvoMap?.imagem ?? alvoList?.image ?? produtoBase.imagem;
+      const descricao = alvoMap?.descricao ?? alvoList?.description ?? produtoBase.descricao;
+      return { ...produtoBase, nome, preco, imagem, descricao };
     }
     return produtoBase;
   }, [tamanhoSelecionado, familiaInfo, produtoBase]);
-  const getTipoProduto = (): "combo" | "monte" | "pronto" => {
+
     const nome = produto.nome.toLowerCase();
     
     // Combo Premium (2 copos) - tem monte copo 1 e 2 + adicionais

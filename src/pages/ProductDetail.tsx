@@ -154,33 +154,16 @@ const ProductDetail = () => {
     }
     
     // Picolés e Bebidas - produtos prontos, SEM complementos
-    if (nome.includes("picolé") || nome.includes("picole") || 
+    if (nome.includes("picolé") || nome.includes("picole") ||
         nome.includes("laka oreo") || nome.includes("morango com ninho") || nome.includes("choconinho") ||
-        nome.includes("água") || nome.includes("agua") || 
+        nome.includes("água") || nome.includes("agua") ||
         nome.includes("coca") || nome.includes("coca cola")) {
       return "pronto";
     }
-    
-    // Trufados e Tradicionais - produtos prontos, SEM complementos
-    if (nome.includes("trufado") || nome.includes("kids") || nome.includes("tradicional") || 
-        nome.includes("mega") || nome.includes("da casa") || nome.includes("sensação") ||
-        nome.includes("sensacao")) {
-      return "pronto";
-    }
-    
-    // Balde - tem adicionais
-    if (nome.includes("balde")) {
-      return "monte";
-    }
-    
-    // Monte do seu jeito e Roleta - 1 copo com adicionais
-    if (nome.includes("monte") || nome.includes("seu copo") || nome.includes("seu jeito") || 
-        nome.includes("roleta") || nome.includes("puro")) {
-      return "monte";
-    }
-    
-    // Default: produto pronto
-    return "pronto";
+
+    // Todos os demais (trufados, tradicionais, kids, mega, da casa, sensação,
+    // balde, monte, roleta, puro) recebem seções grátis + pago + premium
+    return "monte";
   };
 
   const tipoProduto = getTipoProduto();

@@ -27,17 +27,124 @@ export const familiaAcaiPuro: Familia = {
 export const familiaCombo: Familia = {
   key: "combo-premium",
   tamanhos: [
-    { id: "combo-300ml", label: "300ml", ml: 300, preco: 49.90 },
-    { id: "combo-500ml", label: "500ml", ml: 500, preco: 59.90 },
+    { id: "promo-combo-300", label: "300ml", ml: 300, preco: 49.90 },
+    { id: "promo-combo-500", label: "500ml", ml: 500, preco: 59.90 },
   ],
 };
 
-export const familiaTrufadoRafaelo: Familia = {
+export const familiaRoleta: Familia = {
+  key: "roleta",
+  tamanhos: [
+    { id: "roleta-500g", label: "500g", ml: 500, preco: 32.90 },
+    { id: "roleta-1k",   label: "1L",   ml: 1000, preco: 59.90 },
+  ],
+};
+
+export const familiaSonhoValsa: Familia = {
+  key: "trufado-sonho-valsa",
+  tamanhos: [
+    { id: "sonho-valsa-300", label: "300ml", ml: 300, preco: 32.90 },
+    { id: "sonho-valsa-500", label: "500ml", ml: 500, preco: 37.90 },
+    { id: "sonho-valsa-700", label: "700ml", ml: 700, preco: 42.90 },
+  ],
+};
+
+export const familiaOuroBranco: Familia = {
+  key: "trufado-ouro-branco",
+  tamanhos: [
+    { id: "ouro-branco-300", label: "300ml", ml: 300, preco: 32.90 },
+    { id: "ouro-branco-500", label: "500ml", ml: 500, preco: 37.90 },
+    { id: "ouro-branco-700", label: "700ml", ml: 700, preco: 42.90 },
+  ],
+};
+
+export const familiaDiamanteNegro: Familia = {
+  key: "trufado-diamante-negro",
+  tamanhos: [
+    { id: "diamante-negro-300", label: "300ml", ml: 300, preco: 24.00 },
+    { id: "diamante-negro-400", label: "400ml", ml: 400, preco: 29.00 },
+    { id: "diamante-negro-700", label: "700ml", ml: 700, preco: 35.00 },
+  ],
+};
+
+export const familiaKitkat: Familia = {
+  key: "trufado-kitkat",
+  tamanhos: [
+    { id: "kitkat-300", label: "300ml", ml: 300, preco: 33.90 },
+    { id: "kitkat-500", label: "500ml", ml: 500, preco: 38.90 },
+    { id: "kitkat-700", label: "700ml", ml: 700, preco: 43.90 },
+  ],
+};
+
+export const familiaLaka: Familia = {
+  key: "trufado-laka",
+  tamanhos: [
+    { id: "laka-300", label: "300ml", ml: 300, preco: 33.90 },
+    { id: "laka-500", label: "500ml", ml: 500, preco: 38.90 },
+    { id: "laka-700", label: "700ml", ml: 700, preco: 44.90 },
+  ],
+};
+
+export const familiaFerreiro: Familia = {
+  key: "trufado-ferreiro",
+  tamanhos: [
+    { id: "ferreiro-300", label: "300ml", ml: 300, preco: 34.99 },
+    { id: "ferreiro-500", label: "500ml", ml: 500, preco: 39.99 },
+    { id: "ferreiro-700", label: "700ml", ml: 700, preco: 44.99 },
+  ],
+};
+
+export const familiaRafaelo: Familia = {
   key: "trufado-rafaelo",
   tamanhos: [
-    { id: "trufado-rafaelo-300", label: "300ml", ml: 300, preco: 34.99 },
-    { id: "trufado-rafaelo-500", label: "500ml", ml: 500, preco: 39.99 },
-    { id: "trufado-rafaelo-700", label: "700ml", ml: 700, preco: 46.99 },
+    { id: "rafaelo-300", label: "300ml", ml: 300, preco: 34.99 },
+    { id: "rafaelo-500", label: "500ml", ml: 500, preco: 39.99 },
+    { id: "rafaelo-700", label: "700ml", ml: 700, preco: 44.99 },
+  ],
+};
+
+export const familiaKids: Familia = {
+  key: "tradicional-kids",
+  tamanhos: [
+    { id: "kids-300", label: "300ml", ml: 300, preco: 29.90 },
+    { id: "kids-500", label: "500ml", ml: 500, preco: 34.90 },
+    { id: "kids-700", label: "700ml", ml: 700, preco: 39.90 },
+  ],
+};
+
+export const familiaTradicional: Familia = {
+  key: "tradicional-classico",
+  tamanhos: [
+    { id: "tradicional-300", label: "300ml", ml: 300, preco: 29.90 },
+    { id: "tradicional-500", label: "500ml", ml: 500, preco: 34.90 },
+    { id: "tradicional-700", label: "700ml", ml: 700, preco: 39.90 },
+  ],
+};
+
+export const familiaMega: Familia = {
+  key: "tradicional-mega",
+  tamanhos: [
+    { id: "mega-300", label: "300ml", ml: 300, preco: 29.90 },
+    { id: "mega-500", label: "500ml", ml: 500, preco: 34.90 },
+    { id: "mega-700", label: "700ml", ml: 700, preco: 39.90 },
+  ],
+};
+
+export const familiaDaCasa: Familia = {
+  key: "tradicional-da-casa",
+  tamanhos: [
+    { id: "da-casa-300", label: "300ml", ml: 300, preco: 29.90 },
+    { id: "da-casa-500", label: "500ml", ml: 500, preco: 34.90 },
+    { id: "da-casa-700", label: "700ml", ml: 700, preco: 39.90 },
+  ],
+};
+
+export const familiaSensacao: Familia = {
+  key: "tradicional-sensacao",
+  tamanhos: [
+    { id: "sensacao-300", label: "300ml", ml: 300, preco: 31.90 },
+    { id: "sensacao-500", label: "500ml", ml: 500, preco: 36.90 },
+    { id: "sensacao-700", label: "700ml", ml: 700, preco: 41.90 },
   ],
 };
 
@@ -47,11 +154,27 @@ const aliases: Record<string, string> = {
   "copo-300ml-puro": "monte-300ml",
   "copo-500ml-puro": "monte-500ml",
   "copo-700ml-puro": "monte-700ml",
-  "promo-combo-300": "combo-300ml",
-  "promo-combo-500": "combo-500ml",
+  "combo-300ml": "promo-combo-300",
+  "combo-500ml": "promo-combo-500",
 };
 
-const familias: Familia[] = [familiaAcaiPuro, familiaCombo, familiaTrufadoRafaelo];
+const familias: Familia[] = [
+  familiaAcaiPuro,
+  familiaCombo,
+  familiaRoleta,
+  familiaSonhoValsa,
+  familiaOuroBranco,
+  familiaDiamanteNegro,
+  familiaKitkat,
+  familiaLaka,
+  familiaFerreiro,
+  familiaRafaelo,
+  familiaKids,
+  familiaTradicional,
+  familiaMega,
+  familiaDaCasa,
+  familiaSensacao,
+];
 
 export function resolveFamilia(produtoId: string): { familia: Familia; tamanhoAtual: Tamanho } | null {
   const canonical = aliases[produtoId] ?? produtoId;

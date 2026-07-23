@@ -520,320 +520,256 @@ const Checkout = () => {
 
   if (itens.length === 0 || !dadosCliente) return null;
 
+  const totalFinal = modoCartaoApenas
+    ? getSubtotal() * 0.92
+    : isPix
+    ? getTotalComDesconto()
+    : getTotal();
+
   return (
-    <div className="min-h-screen bg-muted max-w-md mx-auto flex flex-col">
+    <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background border-b border-border">
-        <div className="flex items-center gap-3 px-4 py-3">
+        <div className="flex items-center gap-3 px-4 py-3.5">
           <button
             onClick={() => navigate(-1)}
-            className="w-8 h-8 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
+            className="w-9 h-9 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
+            aria-label="Voltar"
           >
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-foreground font-semibold text-lg">Finalizar Pedido</h1>
+          <h1 className="text-foreground font-semibold text-base">Pagamento</h1>
+          <span className="ml-auto text-xs text-muted-foreground font-medium">3/3</span>
+        </div>
+        <div className="h-1 bg-muted">
+          <div className="h-full transition-all" style={{ width: "100%", background: accent }} />
         </div>
       </header>
 
-      {/* Conteúdo */}
-      <main className="flex-1 pb-40">
-        {/* Dados do Cliente */}
-        <div className="bg-background p-4 mb-2">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-foreground font-medium">{dadosCliente.nome}</p>
-              <p className="text-muted-foreground text-sm">
-                {dadosCliente.telefone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3")}
-              </p>
-            </div>
-            <button
-              onClick={() => navigate("/identificacao")}
-              className="text-accent text-sm font-medium"
-            >
-              Trocar
-            </button>
+      <main className="flex-1 px-4 pt-6 pb-40">
+        {/* Cliente */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="min-w-0">
+            <p className="text-foreground font-semibold text-[15px] truncate">{dadosCliente.nome}</p>
+            <p className="text-muted-foreground text-xs">
+              {dadosCliente.telefone.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3")}
+            </p>
           </div>
+          <button
+            onClick={() => navigate("/identificacao")}
+            className="text-xs font-semibold px-3 py-1.5 rounded-full border border-border hover:bg-muted transition-colors"
+          >
+            Trocar
+          </button>
         </div>
 
-        {/* Order Bumps do gatilho checkout */}
         <OrderBumpList gatilho="checkout" />
-
-        {/* Downsell embutido no checkout */}
         <DownsellModal posicao="checkout" />
 
-        {/* Escolha como receber */}
-        <div className="bg-card p-4 mb-2 mx-4 rounded-xl">
-          <h2 className="text-card-foreground font-semibold text-sm mb-3">
-            Escolha como receber o pedido
+        {/* Entrega */}
+        <section className="mb-6">
+          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5">
+            Entrega
           </h2>
-          <div className="space-y-2">
-            <button
+          <div className="grid grid-cols-2 gap-2">
+            <ChoiceCard
+              active={tipoEntrega === "delivery"}
               onClick={() => setTipoEntrega("delivery")}
-              className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors ${
-                tipoEntrega === "delivery"
-                  ? "border-accent bg-accent/10"
-                  : "border-card-foreground/20"
-              }`}
-            >
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                tipoEntrega === "delivery" ? "border-accent" : "border-card-foreground/40"
-              }`}>
-                {tipoEntrega === "delivery" && <div className="w-2.5 h-2.5 rounded-full bg-accent" />}
-              </div>
-              <span className="text-card-foreground text-sm">Cadastrar endereço</span>
-            </button>
-            <button
+              accent={accent}
+              icon={<Home size={18} />}
+              label="Entregar"
+            />
+            <ChoiceCard
+              active={tipoEntrega === "pickup"}
               onClick={() => setTipoEntrega("pickup")}
-              className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors ${
-                tipoEntrega === "pickup"
-                  ? "border-accent bg-accent/10"
-                  : "border-card-foreground/20"
-              }`}
-            >
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                tipoEntrega === "pickup" ? "border-accent" : "border-card-foreground/40"
-              }`}>
-                {tipoEntrega === "pickup" && <div className="w-2.5 h-2.5 rounded-full bg-accent" />}
-              </div>
-              <span className="text-card-foreground text-sm">Buscar o pedido</span>
-            </button>
+              accent={accent}
+              icon={<Store size={18} />}
+              label="Retirar"
+            />
           </div>
-        </div>
+        </section>
 
-        {/* Endereço (só mostra se delivery) */}
+        {/* Endereço */}
         {tipoEntrega === "delivery" && (
-          <div className="bg-card p-4 mb-2 mx-4 rounded-xl">
-            <div className="flex items-center gap-2 mb-4">
-              <MapPin size={18} className="text-accent" />
-              <h2 className="text-card-foreground font-semibold text-sm">Endereço de entrega</h2>
-            </div>
-
+          <section className="mb-6">
+            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5">
+              Endereço
+            </h2>
             <div className="space-y-3">
-              <div className="relative">
-                <input
-                  type="text"
-                  value={formatCep(formData.cep)}
-                  onChange={(e) => handleInputChange("cep", e.target.value)}
-                  placeholder="CEP (opcional)"
-                  maxLength={9}
-                  className="w-full px-3 py-2.5 bg-card-foreground/10 border-0 rounded-lg text-card-foreground text-sm placeholder:text-card-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent"
-                />
-                {buscandoCep && (
-                  <Loader2 size={16} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-card-foreground/50" />
-                )}
-              </div>
-
-              <input
-                type="text"
+              <FieldInput
+                label="CEP"
+                value={formatCep(formData.cep)}
+                onChange={(v) => handleInputChange("cep", v)}
+                accent={accent}
+                maxLength={9}
+                inputMode="numeric"
+                rightAdornment={buscandoCep ? <Loader2 size={14} className="animate-spin text-muted-foreground" /> : null}
+              />
+              <FieldInput
+                label="Rua / Avenida"
                 value={formData.endereco}
-                onChange={(e) => handleInputChange("endereco", e.target.value)}
-                placeholder="Endereço (rua, avenida) *"
-                className="w-full px-3 py-2.5 bg-card-foreground/10 border-0 rounded-lg text-card-foreground text-sm placeholder:text-card-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent"
+                onChange={(v) => handleInputChange("endereco", v)}
+                accent={accent}
               />
-
-              <div className="flex gap-3">
-                <input
-                  type="text"
-                  value={formData.numero}
-                  onChange={(e) => handleInputChange("numero", e.target.value)}
-                  placeholder="Número *"
-                  className="w-24 px-3 py-2.5 bg-card-foreground/10 border-0 rounded-lg text-card-foreground text-sm placeholder:text-card-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent"
-                />
-                <input
-                  type="text"
-                  value={formData.complemento}
-                  onChange={(e) => handleInputChange("complemento", e.target.value)}
-                  placeholder="Complemento"
-                  className="flex-1 px-3 py-2.5 bg-card-foreground/10 border-0 rounded-lg text-card-foreground text-sm placeholder:text-card-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent"
-                />
+              <div className="grid grid-cols-3 gap-3">
+                <div className="col-span-1">
+                  <FieldInput
+                    label="Número"
+                    value={formData.numero}
+                    onChange={(v) => handleInputChange("numero", v)}
+                    accent={accent}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <FieldInput
+                    label="Complemento"
+                    value={formData.complemento || ""}
+                    onChange={(v) => handleInputChange("complemento", v)}
+                    accent={accent}
+                  />
+                </div>
               </div>
-
-              <input
-                type="text"
+              <FieldInput
+                label="Bairro"
                 value={formData.bairro}
-                onChange={(e) => handleInputChange("bairro", e.target.value)}
-                placeholder="Bairro *"
-                className="w-full px-3 py-2.5 bg-card-foreground/10 border-0 rounded-lg text-card-foreground text-sm placeholder:text-card-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent"
+                onChange={(v) => handleInputChange("bairro", v)}
+                accent={accent}
               />
-
-              <input
-                type="text"
+              <FieldInput
+                label="Cidade"
                 value={formData.cidade}
-                onChange={(e) => handleInputChange("cidade", e.target.value)}
-                placeholder="Cidade"
-                className="w-full px-3 py-2.5 bg-card-foreground/10 border-0 rounded-lg text-card-foreground text-sm placeholder:text-card-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent"
+                onChange={(v) => handleInputChange("cidade", v)}
+                accent={accent}
               />
             </div>
-          </div>
+          </section>
         )}
 
-        {/* Forma de Pagamento */}
-        <div className="bg-card p-4 mb-2 mx-4 rounded-xl">
-            <h2 className="text-card-foreground font-semibold text-sm mb-3">
-              Escolha a forma de pagamento
-            </h2>
-            <p className="text-card-foreground/60 text-xs mb-3">Pagar agora</p>
-
-            <button
+        {/* Pagamento */}
+        <section className="mb-6">
+          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5">
+            Pagamento
+          </h2>
+          <div className="space-y-2">
+            <PaymentOption
+              active={formData.formaPagamento === "pix" && !modoCartaoApenas}
+              disabled={modoCartaoApenas}
               onClick={() => {
-                if (modoCartaoApenas) {
-                  setShowPixManutencao(true);
-                  return;
-                }
+                if (modoCartaoApenas) return setShowPixManutencao(true);
                 handleInputChange("formaPagamento", "pix");
               }}
-              className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors ${
-                formData.formaPagamento === "pix" && !modoCartaoApenas
-                  ? "border-accent bg-accent/10"
-                  : "border-card-foreground/20"
-              } ${modoCartaoApenas ? "opacity-70" : ""}`}
-            >
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                formData.formaPagamento === "pix" && !modoCartaoApenas ? "border-accent" : "border-card-foreground/40"
-              }`}>
-                {formData.formaPagamento === "pix" && !modoCartaoApenas && <div className="w-2.5 h-2.5 rounded-full bg-accent" />}
+              accent={accent}
+              icon={<QrCode size={20} />}
+              title="PIX"
+              subtitle={modoCartaoApenas ? "Em manutenção" : "Aprovação imediata"}
+              badge={!modoCartaoApenas ? "6% OFF" : undefined}
+              fastTag={!modoCartaoApenas}
+            />
+            <PaymentOption
+              active={formData.formaPagamento === "cartao"}
+              onClick={() => handleInputChange("formaPagamento", "cartao")}
+              accent={accent}
+              icon={<CreditCard size={20} />}
+              title="Cartão de crédito"
+              subtitle="Débito ou crédito"
+              badge={modoCartaoApenas ? "8% OFF" : undefined}
+            />
+          </div>
+          <p className="text-muted-foreground text-[11px] mt-3 ml-1">
+            {modoCartaoApenas
+              ? "PIX em manutenção. Cartão com 8% de desconto."
+              : "PIX com 6% de desconto no total."}
+          </p>
+        </section>
+
+        {/* Resumo */}
+        <section className="mb-6">
+          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5">
+            Resumo
+          </h2>
+          <div className="rounded-2xl border border-border p-4">
+            <div className="space-y-1.5">
+              {itens.map((item) => (
+                <div key={item.id} className="flex justify-between text-[13px]">
+                  <span className="text-muted-foreground truncate pr-2">
+                    {item.quantidade ?? 1}x {item.produtoNome}
+                  </span>
+                  <span className="text-foreground font-medium whitespace-nowrap">
+                    R$ {((item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1)).toFixed(2).replace(".", ",")}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-border mt-3 pt-3 space-y-1.5">
+              <div className="flex justify-between text-[13px]">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-foreground">R$ {getSubtotal().toFixed(2).replace(".", ",")}</span>
               </div>
-              <QrCode size={20} className="text-accent" />
-              <span className="text-card-foreground text-sm flex-1 text-left">
-                PIX
-                {modoCartaoApenas && (
-                  <span className="block text-[10px] text-yellow-600 font-medium">
-                    Em manutenção
+              {isPix && !modoCartaoApenas && (
+                <div className="flex justify-between text-[13px]">
+                  <span className="text-foreground/70 flex items-center gap-1">
+                    <Percent size={12} /> Desconto PIX
                   </span>
-                )}
-              </span>
-              {!modoCartaoApenas && (
-                <div className="flex gap-1">
-                  <span className="px-2 py-0.5 bg-accent text-accent-foreground text-[10px] font-bold rounded flex items-center gap-1">
-                    <Zap size={10} />
-                    Mais rápido
-                  </span>
-                  <span className="px-2 py-0.5 bg-accent/20 text-accent text-[10px] font-bold rounded">
-                    6% OFF
+                  <span className="font-medium" style={{ color: accent }}>
+                    -R$ {getDescontoPix().toFixed(2).replace(".", ",")}
                   </span>
                 </div>
               )}
-            </button>
-
-            <button
-              onClick={() => handleInputChange("formaPagamento", "cartao")}
-              className={`w-full flex items-center gap-3 p-3 rounded-lg border transition-colors mt-2 ${
-                formData.formaPagamento === "cartao"
-                  ? "border-accent bg-accent/10"
-                  : modoCartaoApenas
-                  ? "border-accent/50 hover:border-accent"
-                  : "border-card-foreground/20 hover:border-card-foreground/40"
-              }`}
-            >
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                formData.formaPagamento === "cartao" ? "border-accent" : "border-card-foreground/40"
-              }`}>
-                {formData.formaPagamento === "cartao" && <div className="w-2.5 h-2.5 rounded-full bg-accent" />}
-              </div>
-              <CreditCard size={20} className={formData.formaPagamento === "cartao" || modoCartaoApenas ? "text-accent" : "text-card-foreground"} />
-              <span className="text-card-foreground text-sm flex-1 text-left">Cartão de Crédito</span>
               {modoCartaoApenas && (
-                <span className="px-2 py-0.5 bg-accent text-accent-foreground text-[10px] font-bold rounded">
-                  8% OFF
-                </span>
+                <div className="flex justify-between text-[13px]">
+                  <span className="text-foreground/70 flex items-center gap-1">
+                    <Percent size={12} /> Desconto cartão
+                  </span>
+                  <span className="font-medium" style={{ color: accent }}>
+                    -R$ {(getSubtotal() * 0.08).toFixed(2).replace(".", ",")}
+                  </span>
+                </div>
               )}
-            </button>
-
-            <p className="text-card-foreground/50 text-xs text-center mt-3">
-              {modoCartaoApenas
-                ? "PIX em manutenção. Pague no cartão e ganhe 8% de desconto!"
-                : "Ao utilizar PIX, você ganha 6% de desconto!"}
-            </p>
-        </div>
-
-        {/* Resumo do pedido */}
-        <div className="bg-background p-4 mx-4 rounded-xl">
-          <h2 className="text-foreground font-semibold text-sm mb-3">Resumo do pedido</h2>
-          
-          {itens.map((item) => (
-            <div key={item.id} className="flex justify-between text-sm mb-2">
-              <span className="text-muted-foreground">
-                {item.quantidade ?? 1}x {item.produtoNome}
-              </span>
-              <span className="text-foreground">
-                R$ {((item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1)).toFixed(2).replace(".", ",")}
-              </span>
-            </div>
-          ))}
-
-          <div className="border-t border-border mt-3 pt-3">
-            <div className="flex justify-between text-sm mb-1">
-              <span className="text-muted-foreground">Subtotal</span>
-              <span className="text-foreground">
-                R$ {getSubtotal().toFixed(2).replace(".", ",")}
-              </span>
-            </div>
-            
-            {isPix && !modoCartaoApenas && (
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-accent flex items-center gap-1">
-                  <Percent size={14} />
-                  Desconto PIX (6%)
-                </span>
-                <span className="text-accent font-medium">
-                  -R$ {getDescontoPix().toFixed(2).replace(".", ",")}
+              <div className="flex justify-between text-base font-bold pt-1">
+                <span className="text-foreground">Total</span>
+                <span className="text-foreground">
+                  R$ {totalFinal.toFixed(2).replace(".", ",")}
                 </span>
               </div>
-            )}
-
-            {modoCartaoApenas && (
-              <div className="flex justify-between text-sm mb-1">
-                <span className="text-accent flex items-center gap-1">
-                  <Percent size={14} />
-                  Desconto cartão (8%)
-                </span>
-                <span className="text-accent font-medium">
-                  -R$ {(getSubtotal() * 0.08).toFixed(2).replace(".", ",")}
-                </span>
-              </div>
-            )}
-
-            <div className="flex justify-between text-base font-bold mt-2">
-              <span className="text-foreground">Total</span>
-              <span className="text-foreground">
-                R$ {(modoCartaoApenas
-                  ? getSubtotal() * 0.92
-                  : isPix
-                  ? getTotalComDesconto()
-                  : getTotal()
-                ).toFixed(2).replace(".", ",")}
-              </span>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Banner Privacidade */}
-        <div className="mx-4 mt-4 p-3 bg-accent/10 rounded-lg">
-          <p className="text-accent text-xs text-center">
-            Ao fazer o pedido, você concorda com a Política de Privacidade
-          </p>
-        </div>
+        <p className="text-muted-foreground text-[11px] text-center">
+          Ao continuar, você concorda com nossa Política de Privacidade.
+        </p>
       </main>
 
-      {/* Footer Fixo */}
-      <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-card p-4">
-        <button
-          onClick={handleSubmit}
-          disabled={loading}
-          className="w-full py-3.5 bg-card text-card-foreground font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base"
-        >
-          {loading ? (
-            <>
-              <Loader2 size={18} className="animate-spin" />
-              Processando...
-            </>
-          ) : (
-            "Finalizar Pedido"
-          )}
-        </button>
+      {/* Footer */}
+      <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-background border-t border-border">
+        <div className="px-4 py-3 flex items-center gap-3">
+          <div className="flex flex-col">
+            <span className="text-[11px] text-muted-foreground leading-none mb-1">Total</span>
+            <span className="text-base font-bold text-foreground leading-none">
+              R$ {totalFinal.toFixed(2).replace(".", ",")}
+            </span>
+          </div>
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="ml-auto flex-1 max-w-[220px] py-3.5 font-semibold rounded-xl transition-all text-[15px] flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ background: accent, color: "#000" }}
+          >
+            {loading ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                Processando
+              </>
+            ) : (
+              <>
+                Finalizar
+                <ArrowRight size={18} />
+              </>
+            )}
+          </button>
+        </div>
       </footer>
 
-      {/* Modal PIX em manutenção (modo cartão apenas) */}
       <PixManutencaoModal
         open={showPixManutencao}
         onClose={() => setShowPixManutencao(false)}
@@ -848,5 +784,142 @@ const Checkout = () => {
     </div>
   );
 };
+
+const ChoiceCard = ({
+  active,
+  onClick,
+  accent,
+  icon,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  accent: string;
+  icon: React.ReactNode;
+  label: string;
+}) => (
+  <button
+    onClick={onClick}
+    className="flex items-center justify-center gap-2 rounded-xl border py-3 text-sm font-medium transition-all active:scale-[0.98]"
+    style={{
+      borderColor: active ? accent : "hsl(var(--border))",
+      borderWidth: active ? 2 : 1,
+      background: active ? `${accent}18` : "transparent",
+      color: "hsl(var(--foreground))",
+    }}
+  >
+    {icon}
+    {label}
+  </button>
+);
+
+const FieldInput = ({
+  label,
+  value,
+  onChange,
+  accent,
+  maxLength,
+  inputMode,
+  rightAdornment,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  accent: string;
+  maxLength?: number;
+  inputMode?: "numeric" | "text";
+  rightAdornment?: React.ReactNode;
+}) => {
+  const [focused, setFocused] = useState(false);
+  const active = focused || value.length > 0;
+  return (
+    <div
+      className="relative rounded-xl border transition-all bg-background"
+      style={{
+        borderColor: focused ? accent : "hsl(var(--border))",
+        borderWidth: focused ? 2 : 1,
+      }}
+    >
+      <label
+        className={`absolute left-3.5 pointer-events-none transition-all ${
+          active
+            ? "top-1.5 text-[11px] font-medium text-muted-foreground"
+            : "top-1/2 -translate-y-1/2 text-[15px] text-muted-foreground"
+        }`}
+      >
+        {label}
+      </label>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        maxLength={maxLength}
+        inputMode={inputMode}
+        className="w-full pt-6 pb-2 px-3.5 bg-transparent text-foreground text-[15px] focus:outline-none"
+      />
+      {rightAdornment && (
+        <div className="absolute right-3.5 top-1/2 -translate-y-1/2">{rightAdornment}</div>
+      )}
+    </div>
+  );
+};
+
+const PaymentOption = ({
+  active,
+  disabled,
+  onClick,
+  accent,
+  icon,
+  title,
+  subtitle,
+  badge,
+  fastTag,
+}: {
+  active: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+  accent: string;
+  icon: React.ReactNode;
+  title: string;
+  subtitle?: string;
+  badge?: string;
+  fastTag?: boolean;
+}) => (
+  <button
+    onClick={onClick}
+    className={`w-full flex items-center gap-3 p-3.5 rounded-xl border transition-all text-left ${
+      disabled ? "opacity-70" : "active:scale-[0.99]"
+    }`}
+    style={{
+      borderColor: active ? accent : "hsl(var(--border))",
+      borderWidth: active ? 2 : 1,
+      background: active ? `${accent}14` : "transparent",
+    }}
+  >
+    <div
+      className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+      style={{ background: active ? `${accent}30` : "hsl(var(--muted))", color: "hsl(var(--foreground))" }}
+    >
+      {icon}
+    </div>
+    <div className="flex-1 min-w-0">
+      <p className="text-foreground text-sm font-semibold leading-tight">{title}</p>
+      {subtitle && <p className="text-muted-foreground text-[11px] mt-0.5">{subtitle}</p>}
+    </div>
+    <div className="flex flex-col items-end gap-1">
+      {fastTag && (
+        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full flex items-center gap-1" style={{ background: `${accent}30`, color: "#000" }}>
+          <Zap size={9} /> Rápido
+        </span>
+      )}
+      {badge && (
+        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full" style={{ background: accent, color: "#000" }}>
+          {badge}
+        </span>
+      )}
+    </div>
+  </button>
+);
 
 export default Checkout;

@@ -99,40 +99,50 @@ const Pedidos = () => {
   const active = focused || telefoneBusca.length > 0;
 
   const Header = () => (
-    <header className="sticky top-0 z-10 bg-background border-b border-border">
+    <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-md border-b border-border/60">
+      <div
+        className="h-1 w-full"
+        style={{
+          background: `linear-gradient(90deg, ${accent} 0%, ${accent}80 50%, ${accent}40 100%)`,
+        }}
+      />
       <div className="flex items-center gap-3 px-4 py-3.5">
         <button
           onClick={() => navigate(-1)}
-          className="w-9 h-9 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
+          className="w-10 h-10 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
           aria-label="Voltar"
         >
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-foreground font-semibold text-base">Meus pedidos</h1>
+        <div className="flex-1">
+          <h1 className="text-foreground font-bold text-lg tracking-tight">Meus pedidos</h1>
+          <p className="text-xs text-muted-foreground">Acompanhe suas compras</p>
+        </div>
         {pedidos.length > 0 && (
-          <span className="ml-auto text-xs text-muted-foreground font-medium">
+          <span
+            className="px-3 py-1 rounded-full text-xs font-semibold"
+            style={{ background: `${accent}20`, color: accent }}
+          >
             {pedidos.length} {pedidos.length === 1 ? "pedido" : "pedidos"}
           </span>
         )}
       </div>
-      <div className="h-1 bg-muted">
-        <div className="h-full transition-all" style={{ width: telValid ? "100%" : "35%", background: accent }} />
-      </div>
 
-      <div className="px-4 pt-4 pb-4">
-        <div className="flex gap-2 items-stretch">
+      <div className="px-4 pt-2 pb-4">
+        <div className="flex gap-3 items-stretch">
           <div
-            className="relative flex-1 rounded-xl border transition-all bg-background"
+            className="relative flex-1 rounded-2xl border bg-background transition-all shadow-sm"
             style={{
               borderColor: focused ? accent : "hsl(var(--border))",
               borderWidth: focused ? 2 : 1,
+              boxShadow: focused ? `0 0 0 4px ${accent}15` : "none",
             }}
           >
             <label
               htmlFor="tel-busca"
-              className={`absolute left-3.5 pointer-events-none transition-all ${
+              className={`absolute left-4 pointer-events-none transition-all ${
                 active
-                  ? "top-1.5 text-[11px] font-medium text-muted-foreground"
+                  ? "top-2 text-[11px] font-semibold text-muted-foreground"
                   : "top-1/2 -translate-y-1/2 text-[15px] text-muted-foreground"
               }`}
             >
@@ -149,7 +159,7 @@ const Pedidos = () => {
               onKeyDown={(e) => e.key === "Enter" && handleBuscar()}
               placeholder={active ? "(00) 00000-0000" : ""}
               maxLength={15}
-              className="w-full pt-6 pb-2 px-3.5 bg-transparent text-foreground text-[15px] placeholder:text-muted-foreground/50 focus:outline-none"
+              className="w-full pt-6 pb-3 px-4 bg-transparent text-foreground text-[15px] placeholder:text-muted-foreground/50 focus:outline-none rounded-2xl"
             />
           </div>
           <button
@@ -157,7 +167,7 @@ const Pedidos = () => {
             onClick={handleBuscar}
             disabled={!telValid}
             aria-label="Buscar"
-            className="shrink-0 w-14 rounded-xl flex items-center justify-center transition-all active:scale-95 disabled:opacity-40"
+            className="shrink-0 w-14 rounded-2xl flex items-center justify-center transition-all active:scale-95 disabled:opacity-40 shadow-md"
             style={{ background: accent, color: "#000" }}
           >
             <Search className="w-5 h-5" />

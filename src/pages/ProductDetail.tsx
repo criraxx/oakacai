@@ -384,6 +384,41 @@ const ProductDetail = () => {
             )}
           </div>
 
+          {/* Seletor de tamanho (só aparece para produtos com variações) */}
+          {familiaInfo && (
+            <div className="mb-4">
+              <p className="text-foreground text-xs font-semibold uppercase tracking-wide mb-2">
+                Escolha o tamanho
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {familiaInfo.familia.tamanhos.map((t) => {
+                  const ativo = tamanhoSelecionado?.id === t.id;
+                  return (
+                    <button
+                      key={t.id}
+                      onClick={() => setTamanhoSelecionado(t)}
+                      className={`px-4 py-2 rounded-full text-sm font-semibold border-2 transition-all ${
+                        ativo
+                          ? "text-[#0a0a0a] shadow-md scale-[1.03]"
+                          : "bg-background text-foreground border-border hover:border-foreground/40"
+                      }`}
+                      style={
+                        ativo
+                          ? { backgroundColor: brandAccent, borderColor: brandAccent }
+                          : undefined
+                      }
+                    >
+                      <span>{t.label}</span>
+                      <span className="ml-2 text-xs opacity-80">
+                        R$ {t.preco.toFixed(2).replace(".", ",")}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <p className="text-foreground/75 text-sm leading-relaxed whitespace-pre-line">
             {produto.descricao}
           </p>

@@ -174,7 +174,7 @@ const Pedidos = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col page-enter">
-        <Header />
+        {header}
         <main className="flex-1 flex flex-col items-center justify-center pb-24 px-6">
           <div
             className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 animate-pulse"
@@ -192,7 +192,7 @@ const Pedidos = () => {
   if (pedidos.length === 0) {
     return (
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
-        <Header />
+        {header}
         <main className="flex-1 flex flex-col items-center justify-center px-6 py-12 pb-28 text-center">
           <div
             className="w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-lg"
@@ -224,7 +224,7 @@ const Pedidos = () => {
 
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
-      <Header />
+      {header}
       <main className="flex-1 p-4 space-y-4 pb-28">
         {pedidos.map((pedido) => (
           <PedidoCard key={pedido.id} pedido={pedido} />

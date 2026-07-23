@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { resolveImageUrl } from "@/lib/resolveImageUrl";
 
 export interface CatalogoCategoria {
   id: string;
@@ -99,7 +100,13 @@ export function useCatalogo() {
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('buscar-catalogo');
       if (error) throw error;
-      return data as CatalogoData;
+      const catalogo = data as CatalogoData;
+      catalogo.produtos = catalogo.produtos.map((p) => ({ ...p, imagem: resolveImageUrl(p.imagem) }));
+      catalogo.complementos = catalogo.complementos.map((c) => ({ ...c, imagem: resolveImageUrl(c.imagem) }));
+      catalogo.banners = catalogo.banners.map((b) => ({ ...b, imagem: resolveImageUrl(b.imagem) }));
+      catalogo.order_bumps = catalogo.order_bumps.map((b) => ({ ...b, imagem: resolveImageUrl(b.imagem) }));
+      catalogo.downsells = catalogo.downsells.map((d) => ({ ...d, imagem: resolveImageUrl(d.imagem) }));
+      return catalogo;
     },
     staleTime: 60_000,
   });

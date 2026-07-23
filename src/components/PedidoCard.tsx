@@ -124,13 +124,15 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
     if (!expanded && itens.length === 0) {
       setLoadingItens(true);
       try {
-        const { data, error } = await supabase
-          .from("pedido_itens")
-          .select("*")
-          .eq("pedido_id", pedido.id);
-
-        if (!error && data) {
-          setItens(data);
+        const [itensRes, compRes] = await Promise.all([
+          supabase.from("pedido_itens").select("*").eq("pedido_id", pedido.id),
+          supabase.from("complementos").select("id, nome"),
+        ]);
+        if (!itensRes.error && itensRes.data) setItens(itensRes.data);
+        if (compRes.data) {
+          const map: Record<string, string> = {};
+          compRes.data.forEach((c: any) => { map[c.id] = c.nome; });
+          setComplementosMap(map);
         }
       } catch (err) {
         console.error("Erro ao buscar itens:", err);

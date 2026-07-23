@@ -101,10 +101,10 @@ const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
           <div className="w-full flex flex-col gap-2.5">
             <button
               onClick={handleIrParaCarrinho}
-              className="group w-full py-3.5 rounded-2xl font-semibold text-black flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg"
+              className="group w-full py-3.5 rounded-2xl font-semibold text-white flex items-center justify-center gap-2 transition-transform active:scale-[0.98] shadow-lg"
               style={{
-                background: softGreen,
-                boxShadow: `0 10px 20px -10px #4ade80`,
+                background: defaultOrange,
+                boxShadow: `0 10px 20px -10px #f97316`,
               }}
             >
               <ShoppingBag size={18} strokeWidth={2.5} />

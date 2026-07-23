@@ -107,12 +107,12 @@ const Buscar = () => {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground line-clamp-2">{p.title}</p>
+                    <p className="text-sm font-semibold text-card-foreground line-clamp-2">{p.title}</p>
                     <p className="text-xs font-bold mt-1" style={{ color: cor_borda_logo }}>
                       R$ {p.price.toFixed(2).replace(".", ",")}
                     </p>
                   </div>
-                  <span className="text-muted-foreground text-xs font-medium">Ver →</span>
+                  <span className="text-card-foreground/60 text-xs font-medium">Ver →</span>
                 </button>
               </li>
             ))}

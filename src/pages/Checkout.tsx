@@ -432,9 +432,10 @@ const Checkout = () => {
       const itensParaSalvar = itens.map((item) => ({
         produto_nome: item.produtoNome,
         produto_preco: item.produtoPreco,
+        quantidade: item.quantidade ?? 1,
         adicionais: item.complementos,
         total_adicionais: item.totalAdicionais,
-        total_item: item.produtoPreco + item.totalAdicionais,
+        total_item: (item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1),
         observacoes: item.observacoes || "",
       }));
 

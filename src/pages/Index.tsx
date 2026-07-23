@@ -20,8 +20,20 @@ import DownsellModal from "@/components/DownsellModal";
 
 const Index = () => {
   const location = useLocation();
-  const showDownsell = (location.state as any)?.showDownsell === true;
+  const [showDownsell, setShowDownsell] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+
+  // Dispara downsell quando o usuário volta para a home tendo abandonado o PIX
+  useEffect(() => {
+    let flag = false;
+    try { flag = sessionStorage.getItem("oak_pix_flow") === "1"; } catch {}
+    const stateFlag = (location.state as any)?.showDownsell === true;
+    if (flag || stateFlag) {
+      setShowDownsell(true);
+      try { sessionStorage.removeItem("oak_pix_flow"); } catch {}
+    }
+  }, [location.key]);
+
 
 
   const categories = [

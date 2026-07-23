@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Trash2, ShoppingBag, Plus, ArrowRight, Tag } from "lucide-react";
+import { ArrowLeft, Trash2, ShoppingBag, Plus, ArrowRight, Tag, Pencil } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { todasSecoes } from "@/data/complementosData";
 import BottomNavigation from "@/components/BottomNavigation";
@@ -148,13 +148,34 @@ const Cart = () => {
                       <h3 className="text-foreground font-medium text-sm leading-snug line-clamp-2">
                         {item.produtoNome}
                       </h3>
-                      <button
-                        onClick={() => removerItem(item.id)}
-                        aria-label="Remover item"
-                        className="text-muted-foreground hover:text-destructive transition-colors -mt-0.5"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      <div className="flex items-center gap-1 -mt-0.5">
+                        <button
+                          onClick={() =>
+                            navigate(`/produto/${item.produtoId}`, {
+                              state: {
+                                editandoItem: item,
+                                produto: {
+                                  nome: item.produtoNome,
+                                  preco: item.produtoPreco,
+                                  imagem: item.produtoImagem,
+                                  descricao: "",
+                                },
+                              },
+                            })
+                          }
+                          aria-label="Editar item"
+                          className="text-muted-foreground hover:text-primary transition-colors p-1"
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          onClick={() => removerItem(item.id)}
+                          aria-label="Remover item"
+                          className="text-muted-foreground hover:text-destructive transition-colors p-1"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </div>
 
                     {complementosSelecionados.length > 0 && (

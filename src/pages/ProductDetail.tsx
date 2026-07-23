@@ -77,11 +77,13 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
-  const { adicionarItem, temItemPromocional, getSubtotalSemPromocional } = useCart();
-  const [quantidades, setQuantidades] = useState<Record<string, number>>({});
-  const [observacoes, setObservacoes] = useState("");
+  const { adicionarItem, atualizarItem, temItemPromocional, getSubtotalSemPromocional } = useCart();
+  const itemEdicao: ItemCarrinho | undefined = location.state?.editandoItem;
+  const modoEdicao = !!itemEdicao;
+  const [quantidades, setQuantidades] = useState<Record<string, number>>(itemEdicao?.complementos ?? {});
+  const [observacoes, setObservacoes] = useState(itemEdicao?.observacoes ?? "");
   const [pesquisa, setPesquisa] = useState("");
-  const [quantidadeProduto, setQuantidadeProduto] = useState(1);
+  const [quantidadeProduto, setQuantidadeProduto] = useState(itemEdicao?.quantidade ?? 1);
   const [modalAberto, setModalAberto] = useState(false);
   const [imagemAmpliada, setImagemAmpliada] = useState(false);
   const { cor_borda_logo } = useBranding();
@@ -210,23 +212,32 @@ const ProductDetail = () => {
   })).filter(secao => secao.itens.length > 0 || pesquisa === "");
 
   const handleAdicionarAoCarrinho = () => {
+    const valorTotal = (produto.preco + totalAdicionais) * quantidadeProduto;
+
+    if (modoEdicao && itemEdicao) {
+      atualizarItem(itemEdicao.id, {
+        complementos: quantidades,
+        observacoes,
+        totalAdicionais,
+        quantidade: quantidadeProduto,
+      });
+      toast.success("Item atualizado!");
+      navigate("/carrinho");
+      return;
+    }
+
     // Validações para itens promocionais
     if (isPromocional) {
-      // Verificar se já tem item promocional
       if (temItemPromocional()) {
         toast.error("Você já adicionou 1 item promocional. Limite de 1 por pedido!");
         return;
       }
-      
-      // Verificar se ainda tem R$50+ no carrinho
       if (getSubtotalSemPromocional() < 50) {
         toast.error("O carrinho precisa ter R$50 ou mais para adicionar item promocional!");
         return;
       }
     }
 
-    const valorTotal = (produto.preco + totalAdicionais) * quantidadeProduto;
-    
     // Para itens promocionais, só permite adicionar 1
     const qtdAdicionar = isPromocional ? 1 : quantidadeProduto;
     
@@ -244,7 +255,6 @@ const ProductDetail = () => {
     };
     adicionarItem(novoItem);
     
-    // Meta Pixel: AddToCart - Valor final considera produto + complementos
     trackAddToCart({
       content_ids: [id || 'produto'],
       content_name: produto.nome,
@@ -253,7 +263,6 @@ const ProductDetail = () => {
       num_items: qtdAdicionar,
     });
     
-    // Google Analytics: add_to_cart
     gaTrackAddToCart({
       item_id: id || 'produto',
       item_name: produto.nome,
@@ -267,6 +276,7 @@ const ProductDetail = () => {
     
     setModalAberto(true);
   };
+
 
   return (
     <div className="min-h-screen bg-muted max-w-md mx-auto flex flex-col">
@@ -409,7 +419,7 @@ const ProductDetail = () => {
                 : "bg-foreground text-background hover:bg-foreground/90"
             }`}
           >
-            <span>{isPromocional ? "🔥 Adicionar Promoção" : "Adicionar"}</span>
+            <span>{modoEdicao ? "Salvar alterações" : isPromocional ? "🔥 Adicionar Promoção" : "Adicionar"}</span>
             <span>
               R$ {((produto.preco + totalAdicionais) * (isPromocional ? 1 : quantidadeProduto)).toFixed(2).replace(".", ",")}
             </span>

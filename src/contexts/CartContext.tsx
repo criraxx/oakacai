@@ -47,6 +47,7 @@ export interface Pedido {
 interface CartContextType {
   itens: ItemCarrinho[];
   adicionarItem: (item: ItemCarrinho) => void;
+  atualizarItem: (id: string, dados: Partial<ItemCarrinho>) => void;
   removerItem: (id: string) => void;
   incrementarQuantidade: (id: string) => void;
   decrementarQuantidade: (id: string) => void;
@@ -63,6 +64,7 @@ interface CartContextType {
   temItemPromocional: () => boolean;
   podeAdicionarPromocional: () => boolean;
 }
+
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -119,6 +121,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const adicionarItem = (item: ItemCarrinho) => {
     setItens((prev) => [...prev, { ...item, id: `item-${Date.now()}`, quantidade: item.quantidade ?? 1 }]);
   };
+
+  const atualizarItem = (id: string, dados: Partial<ItemCarrinho>) => {
+    setItens((prev) => prev.map((i) => (i.id === id ? { ...i, ...dados, id: i.id } : i)));
+  };
+
 
   const removerItem = (id: string) => {
     setItens((prev) => prev.filter((item) => item.id !== id));
@@ -215,6 +222,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       value={{
         itens,
         adicionarItem,
+        atualizarItem,
         removerItem,
         incrementarQuantidade,
         decrementarQuantidade,

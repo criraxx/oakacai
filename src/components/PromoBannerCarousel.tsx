@@ -15,17 +15,17 @@ const PromoBannerCarousel = () => {
   }, []);
   return <div className="mx-4 my-3">
       <div className="rounded-xl overflow-hidden">
-        {/* Banner de Entrega Grátis - mesmo tamanho do banner de promoção */}
+        {/* Banner de Entrega Grátis - largura total, altura proporcional */}
         <div className={`transition-all duration-500 ease-in-out ${currentBanner === 0 ? "block" : "hidden"}`}>
-          <div className="w-1/2 mx-auto aspect-[16/9] rounded-xl overflow-hidden">
-            <img src={deliveryBanner} alt="Entrega grátis em todas as regiões" className="w-full h-full object-cover rounded-xl" />
+          <div className="w-full rounded-xl overflow-hidden">
+            <img src={deliveryBanner} alt="Entrega grátis em todas as regiões" className="w-full h-auto object-contain rounded-xl" />
           </div>
         </div>
 
-        {/* Banner de Promoção */}
+        {/* Banner de Promoção - largura total, altura proporcional */}
         <div className={`transition-all duration-500 ease-in-out ${currentBanner === 1 ? "block" : "hidden"}`}>
-          <div className="w-1/2 mx-auto aspect-[16/9] rounded-xl overflow-hidden">
-            <img src={promoUpgradeBanner} alt="Promoção Upgrade 50%" className="w-full h-full object-cover rounded-xl" />
+          <div className="w-full rounded-xl overflow-hidden">
+            <img src={promoUpgradeBanner} alt="Promoção Upgrade 50%" className="w-full h-auto object-contain rounded-xl" />
           </div>
         </div>
       </div>

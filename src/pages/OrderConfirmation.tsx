@@ -1,7 +1,17 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useRef } from "react";
-import { CheckCircle, MapPin, Clock, Phone, Percent } from "lucide-react";
+import {
+  CheckCircle,
+  MapPin,
+  Clock,
+  Phone,
+  Percent,
+  ArrowLeft,
+  Home,
+  Receipt,
+} from "lucide-react";
 import { Pedido } from "@/contexts/CartContext";
+import { useBranding } from "@/hooks/useBranding";
 import { trackPurchase } from "@/lib/metaPixel";
 import { gaTrackPurchase } from "@/lib/googleAnalytics";
 
@@ -10,54 +20,58 @@ const OrderConfirmation = () => {
   const location = useLocation();
   const pedido = location.state?.pedido as Pedido | undefined;
   const purchaseTracked = useRef(false);
+  const { cor_borda_logo } = useBranding();
+  const accent = cor_borda_logo || "#F5E6D3";
 
   // Meta Pixel: Purchase - Disparar quando chegar na página de confirmação
-  // Este é o momento mais próximo da compra para pagamentos Cartão/Dinheiro
   useEffect(() => {
     if (!purchaseTracked.current && pedido) {
       const formaPagamentoMap: Record<string, string> = {
-        pix: 'PIX',
-        cartao: 'Cartão',
-        dinheiro: 'Dinheiro',
+        pix: "PIX",
+        cartao: "Cartão",
+        dinheiro: "Dinheiro",
       };
-      
-      // Meta Pixel: Purchase
+
       trackPurchase({
-        content_ids: pedido.itens.map(item => item.produtoId),
-        content_name: pedido.itens.map(item => item.produtoNome).join(', '),
-        content_type: 'product',
+        content_ids: pedido.itens.map((item) => item.produtoId),
+        content_name: pedido.itens.map((item) => item.produtoNome).join(", "),
+        content_type: "product",
         value: pedido.total,
         num_items: pedido.itens.reduce((acc, item) => acc + (item.quantidade ?? 1), 0),
         order_id: pedido.id,
-        payment_method: formaPagamentoMap[pedido.dadosEntrega.formaPagamento] || pedido.dadosEntrega.formaPagamento,
+        payment_method:
+          formaPagamentoMap[pedido.dadosEntrega.formaPagamento] ||
+          pedido.dadosEntrega.formaPagamento,
       });
 
-      // Google Analytics: purchase
       gaTrackPurchase({
         transaction_id: pedido.id,
-        items: pedido.itens.map(item => ({
+        items: pedido.itens.map((item) => ({
           item_id: item.produtoId,
           item_name: item.produtoNome,
           price: item.produtoPreco + item.totalAdicionais,
           quantity: item.quantidade ?? 1,
         })),
         value: pedido.total,
-        payment_type: formaPagamentoMap[pedido.dadosEntrega.formaPagamento] || pedido.dadosEntrega.formaPagamento,
+        payment_type:
+          formaPagamentoMap[pedido.dadosEntrega.formaPagamento] ||
+          pedido.dadosEntrega.formaPagamento,
       });
-      
+
       purchaseTracked.current = true;
-      console.log('[MetaPixel] Purchase disparado na página de confirmação');
-      console.log('[GA4] Purchase disparado na página de confirmação');
+      console.log("[MetaPixel] Purchase disparado na página de confirmação");
+      console.log("[GA4] Purchase disparado na página de confirmação");
     }
   }, [pedido]);
 
   if (!pedido) {
     return (
-      <div className="min-h-screen bg-muted max-w-md mx-auto flex flex-col items-center justify-center px-6">
+      <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col items-center justify-center px-6">
         <p className="text-foreground text-center mb-4">Nenhum pedido encontrado</p>
         <button
           onClick={() => navigate("/")}
-          className="px-6 py-3 bg-secondary text-secondary-foreground font-semibold rounded-lg hover:bg-secondary/90 transition-colors"
+          className="px-6 py-3.5 font-semibold rounded-xl transition-colors active:scale-[0.98]"
+          style={{ background: accent, color: "#000" }}
         >
           Voltar ao início
         </button>
@@ -74,127 +88,155 @@ const OrderConfirmation = () => {
   const isPix = pedido.dadosEntrega.formaPagamento === "pix";
 
   return (
-    <div className="min-h-screen bg-muted max-w-md mx-auto flex flex-col">
-      {/* Header com sucesso */}
-      <div className="bg-secondary py-8 px-6 text-center">
-        <div className="w-16 h-16 bg-secondary-foreground/20 rounded-full flex items-center justify-center mx-auto mb-4">
-          <CheckCircle size={40} className="text-secondary-foreground" />
+    <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
+      {/* Header */}
+      <header className="sticky top-0 z-10 bg-background border-b border-border">
+        <div className="flex items-center gap-3 px-4 py-3.5">
+          <button
+            onClick={() => navigate(-1)}
+            className="w-9 h-9 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
+            aria-label="Voltar"
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <h1 className="text-foreground font-semibold text-base">Resumo do pedido</h1>
+          <span className="ml-auto text-xs text-muted-foreground font-medium">3/3</span>
         </div>
-        <h1 className="text-secondary-foreground font-bold text-xl mb-1">
-          Pedido Confirmado!
-        </h1>
-        <p className="text-secondary-foreground/80 text-sm">
-          Seu pedido foi recebido com sucesso
-        </p>
-        <p className="text-secondary-foreground font-semibold text-sm mt-2">
-          #{pedido.id}
-        </p>
-      </div>
+        {/* Progress bar */}
+        <div className="h-1 bg-muted">
+          <div className="h-full transition-all" style={{ width: "100%", background: accent }} />
+        </div>
+      </header>
 
       {/* Conteúdo */}
-      <main className="flex-1 pb-24">
-        {/* Tempo estimado */}
-        <div className="bg-background p-4 border-b border-border">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
-              <Clock size={20} className="text-secondary" />
-            </div>
-            <div>
-              <p className="text-foreground font-semibold text-sm">Tempo estimado</p>
-              <p className="text-muted-foreground text-xs">30 - 45 minutos</p>
-            </div>
+      <main className="flex-1 px-4 pt-6 pb-6 space-y-4">
+        {/* Sucesso */}
+        <div className="text-center py-2">
+          <div
+            className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
+            style={{ background: `${accent}20` }}
+          >
+            <CheckCircle size={44} style={{ color: accent }} />
           </div>
+          <h2 className="text-[22px] font-bold text-foreground leading-tight mb-1">
+            Pedido Confirmado!
+          </h2>
+          <p className="text-sm text-muted-foreground mb-3">
+            Seu pedido foi recebido com sucesso
+          </p>
+          <span
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+            style={{ background: `${accent}20`, color: "#000" }}
+          >
+            <Receipt size={12} />
+            #{pedido.id}
+          </span>
         </div>
+
+        {/* Tempo estimado */}
+        <InfoCard
+          icon={<Clock size={20} style={{ color: accent }} />}
+          title="Tempo estimado"
+          text="30 - 45 minutos"
+          accent={accent}
+        />
 
         {/* Endereço de entrega */}
-        <div className="bg-background p-4 border-b border-border">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center flex-shrink-0">
-              <MapPin size={20} className="text-secondary" />
-            </div>
-            <div>
-              <p className="text-foreground font-semibold text-sm">Entregar em</p>
-              <p className="text-muted-foreground text-xs">
-                {pedido.dadosEntrega.endereco}, {pedido.dadosEntrega.numero}
-                {pedido.dadosEntrega.complemento && ` - ${pedido.dadosEntrega.complemento}`}
-              </p>
-              <p className="text-muted-foreground text-xs">
-                {pedido.dadosEntrega.bairro}
-                {pedido.dadosEntrega.cidade && ` - ${pedido.dadosEntrega.cidade}`}
-              </p>
-            </div>
-          </div>
-        </div>
+        <InfoCard
+          icon={<MapPin size={20} style={{ color: accent }} />}
+          title="Entregar em"
+          text={
+            <>
+              {pedido.dadosEntrega.endereco}, {pedido.dadosEntrega.numero}
+              {pedido.dadosEntrega.complemento && ` - ${pedido.dadosEntrega.complemento}`}
+              <br />
+              {pedido.dadosEntrega.bairro}
+              {pedido.dadosEntrega.cidade && ` - ${pedido.dadosEntrega.cidade}`}
+            </>
+          }
+          accent={accent}
+        />
 
         {/* Contato */}
-        <div className="bg-background p-4 border-b border-border">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-secondary/10 flex items-center justify-center">
-              <Phone size={20} className="text-secondary" />
-            </div>
-            <div>
-              <p className="text-foreground font-semibold text-sm">{pedido.dadosEntrega.nome}</p>
-              <p className="text-muted-foreground text-xs">{pedido.dadosEntrega.telefone}</p>
-            </div>
-          </div>
-        </div>
+        <InfoCard
+          icon={<Phone size={20} style={{ color: accent }} />}
+          title={pedido.dadosEntrega.nome}
+          text={pedido.dadosEntrega.telefone}
+          accent={accent}
+        />
 
         {/* Itens do pedido */}
-        <div className="bg-background p-4 mt-2">
-          <h2 className="text-foreground font-semibold text-sm mb-3">Itens do pedido</h2>
-          
-          {pedido.itens.map((item) => (
-            <div key={item.id} className="flex gap-3 py-2 border-b border-border last:border-0">
-              <img
-                src={item.produtoImagem}
-                alt={item.produtoNome}
-                className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-              />
-              <div className="flex-1">
-                <p className="text-foreground text-sm font-medium">{item.produtoNome}</p>
-                <p className="text-muted-foreground text-xs">
-                  {item.quantidade ?? 1}x R$ {(item.produtoPreco + item.totalAdicionais).toFixed(2).replace(".", ",")}
-                  {" "}= R$ {((item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1)).toFixed(2).replace(".", ",")}
-                </p>
+        <section className="rounded-2xl border border-border bg-background p-4">
+          <h3 className="text-foreground font-semibold text-sm mb-3">Itens do pedido</h3>
+          <div className="space-y-3">
+            {pedido.itens.map((item) => (
+              <div key={item.id} className="flex gap-3">
+                <img
+                  src={item.produtoImagem}
+                  alt={item.produtoNome}
+                  className="w-14 h-14 rounded-xl object-cover flex-shrink-0 bg-muted"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-foreground text-sm font-medium leading-snug">
+                    {item.produtoNome}
+                  </p>
+                  <p className="text-muted-foreground text-xs mt-0.5">
+                    {item.quantidade ?? 1}x R${" "}
+                    {(item.produtoPreco + item.totalAdicionais).toFixed(2).replace(".", ",")}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-foreground text-sm font-semibold">
+                    R${" "}
+                    {(
+                      (item.produtoPreco + item.totalAdicionais) *
+                      (item.quantidade ?? 1)
+                    )
+                      .toFixed(2)
+                      .replace(".", ",")}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </section>
 
         {/* Resumo de pagamento */}
-        <div className="bg-background p-4 mt-2">
-          <h2 className="text-foreground font-semibold text-sm mb-3">Pagamento</h2>
-          
-          <div className="flex justify-between text-sm mb-1">
+        <section className="rounded-2xl border border-border bg-background p-4">
+          <h3 className="text-foreground font-semibold text-sm mb-3">Pagamento</h3>
+
+          <div className="flex justify-between text-sm mb-2">
             <span className="text-muted-foreground">Subtotal</span>
             <span className="text-foreground">
               R$ {pedido.subtotal.toFixed(2).replace(".", ",")}
             </span>
           </div>
-          
-          {/* Desconto PIX */}
+
           {isPix && pedido.descontoPix && pedido.descontoPix > 0 && (
-            <div className="flex justify-between text-sm mb-1">
-              <span className="text-green-500 flex items-center gap-1">
+            <div className="flex justify-between text-sm mb-2">
+              <span className="text-green-600 flex items-center gap-1">
                 <Percent size={14} />
                 Desconto PIX (6%)
               </span>
-              <span className="text-green-500 font-medium">
+              <span className="text-green-600 font-medium">
                 -R$ {pedido.descontoPix.toFixed(2).replace(".", ",")}
               </span>
             </div>
           )}
-          
-          <div className="flex justify-between text-base font-semibold border-t border-border pt-2">
+
+          <div className="flex justify-between text-base font-semibold border-t border-border pt-3 mt-3">
             <span className="text-foreground">Total</span>
-            <span className="text-secondary">
+            <span style={{ color: accent === "#F5E6D3" ? "#000" : accent }}>
               R$ {pedido.total.toFixed(2).replace(".", ",")}
             </span>
           </div>
 
           <div className="mt-3 pt-3 border-t border-border">
             <p className="text-muted-foreground text-xs">
-              Forma de pagamento: <span className="text-foreground font-medium">{formaPagamentoLabel[pedido.dadosEntrega.formaPagamento]}</span>
+              Forma de pagamento:{" "}
+              <span className="text-foreground font-medium">
+                {formaPagamentoLabel[pedido.dadosEntrega.formaPagamento]}
+              </span>
             </p>
             {pedido.dadosEntrega.formaPagamento === "dinheiro" && pedido.dadosEntrega.troco && (
               <p className="text-muted-foreground text-xs mt-1">
@@ -202,20 +244,49 @@ const OrderConfirmation = () => {
               </p>
             )}
           </div>
-        </div>
+        </section>
       </main>
 
-      {/* Footer */}
-      <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-background border-t border-border p-4">
-        <button
-          onClick={() => navigate("/")}
-          className="w-full py-3 bg-secondary text-secondary-foreground font-semibold rounded-lg hover:bg-secondary/90 transition-colors"
-        >
-          Voltar ao início
-        </button>
+      {/* Footer Fixo */}
+      <footer className="sticky bottom-0 bg-background border-t border-border">
+        <div className="px-4 py-3">
+          <button
+            onClick={() => navigate("/")}
+            className="w-full py-3.5 font-semibold rounded-xl transition-all text-[15px] flex items-center justify-center gap-2 active:scale-[0.98]"
+            style={{ background: accent, color: "#000" }}
+          >
+            <Home size={18} />
+            Voltar ao início
+          </button>
+        </div>
       </footer>
     </div>
   );
 };
+
+const InfoCard = ({
+  icon,
+  title,
+  text,
+  accent,
+}: {
+  icon: React.ReactNode;
+  title: string | React.ReactNode;
+  text: string | React.ReactNode;
+  accent: string;
+}) => (
+  <div className="rounded-2xl border border-border bg-background p-4 flex items-start gap-3">
+    <div
+      className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+      style={{ background: `${accent}18` }}
+    >
+      {icon}
+    </div>
+    <div className="min-w-0">
+      <p className="text-foreground font-semibold text-sm">{title}</p>
+      <p className="text-muted-foreground text-xs mt-0.5 leading-relaxed">{text}</p>
+    </div>
+  </div>
+);
 
 export default OrderConfirmation;

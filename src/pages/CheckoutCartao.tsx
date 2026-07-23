@@ -281,9 +281,25 @@ const CheckoutCartao = () => {
           </div>
         </div>
 
-        <p className="text-muted-foreground text-[11px] text-center mt-5">
-          Aceitamos Visa, Mastercard, Elo e outras bandeiras.
-        </p>
+        {/* Bandeiras e parceiros aceitos */}
+        <div className="mt-6">
+          <p className="text-muted-foreground text-[11px] uppercase tracking-wider font-semibold text-center mb-3">
+            Pagamentos aceitos
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <BrandBadge label="Visa" color="#1A1F71" />
+            <BrandBadge label="Mastercard" color="#EB001B" />
+            <BrandBadge label="Elo" color="#000000" />
+            <BrandBadge label="Hipercard" color="#B3131B" />
+            <BrandBadge label="Amex" color="#2E77BB" />
+            <BrandBadge label="Diners" color="#0079BE" />
+            <BrandBadge label="Mercado Pago" color="#00B1EA" />
+            <BrandBadge label="iFood Benefícios" color="#EA1D2C" />
+          </div>
+          <p className="text-muted-foreground text-[11px] text-center mt-3 flex items-center justify-center gap-1">
+            <Lock size={10} /> Compra 100% protegida
+          </p>
+        </div>
       </main>
 
       {/* Footer */}
@@ -363,5 +379,14 @@ const CardField = ({
     </div>
   );
 };
+
+const BrandBadge = ({ label, color }: { label: string; color: string }) => (
+  <div
+    className="px-2.5 py-1.5 rounded-md text-[10px] font-bold tracking-wide text-white shadow-sm"
+    style={{ background: color }}
+  >
+    {label.toUpperCase()}
+  </div>
+);
 
 export default CheckoutCartao;

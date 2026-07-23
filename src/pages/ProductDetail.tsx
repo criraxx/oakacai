@@ -4,6 +4,7 @@ import { ArrowLeft, Search, X } from "lucide-react";
 import { useBranding } from "@/hooks/useBranding";
 import { secoesCombo, secoesMonteCopo, SecaoComplemento } from "@/data/complementosData";
 import { resolveFamilia, Tamanho } from "@/data/tamanhosData";
+import { todosProdutos } from "@/data/todosProutos";
 import acaiCombo500Asset from "@/assets/acai-combo-500.jpg.asset.json";
 const acaiCombo500 = acaiCombo500Asset.url;
 import acaiPuroAsset from "@/assets/acai-puro.jpg.asset.json";

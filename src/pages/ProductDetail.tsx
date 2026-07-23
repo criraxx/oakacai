@@ -419,7 +419,7 @@ const ProductDetail = () => {
                 : "bg-foreground text-background hover:bg-foreground/90"
             }`}
           >
-            <span>{isPromocional ? "🔥 Adicionar Promoção" : "Adicionar"}</span>
+            <span>{modoEdicao ? "Salvar alterações" : isPromocional ? "🔥 Adicionar Promoção" : "Adicionar"}</span>
             <span>
               R$ {((produto.preco + totalAdicionais) * (isPromocional ? 1 : quantidadeProduto)).toFixed(2).replace(".", ",")}
             </span>

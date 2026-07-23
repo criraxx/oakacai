@@ -89,15 +89,16 @@ const Buscar = () => {
             <p className="text-sm text-muted-foreground mt-1">Tente buscar por outro nome</p>
           </div>
         ) : (
-          <ul className="p-3 space-y-2">
+          <ul className="p-3 space-y-2.5">
             {resultados.map((p) => (
               <li key={p.id}>
                 <button
                   onClick={() => navigate(`/produto/${p.id}`)}
-                  className="w-full flex items-center gap-3 p-2.5 rounded-xl bg-card hover:bg-muted transition-all text-left active:scale-[0.99] border border-border"
+                  className="w-full flex items-center gap-3 p-2.5 rounded-2xl bg-background hover:bg-muted/40 transition-all text-left active:scale-[0.99] shadow-sm"
+                  style={{ border: `1.5px solid ${cor_borda_logo}55` }}
                 >
                   <div
-                    className="w-14 h-14 rounded-lg flex-shrink-0 bg-muted overflow-hidden flex items-center justify-center"
+                    className="w-16 h-16 rounded-xl flex-shrink-0 bg-muted overflow-hidden flex items-center justify-center"
                     style={{ border: `1.5px solid ${cor_borda_logo}` }}
                   >
                     {p.image ? (
@@ -107,12 +108,17 @@ const Buscar = () => {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-card-foreground line-clamp-2">{p.title}</p>
-                    <p className="text-xs font-bold mt-1" style={{ color: cor_borda_logo }}>
+                    <p className="text-sm font-semibold text-foreground line-clamp-2 leading-snug">{p.title}</p>
+                    <p className="text-sm font-bold mt-1" style={{ color: cor_borda_logo }}>
                       R$ {p.price.toFixed(2).replace(".", ",")}
                     </p>
                   </div>
-                  <span className="text-card-foreground/60 text-xs font-medium">Ver →</span>
+                  <span
+                    className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                    style={{ background: `${cor_borda_logo}25`, color: cor_borda_logo }}
+                  >
+                    Ver →
+                  </span>
                 </button>
               </li>
             ))}

@@ -10,6 +10,7 @@ interface PedidoItem {
   id: string;
   produto_nome: string;
   produto_preco: number;
+  quantidade: number;
   total_item: number;
   adicionais: any;
   observacoes: string | null;

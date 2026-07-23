@@ -5,6 +5,8 @@ import { useCart } from "@/contexts/CartContext";
 import { useBranding } from "@/hooks/useBranding";
 import { supabase } from "@/integrations/supabase/client";
 import { trackPaymentFailed } from "@/lib/metaPixel";
+import bandeirasCartoes from "@/assets/bandeiras-cartoes.png.asset.json";
+
 
 const CheckoutCartao = () => {
   const navigate = useNavigate();

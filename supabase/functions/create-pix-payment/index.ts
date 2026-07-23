@@ -278,7 +278,11 @@ async function createBlackCatPix(body: CreatePixRequest, supabase: any, supabase
   const data = JSON.parse(responseText);
   const transactionId = data.data?.transactionId;
   const pixCopiaECola = data.data?.paymentData?.copyPaste || data.data?.paymentData?.qrCode;
-  const expiresAt = data.data?.paymentData?.expiresAt || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  const rawExpires = data.data?.paymentData?.expiresAt;
+  const parsed = rawExpires ? new Date(rawExpires) : null;
+  const expiresAt = parsed && !isNaN(parsed.getTime())
+    ? parsed.toISOString()
+    : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
   if (!pixCopiaECola) {
     throw new Error('QR Code PIX não retornado pela API BlackCat');

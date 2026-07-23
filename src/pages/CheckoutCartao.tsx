@@ -1,13 +1,16 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, CreditCard, Loader2, XCircle, Percent } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, XCircle, Percent, Lock } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useBranding } from "@/hooks/useBranding";
 import { supabase } from "@/integrations/supabase/client";
 import { trackPaymentFailed } from "@/lib/metaPixel";
 
 const CheckoutCartao = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { cor_borda_logo } = useBranding();
+  const accent = cor_borda_logo || "#F5E6D3";
   const { itens, getTotal, dadosCliente, pedidoAtual } = useCart();
 
   // Desconto recebido via state (ex: 0.08 quando vem do modo PIX-em-manutenção)
@@ -148,150 +151,215 @@ const CheckoutCartao = () => {
   // Tela de erro (Pagamento Recusado)
   if (showError) {
     return (
-      <div className="min-h-screen bg-muted max-w-md mx-auto flex flex-col items-center justify-center p-6">
-        <div className="bg-card rounded-2xl p-8 w-full text-center">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-destructive/20 flex items-center justify-center">
-            <XCircle size={48} className="text-destructive" />
+      <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col items-center justify-center p-6">
+        <div className="w-full text-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-destructive/10 flex items-center justify-center">
+            <XCircle size={44} className="text-destructive" />
           </div>
-
-          <h1 className="text-card-foreground text-xl font-bold mb-2">Pagamento Recusado</h1>
-
-          <p className="text-card-foreground/60 text-sm mb-8">
-            Não foi possível processar o pagamento com este cartão. Tente outra forma de pagamento.
+          <h1 className="text-foreground text-xl font-bold mb-2">Pagamento recusado</h1>
+          <p className="text-muted-foreground text-sm mb-8">
+            Não foi possível processar este cartão. Tente outra forma de pagamento.
           </p>
-
           <button
             onClick={handleTryAgain}
-            className="w-full py-3.5 bg-accent text-accent-foreground font-semibold rounded-lg hover:opacity-90 transition-opacity"
+            className="w-full py-3.5 font-semibold rounded-xl transition-all active:scale-[0.98]"
+            style={{ background: accent, color: "#000" }}
           >
-            Tentar outra forma de pagamento
+            Tentar outra forma
           </button>
         </div>
       </div>
     );
   }
 
-  // Tela de loading
   if (loading) {
     return (
-      <div className="min-h-screen bg-muted max-w-md mx-auto flex flex-col items-center justify-center p-6">
-        <div className="bg-card rounded-2xl p-8 w-full text-center">
-          <Loader2 size={48} className="animate-spin text-accent mx-auto mb-6" />
-          <h2 className="text-card-foreground text-lg font-semibold mb-2">Processando pagamento...</h2>
-          <p className="text-card-foreground/60 text-sm">Aguarde enquanto verificamos os dados do seu cartão</p>
+      <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col items-center justify-center p-6">
+        <div className="w-full text-center">
+          <Loader2 size={44} className="animate-spin mx-auto mb-6" style={{ color: accent }} />
+          <h2 className="text-foreground text-lg font-semibold mb-2">Processando pagamento</h2>
+          <p className="text-muted-foreground text-sm">Aguarde enquanto verificamos os dados</p>
         </div>
       </div>
     );
   }
 
+  const valid = isFormValid();
+
   return (
-    <div className="min-h-screen bg-muted max-w-md mx-auto flex flex-col">
+    <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background border-b border-border">
-        <div className="flex items-center gap-3 px-4 py-3">
+        <div className="flex items-center gap-3 px-4 py-3.5">
           <button
             onClick={() => navigate("/checkout")}
-            className="w-8 h-8 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
+            className="w-9 h-9 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
+            aria-label="Voltar"
           >
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-foreground font-semibold text-lg">Pagamento</h1>
+          <h1 className="text-foreground font-semibold text-base">Cartão</h1>
+          <span className="ml-auto text-xs text-muted-foreground font-medium">3/3</span>
+        </div>
+        <div className="h-1 bg-muted">
+          <div className="h-full transition-all" style={{ width: "100%", background: accent }} />
         </div>
       </header>
 
-      {/* Conteúdo */}
-      <main className="flex-1 p-4 pb-32">
+      <main className="flex-1 px-4 pt-6 pb-32">
+        <h2 className="text-[22px] font-bold text-foreground leading-tight mb-1">
+          Dados do cartão
+        </h2>
+        <p className="text-sm text-muted-foreground mb-6 flex items-center gap-1.5">
+          <Lock size={12} /> Ambiente protegido
+        </p>
+
         {/* Valor */}
-        <div className="bg-card rounded-xl p-4 mb-4 text-center">
-          <p className="text-card-foreground/60 text-sm mb-1">Valor a pagar no cartão</p>
-          {descontoCartao > 0 && (
-            <p className="text-card-foreground/50 text-sm line-through">
-              R$ {totalOriginal.toFixed(2).replace(".", ",")}
-            </p>
-          )}
-          <p className="text-card-foreground text-2xl font-bold">
-            R$ {valorComDesconto.toFixed(2).replace(".", ",")}
+        <div className="rounded-2xl border border-border p-4 mb-6">
+          <p className="text-muted-foreground text-[11px] uppercase tracking-wider font-semibold mb-1">
+            Total a pagar
           </p>
+          <div className="flex items-baseline gap-2">
+            <span className="text-foreground text-2xl font-bold">
+              R$ {valorComDesconto.toFixed(2).replace(".", ",")}
+            </span>
+            {descontoCartao > 0 && (
+              <span className="text-muted-foreground text-sm line-through">
+                R$ {totalOriginal.toFixed(2).replace(".", ",")}
+              </span>
+            )}
+          </div>
           {descontoCartao > 0 && (
-            <div className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-accent/15 text-accent text-xs font-bold rounded-full">
-              <Percent size={12} />
-              {Math.round(descontoCartao * 100)}% OFF no cartão · você economiza R$ {economiaCartao.toFixed(2).replace(".", ",")}
+            <div
+              className="mt-2 inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold rounded-full"
+              style={{ background: `${accent}30`, color: "#000" }}
+            >
+              <Percent size={11} />
+              {Math.round(descontoCartao * 100)}% OFF · economia R$ {economiaCartao.toFixed(2).replace(".", ",")}
             </div>
           )}
         </div>
 
-        {/* Formulário do Cartão */}
-        <div className="bg-card rounded-xl p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <CreditCard size={20} className="text-accent" />
-            <h2 className="text-card-foreground font-semibold text-sm">Dados do Cartão</h2>
-          </div>
-
-          <div className="space-y-3">
-            <div>
-              <label className="text-card-foreground/60 text-xs mb-1 block">Número do cartão</label>
-              <input
-                type="text"
-                value={cardData.numero}
-                onChange={(e) => handleInputChange("numero", e.target.value)}
-                placeholder="0000 0000 0000 0000"
-                className="w-full px-3 py-2.5 bg-card-foreground/10 border-0 rounded-lg text-card-foreground text-sm placeholder:text-card-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent"
-              />
-            </div>
-
-            <div>
-              <label className="text-card-foreground/60 text-xs mb-1 block">Nome no cartão</label>
-              <input
-                type="text"
-                value={cardData.nome}
-                onChange={(e) => handleInputChange("nome", e.target.value.toUpperCase())}
-                placeholder="NOME COMO ESTÁ NO CARTÃO"
-                className="w-full px-3 py-2.5 bg-card-foreground/10 border-0 rounded-lg text-card-foreground text-sm placeholder:text-card-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent uppercase"
-              />
-            </div>
-
-            <div className="flex gap-3">
-              <div className="flex-1">
-                <label className="text-card-foreground/60 text-xs mb-1 block">Validade</label>
-                <input
-                  type="text"
-                  value={cardData.validade}
-                  onChange={(e) => handleInputChange("validade", e.target.value)}
-                  placeholder="MM/AA"
-                  className="w-full px-3 py-2.5 bg-card-foreground/10 border-0 rounded-lg text-card-foreground text-sm placeholder:text-card-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent"
-                />
-              </div>
-
-              <div className="w-24">
-                <label className="text-card-foreground/60 text-xs mb-1 block">CVV</label>
-                <input
-                  type="text"
-                  value={cardData.cvv}
-                  onChange={(e) => handleInputChange("cvv", e.target.value)}
-                  placeholder="000"
-                  className="w-full px-3 py-2.5 bg-card-foreground/10 border-0 rounded-lg text-card-foreground text-sm placeholder:text-card-foreground/50 focus:outline-none focus:ring-2 focus:ring-accent"
-                />
-              </div>
-            </div>
+        {/* Formulário */}
+        <div className="space-y-3">
+          <CardField
+            label="Número do cartão"
+            value={cardData.numero}
+            onChange={(v) => handleInputChange("numero", v)}
+            accent={accent}
+            inputMode="numeric"
+            maxLength={19}
+            placeholder="0000 0000 0000 0000"
+          />
+          <CardField
+            label="Nome impresso no cartão"
+            value={cardData.nome}
+            onChange={(v) => handleInputChange("nome", v.toUpperCase())}
+            accent={accent}
+            uppercase
+            maxLength={40}
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <CardField
+              label="Validade"
+              value={cardData.validade}
+              onChange={(v) => handleInputChange("validade", v)}
+              accent={accent}
+              inputMode="numeric"
+              maxLength={5}
+              placeholder="MM/AA"
+            />
+            <CardField
+              label="CVV"
+              value={cardData.cvv}
+              onChange={(v) => handleInputChange("cvv", v)}
+              accent={accent}
+              inputMode="numeric"
+              maxLength={3}
+              placeholder="000"
+            />
           </div>
         </div>
 
-        {/* Bandeiras aceitas */}
-        <div className="mt-4 text-center">
-          <p className="text-muted-foreground text-xs">Aceitamos Visa, Mastercard, Elo e outras bandeiras</p>
-        </div>
+        <p className="text-muted-foreground text-[11px] text-center mt-5">
+          Aceitamos Visa, Mastercard, Elo e outras bandeiras.
+        </p>
       </main>
 
-      {/* Footer Fixo */}
-      <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-card p-4">
-        <button
-          onClick={handleSubmit}
-          disabled={!isFormValid()}
-          className="w-full py-3.5 bg-accent text-accent-foreground font-semibold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Confirmar Pagamento
-        </button>
+      {/* Footer */}
+      <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-background border-t border-border">
+        <div className="px-4 py-3 flex items-center gap-3">
+          <div className="flex flex-col">
+            <span className="text-[11px] text-muted-foreground leading-none mb-1">Total</span>
+            <span className="text-base font-bold text-foreground leading-none">
+              R$ {valorComDesconto.toFixed(2).replace(".", ",")}
+            </span>
+          </div>
+          <button
+            onClick={handleSubmit}
+            disabled={!valid}
+            className="ml-auto flex-1 max-w-[220px] py-3.5 font-semibold rounded-xl transition-all text-[15px] flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ background: accent, color: "#000" }}
+          >
+            Confirmar
+            <ArrowRight size={18} />
+          </button>
+        </div>
       </footer>
+    </div>
+  );
+};
+
+const CardField = ({
+  label,
+  value,
+  onChange,
+  accent,
+  inputMode,
+  maxLength,
+  placeholder,
+  uppercase,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  accent: string;
+  inputMode?: "numeric" | "text";
+  maxLength?: number;
+  placeholder?: string;
+  uppercase?: boolean;
+}) => {
+  const [focused, setFocused] = useState(false);
+  const active = focused || value.length > 0;
+  return (
+    <div
+      className="relative rounded-xl border transition-all bg-background"
+      style={{
+        borderColor: focused ? accent : "hsl(var(--border))",
+        borderWidth: focused ? 2 : 1,
+      }}
+    >
+      <label
+        className={`absolute left-3.5 pointer-events-none transition-all ${
+          active
+            ? "top-1.5 text-[11px] font-medium text-muted-foreground"
+            : "top-1/2 -translate-y-1/2 text-[15px] text-muted-foreground"
+        }`}
+      >
+        {label}
+      </label>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        placeholder={active ? placeholder : ""}
+        inputMode={inputMode}
+        maxLength={maxLength}
+        className={`w-full pt-6 pb-2 px-3.5 bg-transparent text-foreground text-[15px] placeholder:text-muted-foreground/50 focus:outline-none ${
+          uppercase ? "uppercase" : ""
+        }`}
+      />
     </div>
   );
 };

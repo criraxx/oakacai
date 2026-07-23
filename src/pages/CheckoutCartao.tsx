@@ -288,16 +288,15 @@ const CheckoutCartao = () => {
           <p className="text-muted-foreground text-[11px] uppercase tracking-wider font-semibold text-center mb-3">
             Pagamentos aceitos
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <BrandBadge label="Visa" color="#1A1F71" />
-            <BrandBadge label="Mastercard" color="#EB001B" />
-            <BrandBadge label="Elo" color="#000000" />
-            <BrandBadge label="Hipercard" color="#B3131B" />
-            <BrandBadge label="Amex" color="#2E77BB" />
-            <BrandBadge label="Diners" color="#0079BE" />
-            <BrandBadge label="Mercado Pago" color="#00B1EA" />
-            <BrandBadge label="iFood Benefícios" color="#EA1D2C" />
+          <div className="flex items-center justify-center">
+            <img
+              src={bandeirasCartoes.url}
+              alt="Bandeiras aceitas: Visa, Mastercard, Maestro, Elo, Alelo, American Express, Banco do Brasil, Hipercard e Diners Club"
+              className="max-w-full h-auto"
+              loading="lazy"
+            />
           </div>
+
           <p className="text-muted-foreground text-[11px] text-center mt-3 flex items-center justify-center gap-1">
             <Lock size={10} /> Compra 100% protegida
           </p>

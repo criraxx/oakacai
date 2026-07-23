@@ -100,7 +100,7 @@ const ReciboModal = ({ open, onClose, pedido, corBorda = "#F5E6D3" }: ReciboModa
     (pedido.numero_pedido || pedido.id || "").replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 20) || "PEDIDO";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4">
       <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto shadow-xl relative">
         <button
           onClick={onClose}

@@ -1,12 +1,15 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { ArrowLeft, Search, X } from "lucide-react";
 import { useBranding } from "@/hooks/useBranding";
 import { secoesCombo, secoesMonteCopo, SecaoComplemento } from "@/data/complementosData";
+import { resolveFamilia, Tamanho } from "@/data/tamanhosData";
 import acaiCombo500Asset from "@/assets/acai-combo-500.jpg.asset.json";
 const acaiCombo500 = acaiCombo500Asset.url;
 import acaiPuroAsset from "@/assets/acai-puro.jpg.asset.json";
 const acaiPuro = acaiPuroAsset.url;
+import acaiRafaeloAsset from "@/assets/acai-rafaelo.jpg.asset.json";
+const acaiRafaelo = acaiRafaeloAsset.url;
 import ComplementSection from "@/components/ComplementSection";
 import AddToCartModal from "@/components/AddToCartModal";
 import { useCart, ItemCarrinho } from "@/contexts/CartContext";

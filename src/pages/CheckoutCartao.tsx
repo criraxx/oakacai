@@ -380,4 +380,13 @@ const CardField = ({
   );
 };
 
+const BrandBadge = ({ label, color }: { label: string; color: string }) => (
+  <div
+    className="px-2.5 py-1.5 rounded-md text-[10px] font-bold tracking-wide text-white shadow-sm"
+    style={{ background: color }}
+  >
+    {label.toUpperCase()}
+  </div>
+);
+
 export default CheckoutCartao;

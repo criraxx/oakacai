@@ -57,9 +57,7 @@ const Checkout = () => {
 
 
 
-  const [tipoEntrega, setTipoEntrega] = useState<"delivery" | "pickup">(
-    pedidoExistente?.tipo_entrega === "pickup" ? "pickup" : "delivery"
-  );
+  const [tipoEntrega, setTipoEntrega] = useState<"delivery" | "pickup">("delivery");
   const [formData, setFormData] = useState<DadosEntrega>({
     nome: pedidoExistente?.cliente_nome || dadosCliente?.nome || "",
     telefone: pedidoExistente?.cliente_telefone || dadosCliente?.telefone || "",

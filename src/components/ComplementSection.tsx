@@ -90,7 +90,7 @@ const ComplementSection = ({
               complemento={item}
               quantidade={quantidades[item.id] || 0}
               onQuantidadeChange={onQuantidadeChange}
-              bloqueadoAdicionar={atingiuLimite && !quantidades[item.id]}
+              bloqueadoAdicionar={atingiuLimite}
             />
           ))}
         </div>

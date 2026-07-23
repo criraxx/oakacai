@@ -7,18 +7,18 @@ import BottomNavigation from "@/components/BottomNavigation";
 import OrderBumpList from "@/components/OrderBumpList";
 import DownsellModal from "@/components/DownsellModal";
 
-import acaiPuroAsset from "@/assets/acai-puro.jpg.asset.json";
-import acaiCombo300Asset from "@/assets/acai-combo-300.jpg.asset.json";
-import acaiRafaeloAsset from "@/assets/acai-rafaelo.jpg.asset.json";
-import acaiDiamanteAsset from "@/assets/acai-diamante-negro.jpg.asset.json";
-import acaiSensacaoAsset from "@/assets/acai-sensacao.jpg.asset.json";
+import acaiPuro from "@/assets/acai-puro.jpg";
+import acaiCombo300 from "@/assets/acai-combo-300.jpg";
+import acaiRafaelo from "@/assets/acai-rafaelo.jpg";
+import acaiDiamante from "@/assets/acai-diamante-negro.jpg";
+import acaiSensacao from "@/assets/acai-sensacao.jpg";
 
 const produtosSugeridos = [
-  { id: "copo-300ml-puro", nome: "Copo 300ml Açaí Puro", preco: 25.9, imagem: acaiPuroAsset.url },
-  { id: "combo-300ml", nome: "Combo Premium 300ml", preco: 49.9, imagem: acaiCombo300Asset.url },
-  { id: "trufado-rafaelo-300", nome: "Trufado Rafaelo 300ml", preco: 34.99, imagem: acaiRafaeloAsset.url },
-  { id: "trufado-diamante-300", nome: "Diamante Negro 300ml", preco: 34.99, imagem: acaiDiamanteAsset.url },
-  { id: "trufado-sensacao-300", nome: "Sensação 300ml", preco: 34.99, imagem: acaiSensacaoAsset.url },
+  { id: "copo-300ml-puro", nome: "Copo 300ml Açaí Puro", preco: 25.9, imagem: acaiPuro },
+  { id: "combo-300ml", nome: "Combo Premium 300ml", preco: 49.9, imagem: acaiCombo300 },
+  { id: "trufado-rafaelo-300", nome: "Trufado Rafaelo 300ml", preco: 34.99, imagem: acaiRafaelo },
+  { id: "trufado-diamante-300", nome: "Diamante Negro 300ml", preco: 34.99, imagem: acaiDiamante },
+  { id: "trufado-sensacao-300", nome: "Sensação 300ml", preco: 34.99, imagem: acaiSensacao },
 ];
 
 const formatBRL = (v: number) => `R$ ${v.toFixed(2).replace(".", ",")}`;

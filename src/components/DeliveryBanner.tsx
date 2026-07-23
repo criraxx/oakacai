@@ -1,6 +1,4 @@
-import deliveryBannerAsset from "@/assets/delivery-banner.jpg.asset.json";
-const deliveryBanner = deliveryBannerAsset.url;
-
+import deliveryBanner from "@/assets/delivery-banner.jpg";
 const DeliveryBanner = () => {
   return (
     <div className="mx-4 my-3">

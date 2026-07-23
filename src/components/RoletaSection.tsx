@@ -1,5 +1,4 @@
-import acaiRoletaAsset from "@/assets/acai-roleta.jpg.asset.json";
-const acaiRoleta = acaiRoletaAsset.url;
+import acaiRoleta from "@/assets/acai-roleta.jpg";
 import SectionTitle from "./SectionTitle";
 import ProductCardHorizontal from "./ProductCardHorizontal";
 

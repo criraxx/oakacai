@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import Header from "@/components/Header";
 import HeroBanner from "@/components/HeroBanner";
 import InfoBar from "@/components/InfoBar";
@@ -14,6 +15,8 @@ import PicoleSection from "@/components/PicoleSection";
 import BebidasSection from "@/components/BebidasSection";
 import BottomNavigation from "@/components/BottomNavigation";
 import CategoryTabs from "@/components/CategoryTabs";
+import DownsellModal from "@/components/DownsellModal";
+
 
 const Index = () => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);

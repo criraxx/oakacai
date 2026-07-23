@@ -17,6 +17,7 @@ const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
   const { cor_borda_logo } = useBranding();
   const accent = cor_borda_logo || "#86efac";
   const softGreen = "#86efac";
+  const defaultOrange = "#f97316";
 
   const handleContinuarComprando = () => {
     onClose();

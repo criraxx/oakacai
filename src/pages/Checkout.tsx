@@ -623,16 +623,6 @@ const Checkout = () => {
                   </span>
                 </div>
               )}
-              {modoCartaoApenas && !pedidoExistente && (
-                <div className="flex justify-between text-[13px]">
-                  <span className="text-foreground/70 flex items-center gap-1">
-                    <Percent size={12} /> Descuento tarjeta
-                  </span>
-                  <span className="font-medium" style={{ color: accent }}>
-                    -{(getSubtotal() * 0.06).toFixed(2).replace(".", ",")} €
-                  </span>
-                </div>
-              )}
               <div className="flex justify-between text-base font-bold pt-1">
                 <span className="text-foreground">Total</span>
                 <span className="text-foreground">

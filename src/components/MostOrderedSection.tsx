@@ -10,19 +10,19 @@ const mostOrderedProducts = [
     id: "monte-500ml",
     image: acaiPuro,
     title: "Açaí puro — monta a tu gusto",
-    price: "Desde 25,90 €",
+    price: "Desde 6,90 €",
   },
   {
     id: "combo-500ml",
     image: acaiCombo500,
     title: "Combo premium 2 açaís + gratis",
-    price: "Desde 49,90 €",
+    price: "Desde 9,90 €",
   },
   {
     id: "trufado-rafaelo-500",
     image: acaiRafaelo,
     title: "Vaso trufado Rafaelo",
-    price: "Desde 34,99 €",
+    price: "Desde 9,90 €",
   },
 ];
 

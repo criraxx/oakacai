@@ -444,7 +444,7 @@ export const todosProdutos: Produto[] = [
     image: aguaSemGas,
     title: "AGUA SIN GAS",
     description: "Agua mineral sin gas 500ml",
-    price: 3.50,
+    price: 1.50,
     categoria: "Bebidas"
   }
 ];

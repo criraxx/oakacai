@@ -422,7 +422,7 @@ const Checkout = () => {
       navigate("/checkout-cartao", {
         state: {
           numeroPedido,
-          descontoCartao: 0.06,
+          descontoCartao: 0,
           pedidoPayload,
         },
       });

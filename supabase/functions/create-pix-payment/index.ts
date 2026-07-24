@@ -20,6 +20,8 @@ interface CreatePixRequest {
   cpf: string;
   email?: string;
   pedidoId?: string;
+  payment_method?: string;
+  card_token?: string;
 }
 
 // Função para sanitizar nome (EvoPay só aceita A-Z e espaços)
@@ -386,6 +388,97 @@ async function createIronPayPix(body: CreatePixRequest, supabase: any, supabaseU
   };
 }
 
+// Criar pagamento por cartão via IronPay usando token Stripe
+// deno-lint-ignore no-explicit-any
+async function createIronPayCardPayment(body: CreatePixRequest, supabase: any, supabaseUrl: string) {
+  const IRONPAY_API_KEY = Deno.env.get('IRONPAY_API_KEY');
+
+  if (!IRONPAY_API_KEY) {
+    throw new Error('IRONPAY_API_KEY não configurada');
+  }
+
+  const { valor, descricao, nome, telefone, cpf, email, pedidoId, card_token } = body;
+  if (!card_token) throw new Error('card_token é obrigatório');
+  if (!valor || valor <= 0) throw new Error('valor inválido');
+
+  const valorCentavos = Math.round(Number(valor) * 100);
+  const telefoneLimpo = (telefone || '').replace(/\D/g, '');
+  const webhookUrl = `${supabaseUrl}/functions/v1/ironpay-webhook`;
+
+  const payload = {
+    api_token: IRONPAY_API_KEY,
+    amount: valorCentavos,
+    offer_hash: 'megjvpfvcn',
+    payment_method: 'credit_card',
+    card_token,
+    installments: 1,
+    postback_url: webhookUrl,
+    customer: {
+      name: nome || 'Cliente',
+      email: email || `${telefoneLimpo || Date.now()}@cliente.local`,
+      phone_number: telefoneLimpo,
+      document: ensureCPF(cpf),
+    },
+    cart: [
+      {
+        product_hash: 'megjvpfvcn',
+        title: descricao || 'Acesso Liberado',
+        price: valorCentavos,
+        quantity: 1,
+        operation_type: 1,
+        tangible: false,
+      },
+    ],
+  };
+
+  console.log('[create-pix-payment] IronPay card request:', JSON.stringify({
+    ...payload,
+    api_token: '***',
+    card_token: '***',
+  }));
+
+  const response = await fetch(`${IRONPAY_URL}/transactions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  const responseText = await response.text();
+  console.log('[create-pix-payment] IronPay card response:', response.status, responseText);
+
+  if (!response.ok) {
+    throw new Error(`Erro IronPay cartão: ${response.status} - ${responseText}`);
+  }
+
+  const data = JSON.parse(responseText);
+  const transactionHash = data.hash || data.transaction_hash || data.id;
+  const status = data.status;
+  const paymentIntentClientSecret =
+    data.payment_intent_client_secret ||
+    data.credit_card?.payment_intent_client_secret ||
+    null;
+
+  if (pedidoId && transactionHash) {
+    await supabase
+      .from('pedidos')
+      .update({
+        payment_id: transactionHash,
+        forma_pagamento: 'cartao',
+      })
+      .eq('id', pedidoId);
+  }
+
+  return {
+    success: true,
+    transactionHash,
+    paymentId: transactionHash,
+    status,
+    paymentIntentClientSecret,
+    gateway: 'ironpay-card',
+    raw: data,
+  };
+}
+
 // Criar PIX via BRGateway
 // deno-lint-ignore no-explicit-any
 async function createBRGatewayPix(body: CreatePixRequest, supabase: any, supabaseUrl: string) {
@@ -476,6 +569,14 @@ Deno.serve(async (req) => {
 
     const body: CreatePixRequest = await req.json();
     console.log('[create-pix-payment] Request:', { ...body, cpf: '***' });
+
+    if (body.payment_method === 'credit_card' || body.card_token) {
+      const result = await createIronPayCardPayment(body, supabase, supabaseUrl);
+      return new Response(
+        JSON.stringify(result),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Buscar configuração do gateway ativo
     const { data: config, error: configError } = await supabase

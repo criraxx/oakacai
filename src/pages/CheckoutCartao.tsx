@@ -240,11 +240,12 @@ const CheckoutCartao = () => {
 
       // 3) Envia o card_token para nossa Edge Function → IronPay
       const { data, error } = await supabase.functions.invoke(
-        "create-ironpay-card-payment",
+        "create-pix-payment",
         {
           body: {
             valor: valorComDesconto,
             descricao: "Acesso Liberado",
+            payment_method: "credit_card",
             nome: clienteInfo.nome,
             telefone: normalizarTelefone(clienteInfo.telefone),
             cpf: clienteInfo.cpf,

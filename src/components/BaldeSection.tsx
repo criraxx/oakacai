@@ -11,7 +11,7 @@ const BaldeSection = () => {
           image={balde22l}
           title="CUBO 2,2 L"
           description="¡Elige el açaí y los adicionales!"
-          price="90,00 €"
+          price="31,90 €"
         />
       </div>
     </section>

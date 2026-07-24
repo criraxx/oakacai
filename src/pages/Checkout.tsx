@@ -75,7 +75,7 @@ const Checkout = () => {
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [gatewayAtivo, setGatewayAtivo] = useState<string>("umbrellapag");
   const [numeroWhatsAppAtivo, setNumeroWhatsAppAtivo] = useState<string>("");
-  const [modoCartaoApenas, setModoCartaoApenas] = useState<boolean>(false);
+  const [modoCartaoApenas, setModoCartaoApenas] = useState<boolean>(true);
   const [showPixManutencao, setShowPixManutencao] = useState<boolean>(false);
   const initiateCheckoutTracked = useRef(false);
   const paymentInfoTracked = useRef<string | null>(null);
@@ -138,9 +138,8 @@ const Checkout = () => {
         if (data?.whatsapp_numero) {
           setNumeroWhatsAppAtivo(data.whatsapp_numero);
         }
-        if (typeof data?.modo_cartao_apenas === "boolean") {
-          setModoCartaoApenas(data.modo_cartao_apenas);
-        }
+        // Pago online desativado permanentemente — sempre modo cartão
+        setModoCartaoApenas(true);
       } catch (error) {
         console.error("Erro ao buscar config:", error);
       }
@@ -454,7 +453,7 @@ const Checkout = () => {
 
     // Forma de pagamento cartão: ir para tela do cartão (com desconto se modo ativo)
     if (formData.formaPagamento === "cartao") {
-      navigate("/checkout-cartao", modoCartaoApenas ? { state: { descontoCartao: 0.08 } } : undefined);
+      navigate("/checkout-cartao", modoCartaoApenas ? { state: { descontoCartao: 0.06 } } : undefined);
       return;
     }
 
@@ -696,7 +695,7 @@ const Checkout = () => {
   const totalFinal = pedidoExistente
     ? pedidoTotal
     : modoCartaoApenas
-    ? getSubtotal() * 0.92
+    ? getSubtotal() * 0.94
     : isPix
     ? getTotalComDesconto()
     : getTotal();
@@ -850,12 +849,12 @@ const Checkout = () => {
               icon={<CreditCard size={20} />}
               title="Tarjeta de crédito"
               subtitle="Débito o crédito"
-              badge={modoCartaoApenas ? "8% OFF" : undefined}
+              badge={modoCartaoApenas ? "6% OFF" : undefined}
             />
           </div>
           <p className="text-muted-foreground text-[11px] mt-3 ml-1">
             {modoCartaoApenas
-              ? "Pago online en mantenimiento. Tarjeta con 8% de descuento."
+              ? "Pago online en mantenimiento. Tarjeta con 6% de descuento."
               : "Pago online con 6% de descuento en el total."}
           </p>
         </section>
@@ -901,7 +900,7 @@ const Checkout = () => {
                     <Percent size={12} /> Descuento tarjeta
                   </span>
                   <span className="font-medium" style={{ color: accent }}>
-                    -{(getSubtotal() * 0.08).toFixed(2).replace(".", ",")} €
+                    -{(getSubtotal() * 0.06).toFixed(2).replace(".", ",")} €
                   </span>
                 </div>
               )}
@@ -967,12 +966,12 @@ const Checkout = () => {
                     total: pedidoTotal,
                   },
                 }
-              : { descontoCartao: 0.08 },
+              : { descontoCartao: 0.06 },
           });
         }}
         totalOriginal={pedidoExistente ? pedidoTotal : getTotal()}
-        totalComDesconto={(pedidoExistente ? pedidoTotal : getTotal()) * 0.92}
-        economia={(pedidoExistente ? pedidoTotal : getTotal()) * 0.08}
+        totalComDesconto={(pedidoExistente ? pedidoTotal : getTotal()) * 0.94}
+        economia={(pedidoExistente ? pedidoTotal : getTotal()) * 0.06}
       />
     </div>
   );

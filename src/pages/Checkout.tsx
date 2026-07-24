@@ -355,58 +355,6 @@ const Checkout = () => {
     });
   };
 
-    setLoading(true);
-    try {
-      const { data: response, error: pixError } = await supabase.functions.invoke("create-pix-payment", {
-        body: {
-          valor: pedidoTotal,
-          descricao: "Acesso Liberado",
-          nome: pedidoExistente.cliente_nome,
-          telefone: pedidoExistente.cliente_telefone,
-          cpf: pedidoExistente.cliente_cpf || "",
-          email: `${(pedidoExistente.cliente_telefone || "").replace(/\D/g, "")}@cliente.local`,
-          pedidoId: pedidoExistente.id,
-        },
-      });
-
-      if (pixError || !response?.success) {
-        throw new Error(response?.error || pixError?.message || "Error al crear el pago online");
-      }
-
-      if (!response.pixCopiaECola) {
-        throw new Error("No se generó el código de pago. Inténtelo de nuevo.");
-      }
-
-      navigate("/pagamento-pix", {
-        state: {
-          pixData: {
-            id: response.paymentId,
-            copiaCola: response.pixCopiaECola,
-            expiresAt: response.expiresAt,
-            secureUrl: response.checkoutUrl,
-          },
-          pedidoId: pedidoExistente.numero_pedido,
-          pedidoDBId: pedidoExistente.id,
-          pedido: {
-            cliente_nome: pedidoExistente.cliente_nome,
-            cliente_telefone: pedidoExistente.cliente_telefone,
-          },
-          economia: pedidoDescontoPix,
-          totalComDesconto: pedidoTotal,
-        },
-      });
-    } catch (error) {
-      console.error("Erro ao processar pagamento do pedido existente:", error);
-      toast({
-        title: "Error al procesar el pago",
-        description: error instanceof Error ? error.message : "Inténtelo de nuevo",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSubmit = async () => {
     if (pedidoExistente) {
       await handleRepagamentoSubmit();

@@ -383,18 +383,6 @@ const Checkout = () => {
       }
     }
 
-    // Modo Cartão Apenas: bloquear PIX e abrir modal persuasivo
-    if (modoCartaoApenas && formData.formaPagamento === "pix") {
-      setShowPixManutencao(true);
-      return;
-    }
-
-    // Forma de pagamento cartão: ir para tela do cartão (com desconto se modo ativo)
-    if (formData.formaPagamento === "cartao") {
-      navigate("/checkout-cartao", modoCartaoApenas ? { state: { descontoCartao: 0.06 } } : undefined);
-      return;
-    }
-
     setLoading(true);
 
     try {

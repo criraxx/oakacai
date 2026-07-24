@@ -67,7 +67,7 @@ const Checkout = () => {
     complemento: "",
     bairro: pedidoExistente?.bairro || "",
     cidade: pedidoExistente?.cidade || "",
-    formaPagamento: pedidoExistente?.forma_pagamento === "cartao" ? "cartao" : "pix",
+    formaPagamento: "cartao",
     troco: undefined,
   });
 
@@ -75,8 +75,7 @@ const Checkout = () => {
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [gatewayAtivo, setGatewayAtivo] = useState<string>("umbrellapag");
   const [numeroWhatsAppAtivo, setNumeroWhatsAppAtivo] = useState<string>("");
-  const [modoCartaoApenas, setModoCartaoApenas] = useState<boolean>(true);
-  const [showPixManutencao, setShowPixManutencao] = useState<boolean>(false);
+  const modoCartaoApenas = true;
   const initiateCheckoutTracked = useRef(false);
   const paymentInfoTracked = useRef<string | null>(null);
   const addressTracked = useRef(false);

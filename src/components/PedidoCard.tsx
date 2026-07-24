@@ -353,12 +353,11 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
         {isPagamentoPendente ? (
           <Button
             onClick={handlePagarAgora}
-            disabled={loadingPayment}
-            className="w-full h-12 rounded-xl font-semibold text-[15px] transition-all active:scale-[0.98] disabled:opacity-50 shadow-md"
+            className="w-full h-12 rounded-xl font-semibold text-[15px] transition-all active:scale-[0.98] shadow-md"
             style={{ background: accent, color: "#000" }}
           >
             <CreditCard className="w-4 h-4 mr-2" />
-            {loadingPayment ? "Procesando..." : "Pagar ahora"}
+            Pagar ahora
           </Button>
         ) : (
           <Button
@@ -449,14 +448,6 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
           )}
         </div>
       )}
-
-      {/* Modal de elección de pago */}
-      <PaymentMethodModal
-        open={showPaymentModal}
-        onClose={() => setShowPaymentModal(false)}
-        onSelectPix={handleSelectPix}
-        onSelectCard={handleSelectCard}
-      />
 
       {/* Modal de recibo */}
       <ReciboModal

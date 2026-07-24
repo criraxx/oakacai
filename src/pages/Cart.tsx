@@ -27,7 +27,7 @@ const Cart = () => {
   const navigate = useNavigate();
   const { cor_borda_logo } = useBranding();
   const accent = cor_borda_logo || "#F5E6D3";
-  const { itens, removerItem, limparCarrinho, adicionarItem, incrementarQuantidade, decrementarQuantidade, getSubtotal, getTotal } = useCart();
+  const { itens, removerItem, limparCarrinho, adicionarItem, incrementarQuantidade, decrementarQuantidade, getSubtotal, getTotal, getDescontoMetadePreco } = useCart();
 
   const getNomeComplemento = (complementoId: string): string => {
     for (const secao of todasSecoes) {

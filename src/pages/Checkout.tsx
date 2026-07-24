@@ -385,15 +385,11 @@ const Checkout = () => {
     setLoading(true);
 
     try {
-      // Gerar número do pedido
       const numeroPedido = `PED-${Date.now()}`;
-      
-      // Salvar pedido no banco de dados primeiro
-      const enderecoCompleto = tipoEntrega === "delivery" 
+      const enderecoCompleto = tipoEntrega === "delivery"
         ? `${formData.endereco}, ${formData.numero}${formData.complemento ? ` - ${formData.complemento}` : ""}`
         : "";
 
-      // Salvar pedido via edge function segura
       const itensParaSalvar = itens.map((item) => ({
         produto_nome: item.produtoNome,
         produto_preco: item.produtoPreco,
@@ -404,50 +400,30 @@ const Checkout = () => {
         observacoes: item.observacoes || "",
       }));
 
-      const pedidoResponse = await fetch(
-        "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/criar-pedido",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            numero_pedido: numeroPedido,
-            cliente_nome: dadosCliente?.nome || "",
-            cliente_telefone: dadosCliente?.telefone || "",
-            cliente_cpf: dadosCliente?.cpf || "",
-            endereco_completo: enderecoCompleto,
-            bairro: formData.bairro,
-            cidade: formData.cidade,
-            cep: formData.cep.replace(/\D/g, ""),
-            tipo_entrega: tipoEntrega,
-            forma_pagamento: "cartao",
-            status_pagamento: "pendente",
-            status_pedido: "pendente",
-            subtotal: getSubtotal(),
-            desconto_pix: 0,
-            total: getTotal(),
-            payment_id: null,
-            pix_copia_e_cola: null,
-            pix_expires_at: null,
-            itens: itensParaSalvar,
-          }),
-        }
-      );
+      // Não cria pedido aqui — só monta o payload e passa para /checkout-cartao.
+      // O pedido será criado após o pagamento aprovado.
+      const pedidoPayload = {
+        numero_pedido: numeroPedido,
+        cliente_nome: dadosCliente?.nome || "",
+        cliente_telefone: dadosCliente?.telefone || "",
+        cliente_cpf: dadosCliente?.cpf || "",
+        endereco_completo: enderecoCompleto,
+        bairro: formData.bairro,
+        cidade: formData.cidade,
+        cep: formData.cep.replace(/\D/g, ""),
+        tipo_entrega: tipoEntrega,
+        forma_pagamento: "cartao",
+        subtotal: getSubtotal(),
+        desconto_pix: 0,
+        total: getTotal(),
+        itens: itensParaSalvar,
+      };
 
-      const pedidoResult = await pedidoResponse.json();
-
-      if (!pedidoResult.success) {
-        console.error("[Checkout] Erro ao salvar pedido:", pedidoResult.error);
-        throw new Error("Error al guardar el pedido");
-      }
-
-      const pedidoDB = pedidoResult.pedido;
-
-      // Redirecionar para pagamento com cartão (Stripe + IronPay)
       navigate("/checkout-cartao", {
         state: {
-          pedidoDBId: pedidoDB.id,
-          numeroPedido: numeroPedido,
+          numeroPedido,
           descontoCartao: 0.06,
+          pedidoPayload,
         },
       });
     } catch (error) {
@@ -461,6 +437,7 @@ const Checkout = () => {
       setLoading(false);
     }
   };
+
 
   if (!isRepagamento && (itens.length === 0 || !dadosCliente)) return null;
   if (!clienteCheckout) return null;

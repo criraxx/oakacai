@@ -22,6 +22,27 @@ const CheckoutCartao = () => {
     | { id: string; numero_pedido: string; cliente_nome: string; cliente_telefone: string; cliente_cpf: string; total: number }
     | undefined;
 
+  // Payload do novo pedido vindo de /checkout (só cria após pagamento aprovado)
+  const pedidoPayload = location.state?.pedidoPayload as
+    | {
+        numero_pedido: string;
+        cliente_nome: string;
+        cliente_telefone: string;
+        cliente_cpf: string;
+        endereco_completo: string;
+        bairro: string;
+        cidade: string;
+        cep: string;
+        tipo_entrega: string;
+        forma_pagamento: string;
+        subtotal: number;
+        desconto_pix: number;
+        total: number;
+        itens: Array<Record<string, unknown>>;
+      }
+    | undefined;
+
+
   // Desconto recebido via state (ex: 0.08 quando vem do modo PIX-em-manutenção)
   const descontoCartao: number =
     typeof location.state?.descontoCartao === "number" ? location.state.descontoCartao : 0;
@@ -177,9 +198,36 @@ const CheckoutCartao = () => {
         return;
       }
 
-      // 5) Sucesso — redireciona para confirmação
+      // 5) Pagamento aprovado — agora cria o pedido no banco (com payment_id)
+      if (pedidoPayload && !pedidoExistente) {
+        try {
+          const resp = await fetch(
+            "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/criar-pedido",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                ...pedidoPayload,
+                status_pagamento: "aprovado",
+                status_pedido: "pendente",
+                payment_id: data.transactionHash || null,
+                pix_copia_e_cola: null,
+                pix_expires_at: null,
+              }),
+            },
+          );
+          const result = await resp.json();
+          if (!result.success) {
+            console.error("[checkout-cartao] criar-pedido falhou:", result.error);
+          }
+        } catch (e) {
+          console.error("[checkout-cartao] erro ao criar pedido:", e);
+        }
+      }
+
       setLoading(false);
       navigate("/pedido-confirmado");
+
     } catch (err) {
       console.error("[checkout-cartao] erro inesperado:", err);
       setLoading(false);

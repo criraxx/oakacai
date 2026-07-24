@@ -707,30 +707,6 @@ const Checkout = () => {
         </div>
       </footer>
 
-      <PixManutencaoModal
-        open={showPixManutencao}
-        onClose={() => setShowPixManutencao(false)}
-        onIrParaCartao={() => {
-          setShowPixManutencao(false);
-          navigate("/checkout-cartao", {
-            state: pedidoExistente
-              ? {
-                  pedidoExistente: {
-                    id: pedidoExistente.id,
-                    numero_pedido: pedidoExistente.numero_pedido,
-                    cliente_nome: pedidoExistente.cliente_nome,
-                    cliente_telefone: pedidoExistente.cliente_telefone,
-                    cliente_cpf: pedidoExistente.cliente_cpf || "",
-                    total: pedidoTotal,
-                  },
-                }
-              : { descontoCartao: 0.06 },
-          });
-        }}
-        totalOriginal={pedidoExistente ? pedidoTotal : getTotal()}
-        totalComDesconto={(pedidoExistente ? pedidoTotal : getTotal()) * 0.94}
-        economia={(pedidoExistente ? pedidoTotal : getTotal()) * 0.06}
-      />
     </div>
   );
 };

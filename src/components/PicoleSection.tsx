@@ -2,15 +2,15 @@ import SectionTitle from "./SectionTitle";
 import ProductCardHorizontal from "./ProductCardHorizontal";
 import picoleTrufado from "@/assets/picole-trufado.jpg";
 const picoles = [
-  { id: "picole-laka-oreo", title: "LAKA OREO", description: "Picolé trufado sabor Laka Oreo", price: "R$ 4,00" },
-  { id: "picole-morango-ninho", title: "MORANGO COM NINHO", description: "Picolé trufado sabor Morango com Ninho", price: "R$ 4,00" },
-  { id: "picole-choconinho", title: "CHOCONINHO", description: "Picolé trufado sabor Choconinho", price: "R$ 4,00" }
+  { id: "picole-laka-oreo", title: "LAKA OREO", description: "Polo trufado sabor Laka Oreo", price: "4,00 €" },
+  { id: "picole-morango-ninho", title: "FRESA CON NINHO", description: "Polo trufado sabor Fresa con Ninho", price: "4,00 €" },
+  { id: "picole-choconinho", title: "CHOCONINHO", description: "Polo trufado sabor Choconinho", price: "4,00 €" }
 ];
 
 const PicoleSection = () => {
   return (
     <section className="mb-4">
-      <SectionTitle title="Picolé Trufado" />
+      <SectionTitle title="Polo Trufado" />
       <div className="px-4 space-y-2">
         {picoles.map((picole) => (
           <ProductCardHorizontal

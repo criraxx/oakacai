@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 
 interface Props {
   posicao: "checkout" | "saida";
-  /** Se posicao=saida, dispara ao detectar intenção de sair. Se checkout, exibe embutido. */
+  /** Si posicao=saida, se dispara al detectar intención de salida. Si checkout, se muestra embebido. */
   triggerOnMount?: boolean;
 }
 
@@ -34,16 +34,16 @@ const DownsellModal = ({ posicao, triggerOnMount = false }: Props) => {
       setOpen(true);
     };
 
-    // Exit intent (desktop) - mouse sai pelo topo
+    // Intención de salida (escritorio) - el ratón sale por arriba
     const onMouseLeave = (e: MouseEvent) => {
       if (e.clientY <= 0) trigger();
     };
-    // Mobile - back button
+    // Móvil - botón de volver
     const onPopState = () => trigger();
 
     document.addEventListener("mouseleave", onMouseLeave);
     window.addEventListener("popstate", onPopState);
-    // Timer fallback
+    // Temporizador de respaldo
     const t = setTimeout(trigger, 45000);
 
     return () => {
@@ -58,12 +58,12 @@ const DownsellModal = ({ posicao, triggerOnMount = false }: Props) => {
   const aceitar = () => {
     const produto = data?.produtos.find((p) => p.id === downsell.produto_ofertado_id);
     if (!produto) {
-      toast({ title: "Produto indisponível", variant: "destructive" });
+      toast({ title: "Producto no disponible", variant: "destructive" });
       return;
     }
     const preco = Number(downsell.preco_promocional);
     if (!Number.isFinite(preco) || preco <= 0) {
-      toast({ title: "Oferta indisponível", description: "Preço inválido", variant: "destructive" });
+      toast({ title: "Oferta no disponible", description: "Precio inválido", variant: "destructive" });
       return;
     }
     adicionarItem({
@@ -73,10 +73,10 @@ const DownsellModal = ({ posicao, triggerOnMount = false }: Props) => {
       produtoPreco: preco,
       produtoImagem: produto.imagem || "",
       complementos: {},
-      observacoes: `🔥 Downsell: ${downsell.titulo || downsell.nome}`,
+      observacoes: `🔥 Oferta: ${downsell.titulo || downsell.nome}`,
       totalAdicionais: 0,
     });
-    toast({ title: "Oferta aceita!", description: downsell.titulo || downsell.nome });
+    toast({ title: "¡Oferta aceptada!", description: downsell.titulo || downsell.nome });
     setOpen(false);
   };
 
@@ -92,7 +92,7 @@ const DownsellModal = ({ posicao, triggerOnMount = false }: Props) => {
       )}
       <div className="p-5 text-center">
         <p className="text-promo text-xs font-bold uppercase tracking-wide mb-1">
-          {downsell.titulo || "Espere! Oferta especial"}
+          {downsell.titulo || "¡Espera! Oferta especial"}
         </p>
         <h3 className="text-foreground font-bold text-lg mb-2">{downsell.nome}</h3>
         {downsell.descricao && (
@@ -100,10 +100,10 @@ const DownsellModal = ({ posicao, triggerOnMount = false }: Props) => {
         )}
         <div className="flex items-center justify-center gap-3 mb-4">
           <span className="text-muted-foreground line-through">
-            R$ {Number(downsell.preco_original).toFixed(2).replace(".", ",")}
+            {Number(downsell.preco_original).toFixed(2).replace(".", ",")} €
           </span>
           <span className="text-green-500 font-bold text-2xl">
-            R$ {Number(downsell.preco_promocional).toFixed(2).replace(".", ",")}
+            {Number(downsell.preco_promocional).toFixed(2).replace(".", ",")} €
           </span>
           {desconto > 0 && (
             <span className="text-xs bg-red-500 text-white px-2 py-0.5 rounded font-bold">
@@ -115,14 +115,14 @@ const DownsellModal = ({ posicao, triggerOnMount = false }: Props) => {
           onClick={aceitar}
           className="w-full py-3 bg-promo text-promo-foreground font-bold rounded-xl mb-2 hover:opacity-90 transition-opacity"
         >
-          Sim, quero aproveitar!
+          ¡Sí, quiero aprovecharla!
         </button>
         {posicao === "saida" && (
           <button
             onClick={() => setOpen(false)}
             className="w-full py-2 text-muted-foreground text-xs"
           >
-            Não, obrigado
+            No, gracias
           </button>
         )}
       </div>

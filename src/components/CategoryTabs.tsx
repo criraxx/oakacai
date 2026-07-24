@@ -9,7 +9,7 @@ interface CategoryTabsProps {
 const CategoryTabs = ({ categories, onSelect, initialCategory }: CategoryTabsProps) => {
   const [active, setActive] = useState(initialCategory || categories[0]);
 
-  // Sincronizar quando initialCategory mudar ou ao montar
+  // Sincronizar cuando initialCategory cambie o al montar
   useEffect(() => {
     if (initialCategory && categories.includes(initialCategory)) {
       setActive(initialCategory);

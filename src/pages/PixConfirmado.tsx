@@ -108,7 +108,7 @@ const PixConfirmado = () => {
 
   const handleAcompanharWhats = () => {
     if (!numeroWhatsAppAtivo) return;
-    const msg = `Ola! Quero acompanhar meu pedido ${pedidoId}`;
+    const msg = `¡Hola! Quiero hacer seguimiento de mi pedido ${pedidoId}`;
     window.open(`https://wa.me/55${numeroWhatsAppAtivo}?text=${encodeURIComponent(msg)}`, "_blank");
   };
 
@@ -142,7 +142,7 @@ const PixConfirmado = () => {
   if (!fromPixPayment || !pedidoId) return null;
 
   const dataAtual = new Date();
-  const dataFormatada = dataAtual.toLocaleString("pt-BR", {
+  const dataFormatada = dataAtual.toLocaleString("es-ES", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -154,13 +154,13 @@ const PixConfirmado = () => {
 
   return (
     <div className="min-h-screen bg-muted/30 max-w-md mx-auto px-4 py-6">
-      {/* Header de confirmação */}
+      {/* Header de confirmación */}
       <div className="flex flex-col items-center text-center mb-6">
         <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mb-4 animate-in zoom-in duration-500">
           <CheckCircle className="w-12 h-12 text-green-500" strokeWidth={2.5} />
         </div>
-        <h1 className="text-foreground font-bold text-2xl mb-1">Pagamento confirmado!</h1>
-        <p className="text-muted-foreground text-sm">Seu pedido foi enviado para a loja</p>
+        <h1 className="text-foreground font-bold text-2xl mb-1">¡Pago confirmado!</h1>
+        <p className="text-muted-foreground text-sm">Tu pedido ha sido enviado a la tienda</p>
       </div>
 
       {/* Recibo */}
@@ -179,13 +179,13 @@ const PixConfirmado = () => {
         </div>
 
         <div className="px-5 py-4 border-b border-dashed border-border">
-          <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">ID da compra</p>
+          <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">ID de la compra</p>
           <p className="font-mono font-bold text-foreground text-sm break-all">{pedidoId}</p>
         </div>
 
         {pedido && (
           <div className="px-5 py-4 border-b border-dashed border-border">
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-3">Itens</p>
+            <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-3">Artículos</p>
             <div className="space-y-3">
               {pedido.itens.map((item, idx) => {
                 const complementosNomes = (item as any).complementosNomes as Record<string, string> | undefined;
@@ -198,7 +198,7 @@ const PixConfirmado = () => {
                         {item.quantidade ?? 1}x {item.produtoNome}
                       </span>
                       <span className="text-foreground font-medium tabular-nums">
-                        R$ {((item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1)).toFixed(2).replace(".", ",")}
+                        {((item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1)).toFixed(2).replace(".", ",")} €
                       </span>
                     </div>
                     {adicionaisList.length > 0 && (
@@ -225,11 +225,11 @@ const PixConfirmado = () => {
         <div className="px-5 py-4 border-b border-dashed border-border">
           <div className="flex justify-between items-center">
             <div>
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Total pago</p>
-              <p className="text-[11px] text-muted-foreground">via PIX</p>
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Total pagado</p>
+              <p className="text-[11px] text-muted-foreground">mediante pago online</p>
             </div>
             <p className="text-2xl font-bold text-foreground tabular-nums">
-              R$ {(totalComDesconto ?? 0).toFixed(2).replace(".", ",")}
+              {(totalComDesconto ?? 0).toFixed(2).replace(".", ",")} €
             </p>
           </div>
         </div>
@@ -251,7 +251,7 @@ const PixConfirmado = () => {
         </div>
 
         <div className="px-5 py-3 bg-muted/40 text-center">
-          <p className="text-[11px] text-muted-foreground">Obrigado pela preferência</p>
+          <p className="text-[11px] text-muted-foreground">Gracias por tu preferencia</p>
         </div>
       </div>
 
@@ -263,15 +263,15 @@ const PixConfirmado = () => {
           className="w-full py-3 bg-foreground text-background font-semibold text-sm rounded-xl transition-transform active:scale-[0.98] flex items-center justify-center gap-2 disabled:opacity-60"
         >
           {downloading ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> Gerando PDF...</>
+            <><Loader2 className="w-4 h-4 animate-spin" /> Generando PDF...</>
           ) : (
-            <><Download className="w-4 h-4" /> BAIXAR RECIBO</>
+            <><Download className="w-4 h-4" /> DESCARGAR RECIBO</>
           )}
         </button>
 
         <div className="bg-white rounded-xl border border-border p-4">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 text-center">
-            Acompanhe seu pedido
+            Haz seguimiento de tu pedido
           </p>
           <div className={`grid gap-2 ${numeroWhatsAppAtivo ? "grid-cols-2" : "grid-cols-1"}`}>
             <button
@@ -279,7 +279,7 @@ const PixConfirmado = () => {
               className="py-3 px-3 border border-border rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors flex flex-col items-center gap-1"
             >
               <ClipboardList className="w-5 h-5" />
-              Meus pedidos
+              Mis pedidos
             </button>
             {numeroWhatsAppAtivo && (
               <button
@@ -297,7 +297,7 @@ const PixConfirmado = () => {
           onClick={() => navigate("/")}
           className="w-full text-muted-foreground hover:text-foreground text-sm py-2 transition-colors"
         >
-          Voltar ao cardápio
+          Volver al menú
         </button>
       </div>
     </div>

@@ -12,12 +12,12 @@ const MetadePrecoSection = () => {
   const isVisible = subtotal >= 50;
   const jaTemPromocional = temItemPromocional();
 
-  // Filtrar produtos elegíveis (excluir bebidas, picolés e baldes)
+  // Filtrar productos elegibles (excluir bebidas, polos y cubos)
   const produtosElegiveis = todosProdutos.filter(product => {
     const categoria = product.categoria?.toLowerCase() || "";
     const titulo = product.title.toLowerCase();
     
-    // Excluir bebidas, picolés e baldes da promoção
+    // Excluir bebidas, polos y cubos de la promoción
     if (categoria.includes("bebida") || 
         categoria.includes("picolé") || 
         categoria.includes("balde") ||
@@ -36,7 +36,7 @@ const MetadePrecoSection = () => {
 
   const handleProductClick = (product: typeof todosProdutos[0]) => {
     if (jaTemPromocional) {
-      toast.error("Você já adicionou 1 item promocional. Limite de 1 por pedido!");
+      toast.error("Ya has añadido 1 artículo promocional. ¡Límite de 1 por pedido!");
       return;
     }
 
@@ -58,21 +58,21 @@ const MetadePrecoSection = () => {
 
   return (
     <section className="mb-4 animate-fade-in" id="metade-preco">
-      <SectionTitle title="🔥 METADE DO PREÇO (PROMOÇÃO)" />
+      <SectionTitle title="🔥 MITAD DE PRECIO (PROMOCIÓN)" />
       
       <div className="mx-4 mb-3 p-3 bg-green-500/20 border border-green-500/50 rounded-lg">
         <p className="text-green-400 text-xs text-center font-bold">
-          🎉 PARABÉNS! Você desbloqueou a promoção!
+          🎉 ¡ENHORABUENA! ¡Has desbloqueado la promoción!
         </p>
         <p className="text-green-300 text-[10px] text-center mt-1">
-          Escolha 1 produto abaixo pela METADE DO PREÇO!
+          ¡Elige 1 producto de abajo a MITAD DE PRECIO!
         </p>
       </div>
 
       {jaTemPromocional && (
         <div className="mx-4 mb-2 p-2 bg-yellow-500/20 border border-yellow-500/50 rounded-lg">
           <p className="text-yellow-400 text-xs text-center font-medium">
-            ⚠️ Você já adicionou 1 item promocional. Limite de 1 por pedido!
+            ⚠️ Ya has añadido 1 artículo promocional. ¡Límite de 1 por pedido!
           </p>
         </div>
       )}
@@ -110,10 +110,10 @@ const MetadePrecoSection = () => {
                 </p>
                 <div className="flex items-center gap-2">
                   <span className="text-muted-foreground line-through text-[10px]">
-                    R$ {product.price.toFixed(2).replace(".", ",")}
+                    {product.price.toFixed(2).replace(".", ",")} €
                   </span>
                   <span className="text-green-400 font-bold text-sm">
-                    R$ {precoPromocional.toFixed(2).replace(".", ",")}
+                    {precoPromocional.toFixed(2).replace(".", ",")} €
                   </span>
                 </div>
               </div>

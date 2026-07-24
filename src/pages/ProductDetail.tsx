@@ -21,68 +21,68 @@ const produtosPorId: Record<string, { nome: string; preco: number; imagem: strin
     nome: "Combo premium 2 açaí 500ml + 4 complementos gratis",
     preco: 59.90,
     imagem: acaiCombo500,
-    descricao: "Combo 2 Açaís 500 ml (4 complementos grátis cada)\nLeve 2 açaís de 500 ml com nossa base super cremosa e ainda ganhe 4 complementos grátis em cada copo."
+    descricao: "Combo 2 Açaís 500 ml (4 complementos gratis cada uno)\nLlévate 2 açaís de 500 ml con nuestra base súper cremosa y además consigue 4 complementos gratis en cada vaso."
   },
   "combo-300ml": {
     nome: "Combo premium 2 açaí 300ml + 4 complementos gratis",
     preco: 49.90,
     imagem: acaiCombo500,
-    descricao: "Combo 2 Açaís 300 ml (4 complementos grátis cada)\nLeve 2 açaís de 300 ml com nossa base super cremosa e ainda ganhe 4 complementos grátis em cada copo."
+    descricao: "Combo 2 Açaís 300 ml (4 complementos gratis cada uno)\nLlévate 2 açaís de 300 ml con nuestra base súper cremosa y además consigue 4 complementos gratis en cada vaso."
   },
   "monte-300ml": {
-    nome: "Copo 300ml Açaí Puro - Monte do seu jeito",
+    nome: "Vaso 300ml Açaí Puro - Personalízalo a tu gusto",
     preco: 25.90,
     imagem: acaiPuro,
-    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!"
+    descricao: "¡Personaliza tu vaso a tu gusto con tantos adicionales como quieras!"
   },
   "monte-500ml": {
-    nome: "Copo 500ml Açaí Puro - monte do seu jeito",
+    nome: "Vaso 500ml Açaí Puro - Personalízalo a tu gusto",
     preco: 29.90,
     imagem: acaiPuro,
-    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!"
+    descricao: "¡Personaliza tu vaso a tu gusto con tantos adicionales como quieras!"
   },
   "monte-700ml": {
-    nome: "Copo 700ml Açaí Puro - monte do seu jeito",
+    nome: "Vaso 700ml Açaí Puro - Personalízalo a tu gusto",
     preco: 34.90,
     imagem: acaiPuro,
-    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!"
+    descricao: "¡Personaliza tu vaso a tu gusto con tantos adicionales como quieras!"
   },
   "monte-1l": {
-    nome: "Copo 1 Litro Açaí Puro - monte do seu jeito",
+    nome: "Vaso 1 litro Açaí Puro - Personalízalo a tu gusto",
     preco: 44.90,
     imagem: acaiPuro,
-    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!"
+    descricao: "¡Personaliza tu vaso a tu gusto con tantos adicionales como quieras!"
   },
   // IDs usados na seção "Mais Pedidos"
   "copo-500ml-puro": {
-    nome: "Copo 500ml Açaí Puro - monte do seu jeito",
+    nome: "Vaso 500ml Açaí Puro - Personalízalo a tu gusto",
     preco: 29.90,
     imagem: acaiPuro,
-    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!"
+    descricao: "¡Personaliza tu vaso a tu gusto con tantos adicionales como quieras!"
   },
   "copo-300ml-puro": {
-    nome: "Copo 300ml Açaí Puro - Monte do seu jeito",
+    nome: "Vaso 300ml Açaí Puro - Personalízalo a tu gusto",
     preco: 25.90,
     imagem: acaiPuro,
-    descricao: "Turbine seu copo do seu jeito com quantos adicionais quiser!"
+    descricao: "¡Personaliza tu vaso a tu gusto con tantos adicionales como quieras!"
   },
   "trufado-rafaelo-500": {
-    nome: "Copo trufado Rafaelo 500 ML",
+    nome: "Vaso trufado Rafaelo 500 ml",
     preco: 39.99,
     imagem: acaiRafaelo,
-    descricao: "Açaí trufado com Rafaelo"
+    descricao: "Açaí trufado con Rafaelo"
   },
   "trufado-rafaelo-300": {
-    nome: "Copo trufado Rafaelo 300 ML",
+    nome: "Vaso trufado Rafaelo 300 ml",
     preco: 34.99,
     imagem: acaiRafaelo,
-    descricao: "Açaí trufado com Rafaelo"
+    descricao: "Açaí trufado con Rafaelo"
   },
   "trufado-rafaelo-700": {
-    nome: "Copo trufado Rafaelo 700 ML",
+    nome: "Vaso trufado Rafaelo 700 ml",
     preco: 46.99,
     imagem: acaiRafaelo,
-    descricao: "Açaí trufado com Rafaelo"
+    descricao: "Açaí trufado con Rafaelo"
   }
 };
 
@@ -124,7 +124,7 @@ const ProductDetail = () => {
     }
     // Último recurso
     return {
-      nome: id || "Produto",
+      nome: id || "Producto",
       preco: 0,
       imagem: acaiPuro,
       descricao: ""
@@ -255,7 +255,7 @@ const ProductDetail = () => {
         totalAdicionais,
         quantidade: quantidadeProduto,
       });
-      toast.success("Item atualizado!");
+      toast.success("¡Artículo actualizado!");
       navigate("/carrinho");
       return;
     }
@@ -264,11 +264,11 @@ const ProductDetail = () => {
     // Validações para itens promocionais
     if (isPromocional) {
       if (temItemPromocional()) {
-        toast.error("Você já adicionou 1 item promocional. Limite de 1 por pedido!");
+        toast.error("Ya has añadido 1 artículo promocional. ¡Límite de 1 por pedido!");
         return;
       }
       if (getSubtotalSemPromocional() < 50) {
-        toast.error("O carrinho precisa ter R$50 ou mais para adicionar item promocional!");
+        toast.error("¡El carrito necesita 50 € o más para añadir un artículo promocional!");
         return;
       }
     }
@@ -307,7 +307,7 @@ const ProductDetail = () => {
     });
     
     if (isPromocional) {
-      toast.success("Item promocional adicionado com sucesso!");
+      toast.success("¡Artículo promocional añadido correctamente!");
     }
     
     setModalAberto(true);
@@ -331,7 +331,7 @@ const ProductDetail = () => {
         <div className="flex items-center gap-3 px-4 py-3">
           <button
             onClick={() => navigate(-1)}
-            aria-label="Voltar"
+            aria-label="Volver"
             className="w-10 h-10 flex items-center justify-center bg-black/50 backdrop-blur-md text-white rounded-full transition-transform hover:scale-105 active:scale-95 shadow-lg"
           >
             <ArrowLeft size={20} />
@@ -355,7 +355,7 @@ const ProductDetail = () => {
             {isPromocional && (
               <div className="absolute top-4 right-4">
                 <span className="bg-red-500 text-white text-xs px-3 py-1.5 rounded-full font-bold shadow-lg animate-pulse">
-                  🔥 -50% PROMOÇÃO
+                  🔥 -50% PROMOCIÓN
                 </span>
               </div>
             )}
@@ -373,11 +373,11 @@ const ProductDetail = () => {
               className="font-bold text-2xl"
               style={{ color: brandAccent }}
             >
-              R$ {produto.preco.toFixed(2).replace(".", ",")}
+              {produto.preco.toFixed(2).replace(".", ",")} €
             </p>
             {isPromocional && produto.precoOriginal && (
               <p className="text-muted-foreground line-through text-base">
-                R$ {produto.precoOriginal.toFixed(2).replace(".", ",")}
+                {produto.precoOriginal.toFixed(2).replace(".", ",")} €
               </p>
             )}
           </div>
@@ -386,7 +386,7 @@ const ProductDetail = () => {
           {familiaInfo && (
             <div className="mb-4">
               <p className="text-foreground text-xs font-semibold uppercase tracking-wide mb-2">
-                Escolha o tamanho
+                Elige el tamaño
               </p>
               <div className="flex flex-wrap gap-2">
                 {familiaInfo.familia.tamanhos.map((t) => {
@@ -408,7 +408,7 @@ const ProductDetail = () => {
                     >
                       <span>{t.label}</span>
                       <span className="ml-2 text-xs opacity-80">
-                        R$ {t.preco.toFixed(2).replace(".", ",")}
+                        {t.preco.toFixed(2).replace(".", ",")} €
                       </span>
                     </button>
                   );
@@ -423,7 +423,7 @@ const ProductDetail = () => {
 
           {isPromocional && (
             <p className="mt-3 text-xs text-muted-foreground italic">
-              Limite: 1 por pedido
+              Límite: 1 por pedido
             </p>
           )}
         </div>
@@ -432,7 +432,7 @@ const ProductDetail = () => {
         {temComplementos && (
           <div className="px-5 pt-5 pb-2 bg-background">
             <h3 className="text-foreground font-semibold text-base">
-              Personalize seu pedido
+              Personaliza tu pedido
             </h3>
           </div>
         )}
@@ -446,7 +446,7 @@ const ProductDetail = () => {
                 type="text"
                 value={pesquisa}
                 onChange={(e) => setPesquisa(e.target.value)}
-                placeholder="Pesquise pelo nome"
+                placeholder="Busca por el nombre"
                 className="w-full pl-10 pr-4 py-2.5 bg-muted border border-border rounded-xl text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2"
                 style={{ ["--tw-ring-color" as any]: brandAccent }}
               />
@@ -467,12 +467,12 @@ const ProductDetail = () => {
         {/* Campo de Observações */}
         <div className="px-4 py-4 bg-background">
           <label className="block text-foreground text-sm font-medium mb-2">
-            Observações
+            Observaciones
           </label>
           <textarea
             value={observacoes}
             onChange={(e) => setObservacoes(e.target.value)}
-            placeholder="Alguma observação para o seu pedido?"
+            placeholder="¿Alguna observación para tu pedido?"
             className="w-full h-20 px-3 py-2 bg-muted border border-border rounded-xl text-foreground text-sm placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2"
             style={{ ["--tw-ring-color" as any]: brandAccent }}
           />
@@ -487,7 +487,7 @@ const ProductDetail = () => {
               <button
                 onClick={() => setQuantidadeProduto(Math.max(1, quantidadeProduto - 1))}
                 className="w-9 h-9 flex items-center justify-center text-foreground rounded-full hover:bg-background transition-colors"
-                aria-label="Diminuir"
+                aria-label="Disminuir"
               >
                 −
               </button>
@@ -511,10 +511,10 @@ const ProductDetail = () => {
             className="flex-1 py-3.5 font-bold rounded-full transition-transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-between px-5 shadow-lg"
           >
             <span className="text-sm">
-              {modoEdicao ? "Salvar alterações" : isPromocional ? "Adicionar Promoção" : "Adicionar"}
+              {modoEdicao ? "Guardar cambios" : isPromocional ? "Añadir promoción" : "Añadir"}
             </span>
             <span className="text-sm font-extrabold">
-              R$ {((produto.preco + totalAdicionais) * (isPromocional ? 1 : quantidadeProduto)).toFixed(2).replace(".", ",")}
+              {((produto.preco + totalAdicionais) * (isPromocional ? 1 : quantidadeProduto)).toFixed(2).replace(".", ",")} €
             </span>
           </button>
         </div>
@@ -535,7 +535,7 @@ const ProductDetail = () => {
         >
           <button
             onClick={(e) => { e.stopPropagation(); setImagemAmpliada(false); }}
-            aria-label="Fechar"
+            aria-label="Cerrar"
             className="absolute top-4 right-4 w-11 h-11 rounded-full flex items-center justify-center shadow-lg press-effect"
             style={{ backgroundColor: cor_borda_logo, color: "#000" }}
           >

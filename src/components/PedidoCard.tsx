@@ -56,11 +56,11 @@ const statusConfig: Record<
   string,
   { label: string; short: string; icon: React.ElementType; step: number }
 > = {
-  pendente: { label: "Pendente", short: "Pendente", icon: Clock, step: 1 },
+  pendente: { label: "Pendiente", short: "Pendiente", icon: Clock, step: 1 },
   confirmado: { label: "Confirmado", short: "Confirmado", icon: CheckCircle, step: 2 },
   preparando: { label: "Preparando", short: "Preparando", icon: Package, step: 3 },
-  saiu: { label: "Saiu para entrega", short: "Saiu", icon: Truck, step: 4 },
-  entregue: { label: "Entregue", short: "Entregue", icon: MapPin, step: 5 },
+  saiu: { label: "En reparto", short: "En reparto", icon: Truck, step: 4 },
+  entregue: { label: "Entregado", short: "Entregado", icon: MapPin, step: 5 },
 };
 
 interface PedidoCardProps {
@@ -81,14 +81,14 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
   const [showRecibo, setShowRecibo] = useState(false);
   const [complementosMap, setComplementosMap] = useState<Record<string, string>>({});
 
-  // Tick para reavaliar status automático baseado em tempo
+  // Tick para reevaluar el estado automático basado en el tiempo
   const [, setTick] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 30000);
     return () => clearInterval(id);
   }, []);
 
-  // Progressão automática do status quando pagamento confirmado
+  // Progresión automática del estado cuando el pago está confirmado
   const statusOrder = ["pendente", "confirmado", "preparando", "saiu", "entregue"];
   const computeAutoStatus = () => {
     if (pedido.status_pagamento !== "confirmado") return pedido.status_pedido;
@@ -111,7 +111,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
     if (effectiveStatus === "pendente") return statusConfig.pendente.label;
     if (effectiveStatus === "preparando") return statusConfig.preparando.label;
     if (effectiveStatus === "saiu") return statusConfig.saiu.label;
-    return "Em processamento";
+    return "En proceso";
   })();
 
   const isPaid = pedido.status_pagamento === "confirmado";
@@ -123,7 +123,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("pt-BR", {
+    return date.toLocaleDateString("es-ES", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
@@ -133,10 +133,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
   };
 
   const formatCurrency = (value: number) => {
-    return value.toLocaleString("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    });
+    return `${value.toFixed(2).replace(".", ",")} €`;
   };
 
   const handleExpand = async () => {
@@ -152,7 +149,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
           setComplementosMap(map);
         }
       } catch (err) {
-        console.error("Erro ao buscar complementos:", err);
+        console.error("Error al buscar complementos:", err);
       } finally {
         setLoadingItens(false);
       }
@@ -197,7 +194,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
       const { data, error } = await supabase.functions.invoke("create-pix-payment", {
         body: {
           valor: valorComDesconto,
-          descricao: "Acesso Liberado",
+          descricao: "Acceso Liberado",
           nome: pedido.cliente_nome,
           telefone: pedido.cliente_telefone,
           cpf: pedido.cliente_cpf || "",
@@ -207,7 +204,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
       });
 
       if (error || !data?.success) {
-        throw new Error(data?.error || error?.message || "Erro ao gerar PIX");
+        throw new Error(data?.error || error?.message || "Error al generar el pago online");
       }
 
       const pixData = {
@@ -230,10 +227,10 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
         },
       });
     } catch (error: any) {
-      console.error("Erro ao processar PIX:", error);
+      console.error("Error al procesar el pago online:", error);
       toast({
-        title: "Erro ao gerar PIX",
-        description: error.message || "Tente novamente",
+        title: "Error al generar el pago online",
+        description: error.message || "Inténtalo de nuevo",
         variant: "destructive",
       });
     } finally {
@@ -263,19 +260,19 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
   const timelineSteps = [
     { key: "confirmado", label: "Confirmado" },
     { key: "preparando", label: "Preparando" },
-    { key: "saiu", label: "Saiu" },
-    { key: "entregue", label: "Entregue" },
+    { key: "saiu", label: "En reparto" },
+    { key: "entregue", label: "Entregado" },
   ];
 
   return (
     <div className="bg-card rounded-2xl p-5 shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-border/60 overflow-hidden relative">
-      {/* Faixa sutil de cor da marca no topo */}
+      {/* Franja sutil del color de la marca en la parte superior */}
       <div
         className="absolute top-0 left-0 right-0 h-1"
         style={{ background: accent }}
       />
 
-      {/* Header do pedido */}
+      {/* Cabecera del pedido */}
       <div className="flex justify-between items-start mb-4 pt-1">
         <div className="flex-1 min-w-0">
           <p className="font-bold text-card-foreground text-base tracking-tight">
@@ -297,7 +294,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
         </div>
       </div>
 
-      {/* Timeline de entrega */}
+      {/* Línea de tiempo de entrega */}
       {isDelivery && (
         <div className="mb-5 bg-muted/40 rounded-xl p-3.5">
           <div className="flex items-center justify-between relative">
@@ -348,7 +345,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
         </div>
       )}
 
-      {/* Detalhes do pedido */}
+      {/* Detalles del pedido */}
       <div className="space-y-2.5 text-sm">
         <div className="flex justify-between items-center">
           <span className="text-muted-foreground flex items-center gap-2">
@@ -358,18 +355,18 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
               </>
             ) : (
               <>
-                <Store className="w-3.5 h-3.5" /> Retirada
+                <Store className="w-3.5 h-3.5" /> Recogida
               </>
             )}
           </span>
           <span className="text-card-foreground font-medium">
-            {isDelivery ? "Delivery" : "Retirada"}
+            {isDelivery ? "Delivery" : "Recogida"}
           </span>
         </div>
 
         {isDelivery && pedido.endereco_completo && (
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Endereço:</span>
+            <span className="text-muted-foreground">Dirección:</span>
             <span className="text-card-foreground text-right text-xs max-w-[200px] leading-relaxed">
               {pedido.endereco_completo}
               {pedido.bairro && `, ${pedido.bairro}`}
@@ -379,7 +376,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
 
         <div className="flex justify-between items-center">
           <span className="text-muted-foreground flex items-center gap-2">
-            <Wallet className="w-3.5 h-3.5" /> Pagamento
+            <Wallet className="w-3.5 h-3.5" /> Pago
           </span>
           <span className="text-card-foreground font-medium uppercase tracking-wide">
             {pedido.forma_pagamento}
@@ -387,7 +384,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
         </div>
 
         <div className="flex justify-between items-center">
-          <span className="text-muted-foreground">Status Pgto:</span>
+          <span className="text-muted-foreground">Estado del pago:</span>
           <span
             className="font-semibold text-xs px-2 py-1 rounded-full"
             style={{
@@ -395,13 +392,13 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
               color: isPaid ? "#22c55e" : "#eab308",
             }}
           >
-            {isPaid ? "Pago" : "Pendente"}
+            {isPaid ? "Pagado" : "Pendiente"}
           </span>
         </div>
 
         {pedido.desconto_pix && pedido.desconto_pix > 0 && (
           <div className="flex justify-between text-green-500 text-sm">
-            <span>Desconto PIX</span>
+            <span>Descuento pago online</span>
             <span className="font-medium">-{formatCurrency(pedido.desconto_pix)}</span>
           </div>
         )}
@@ -420,7 +417,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
         </div>
       </div>
 
-      {/* Botões de ação */}
+      {/* Botones de acción */}
       <div className="mt-4 space-y-2.5">
         {isPagamentoPendente ? (
           <Button
@@ -430,7 +427,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
             style={{ background: accent, color: "#000" }}
           >
             <CreditCard className="w-4 h-4 mr-2" />
-            {loadingPayment ? "Processando..." : "Pagar agora"}
+            {loadingPayment ? "Procesando..." : "Pagar ahora"}
           </Button>
         ) : (
           <Button
@@ -452,24 +449,24 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
           {expanded ? (
             <>
               <ChevronUp className="w-4 h-4" />
-              Ocultar itens
+              Ocultar artículos
             </>
           ) : (
             <>
               <ChevronDown className="w-4 h-4" />
-              Ver itens do pedido
+              Ver artículos del pedido
             </>
           )}
         </button>
       </div>
 
-      {/* Lista de Itens */}
+      {/* Lista de artículos */}
       {expanded && (
         <div className="mt-4 pt-4 border-t border-border/40 space-y-3">
           {loadingItens ? (
-            <p className="text-muted-foreground text-xs text-center py-2">Carregando itens...</p>
+            <p className="text-muted-foreground text-xs text-center py-2">Cargando artículos...</p>
           ) : itens.length === 0 ? (
-            <p className="text-muted-foreground text-xs text-center py-2">Nenhum item encontrado</p>
+            <p className="text-muted-foreground text-xs text-center py-2">No se encontraron artículos</p>
           ) : (
             itens.map((item) => {
               const adicionaisList = Object.entries(item.adicionais || {}).filter(
@@ -494,7 +491,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
                   {adicionaisList.length > 0 && (
                     <div className="mt-2.5 pl-3 border-l-2 border-border">
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1.5 font-medium">
-                        Adicionais
+                        Adicionales
                       </p>
                       <ul className="space-y-1">
                         {adicionaisList.map(([id, qtd]) => (
@@ -508,7 +505,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
                   {item.observacoes && (
                     <div className="mt-2.5 pl-3 border-l-2 rounded-r-lg" style={{ borderColor: `${accent}60` }}>
                       <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1 font-medium">
-                        Observações
+                        Observaciones
                       </p>
                       <p className="text-xs text-card-foreground/80 italic whitespace-pre-wrap leading-relaxed">
                         {item.observacoes}
@@ -522,7 +519,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
         </div>
       )}
 
-      {/* Modal de escolha de pagamento */}
+      {/* Modal de elección de pago */}
       <PaymentMethodModal
         open={showPaymentModal}
         onClose={() => setShowPaymentModal(false)}

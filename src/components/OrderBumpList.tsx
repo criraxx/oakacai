@@ -16,14 +16,14 @@ const OrderBumpList = ({ gatilho }: Props) => {
 
   const idsNoCarrinho = new Set(itens.map((i) => i.produtoId));
 
-  // Filtrar bumps ativos por gatilho, com produto gatilho no carrinho (ou sem gatilho definido = sempre exibe)
+  // Filtrar ofertas activas por disparador, con producto disparador en el carrito (o sin disparador definido = siempre muestra)
   const bumps = data.order_bumps.filter((b) => {
     if ((b.gatilho ?? "carrinho") !== gatilho) return false;
     if (!b.produto_ofertado_id) return false;
-    // já ofertado?
+    // ¿ya ofrecido?
     if (idsNoCarrinho.has(b.produto_ofertado_id)) return false;
     const triggers = data.order_bump_gatilhos.filter((g) => g.order_bump_id === b.id);
-    if (triggers.length === 0) return true; // sem gatilho especifico => sempre mostrar
+    if (triggers.length === 0) return true; // sin disparador específico => siempre mostrar
     return triggers.some((t) => idsNoCarrinho.has(t.produto_id));
   });
 
@@ -32,12 +32,12 @@ const OrderBumpList = ({ gatilho }: Props) => {
   const adicionar = (bump: CatalogoOrderBump) => {
     const produto = data.produtos.find((p) => p.id === bump.produto_ofertado_id);
     if (!produto) {
-      toast({ title: "Produto indisponível", variant: "destructive" });
+      toast({ title: "Producto no disponible", variant: "destructive" });
       return;
     }
     const preco = Number(bump.preco_promocional);
     if (!Number.isFinite(preco) || preco <= 0) {
-      toast({ title: "Oferta indisponível", description: "Preço inválido", variant: "destructive" });
+      toast({ title: "Oferta no disponible", description: "Precio inválido", variant: "destructive" });
       return;
     }
     adicionarItem({
@@ -50,7 +50,7 @@ const OrderBumpList = ({ gatilho }: Props) => {
       observacoes: `🎁 Oferta: ${bump.titulo || bump.nome}`,
       totalAdicionais: 0,
     });
-    toast({ title: "Oferta adicionada!", description: bump.titulo || bump.nome });
+    toast({ title: "¡Oferta añadida!", description: bump.titulo || bump.nome });
   };
 
   return (
@@ -76,7 +76,7 @@ const OrderBumpList = ({ gatilho }: Props) => {
             )}
             <div className="flex-1 min-w-0">
               <p className="text-promo text-[10px] font-bold uppercase tracking-wide">
-                {bump.titulo || "Adicione ao pedido"}
+                {bump.titulo || "Añade al pedido"}
               </p>
               <p className="text-foreground font-semibold text-sm leading-tight mb-1">
                 {bump.nome}
@@ -86,10 +86,10 @@ const OrderBumpList = ({ gatilho }: Props) => {
               )}
               <div className="flex items-center gap-2">
                 <span className="text-muted-foreground text-xs line-through">
-                  R$ {Number(bump.preco_original).toFixed(2).replace(".", ",")}
+                  {Number(bump.preco_original).toFixed(2).replace(".", ",")} €
                 </span>
                 <span className="text-green-500 font-bold text-sm">
-                  R$ {Number(bump.preco_promocional).toFixed(2).replace(".", ",")}
+                  {Number(bump.preco_promocional).toFixed(2).replace(".", ",")} €
                 </span>
                 {desconto > 0 && (
                   <span className="text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded font-bold">

@@ -6,16 +6,16 @@ const roletaProducts = [
   {
     id: "roleta-500g",
     image: acaiRoleta,
-    title: "Roleta de açaí puro — Monte Do seu jeito",
-    description: "Escolha o tamanho (500g ou 1L) e turbine com quantos adicionais quiser!",
-    price: "A partir de R$ 32,90"
+    title: "Ruleta de açaí puro — monta a tu gusto",
+    description: "Elige el tamaño (500 g o 1 L) ¡y potencia con todos los adicionales que quieras!",
+    price: "Desde 32,90 €"
   }
 ];
 
 const RoletaSection = () => {
   return (
     <section className="mb-4">
-      <SectionTitle title="Roleta Açaí - monte do seu jeito!" />
+      <SectionTitle title="Ruleta Açaí - ¡monta a tu gusto!" />
       <div className="px-4 space-y-2">
         {roletaProducts.map((product) => (
           <ProductCardHorizontal

@@ -9,19 +9,19 @@ import SectionTitle from "./SectionTitle";
 import ProductCardHorizontal from "./ProductCardHorizontal";
 
 const trufadosProducts = [
-  { id: "sonho-valsa-300", image: acaiSonhoValsa, title: "Copo Trufado Sonho de Valsa", description: "Leite condensado, Leite em pó, Sonho de Valsa, por cima creme de avelã", price: "A partir de R$ 32,90" },
-  { id: "ouro-branco-300", image: acaiOuroBranco, title: "Copo Trufado Ouro Branco", description: "Leite condensado, Leite em pó, Ouro Branco, por cima creme de Ninho", price: "A partir de R$ 32,90" },
-  { id: "diamante-negro-300", image: acaiDiamanteNegro, title: "Copo Trufado Diamante Negro", description: "Leite condensado, Leite em pó, diamante negro, por cima cobertura de chocolate", price: "A partir de R$ 24,00" },
-  { id: "kitkat-300", image: acaiKitkat, title: "Copo Trufado Kit Kat", description: "Leite condensado, Leite em pó, Kit Kat, por cima creme de Nutella", price: "A partir de R$ 33,90" },
-  { id: "laka-300", image: acaiLaka, title: "Copo Trufado Laka", description: "Leite condensado, Leite em pó, laka, por cima creme de ninho", price: "A partir de R$ 33,90" },
-  { id: "ferreiro-300", image: acaiFerreiro, title: "Copo Trufado Ferreiro", description: "Creme de avelã, 2 bombons Ferrera, por cima nutella", price: "A partir de R$ 34,99" },
-  { id: "rafaelo-300", image: acaiRafaelo, title: "Copo Trufado Rafaelo", description: "Creme raffaelo, 1 bombom raffaelo, leite condensado", price: "A partir de R$ 34,99" }
+  { id: "sonho-valsa-300", image: acaiSonhoValsa, title: "Vaso Trufado Sonho de Valsa", description: "Leche condensada, leche en polvo, Sonho de Valsa, y por encima crema de avellana", price: "Desde 32,90 €" },
+  { id: "ouro-branco-300", image: acaiOuroBranco, title: "Vaso Trufado Ouro Branco", description: "Leche condensada, leche en polvo, Ouro Branco, y por encima crema de Ninho", price: "Desde 32,90 €" },
+  { id: "diamante-negro-300", image: acaiDiamanteNegro, title: "Vaso Trufado Diamante Negro", description: "Leche condensada, leche en polvo, diamante negro, y por encima cobertura de chocolate", price: "Desde 24,00 €" },
+  { id: "kitkat-300", image: acaiKitkat, title: "Vaso Trufado Kit Kat", description: "Leche condensada, leche en polvo, Kit Kat, y por encima crema de Nutella", price: "Desde 33,90 €" },
+  { id: "laka-300", image: acaiLaka, title: "Vaso Trufado Laka", description: "Leche condensada, leche en polvo, Laka, y por encima crema de Ninho", price: "Desde 33,90 €" },
+  { id: "ferreiro-300", image: acaiFerreiro, title: "Vaso Trufado Ferrero", description: "Crema de avellana, 2 bombones Ferrero, y por encima Nutella", price: "Desde 34,99 €" },
+  { id: "rafaelo-300", image: acaiRafaelo, title: "Vaso Trufado Rafaelo", description: "Crema Rafaelo, 1 bombón Rafaelo, leche condensada", price: "Desde 34,99 €" }
 ];
 
 const TrufadosSection = () => {
   return (
     <section className="mb-4">
-      <SectionTitle title="Copos Trufados Premium" />
+      <SectionTitle title="Vasos Trufados Premium" />
       <div className="px-4 space-y-2">
         {trufadosProducts.map((product) => (
           <ProductCardHorizontal

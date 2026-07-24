@@ -25,7 +25,7 @@ async function api(password: string, action: "list" | "create" | "update" | "del
 }
 
 async function fileToBase64(file: File): Promise<string> {
-  if (file.size > 2 * 1024 * 1024) throw new Error("Imagem maior que 2MB");
+  if (file.size > 2 * 1024 * 1024) throw new Error("Imagen mayor de 2MB");
   return await new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
@@ -53,9 +53,9 @@ const CatalogoAdmin = () => {
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="p-6 w-full max-w-sm space-y-4">
           <h1 className="text-xl font-bold">Admin · Catálogo</h1>
-          <Input type="password" placeholder="Senha admin" value={inputPw} onChange={(e) => setInputPw(e.target.value)} />
+          <Input type="password" placeholder="Contraseña admin" value={inputPw} onChange={(e) => setInputPw(e.target.value)} />
           <Button className="w-full" onClick={() => setPassword(inputPw)}>Entrar</Button>
-          <Button variant="ghost" className="w-full" onClick={() => navigate("/admin")}>Voltar</Button>
+          <Button variant="ghost" className="w-full" onClick={() => navigate("/admin")}>Volver</Button>
         </Card>
       </div>
     );
@@ -106,7 +106,7 @@ export function CatalogoPanel({ password }: { password: string }) {
       setOrderBumps((ob as { rows: Row[] }).rows);
       setDownsells((ds as { rows: Row[] }).rows);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erro");
+      toast.error(e instanceof Error ? e.message : "Error");
     }
   }
 
@@ -116,9 +116,9 @@ export function CatalogoPanel({ password }: { password: string }) {
     try {
       await api(password, action, entity, payload);
       await loadAll(password);
-      toast.success("Salvo");
+      toast.success("Guardado");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Erro");
+      toast.error(e instanceof Error ? e.message : "Error");
     }
   }
 
@@ -156,7 +156,7 @@ function ProdutosTab({ produtos, categorias, secoes, produtoSecoes, onCrud, onRe
   return (
     <div className="space-y-3">
       <Button onClick={() => { setEditing({ id: "", nome: "", descricao: "", preco: 0, ativo: true, com_borda: false, cor_borda: "#F5E6D3", cor_fundo_card: "#FFFFFF", ordem: 0 }); setCreating(true); }}>
-        <Plus size={16} className="mr-1" /> Novo produto
+        <Plus size={16} className="mr-1" /> Nuevo producto
       </Button>
       <div className="grid gap-2">
         {produtos.map((p, i) => (
@@ -164,14 +164,14 @@ function ProdutosTab({ produtos, categorias, secoes, produtoSecoes, onCrud, onRe
             {p.imagem ? <img src={p.imagem as string} className="w-14 h-14 rounded object-cover" alt="" /> : <div className="w-14 h-14 rounded bg-muted" />}
             <div className="flex-1 min-w-0">
               <div className="font-semibold text-sm truncate">{p.nome as string}</div>
-              <div className="text-xs text-muted-foreground">R$ {Number(p.preco).toFixed(2)} · {p.ativo ? "ativo" : "inativo"}</div>
+              <div className="text-xs text-muted-foreground">{Number(p.preco).toFixed(2)} € · {p.ativo ? "activo" : "inactivo"}</div>
             </div>
             <div className="flex flex-col">
               <Button variant="ghost" size="icon" className="h-6 w-6" disabled={i === 0} onClick={() => reorder(produtos, i, i - 1, "produtos", onCrud)}><ArrowUp size={12} /></Button>
               <Button variant="ghost" size="icon" className="h-6 w-6" disabled={i === produtos.length - 1} onClick={() => reorder(produtos, i, i + 1, "produtos", onCrud)}><ArrowDown size={12} /></Button>
             </div>
             <Button variant="ghost" size="icon" onClick={() => { setEditing(p); setCreating(false); }}><Pencil size={16} /></Button>
-            <Button variant="ghost" size="icon" onClick={() => { if (confirm("Excluir produto?")) onCrud("delete", "produtos", { id: p.id }); }}><Trash2 size={16} className="text-destructive" /></Button>
+            <Button variant="ghost" size="icon" onClick={() => { if (confirm("¿Eliminar producto?")) onCrud("delete", "produtos", { id: p.id }); }}><Trash2 size={16} className="text-destructive" /></Button>
           </Card>
         ))}
       </div>
@@ -201,7 +201,7 @@ function ProdutosTab({ produtos, categorias, secoes, produtoSecoes, onCrud, onRe
               }
             }
             await onReload();
-            toast.success("Salvo");
+            toast.success("Guardado");
             setEditing(null);
           }}
         />
@@ -232,38 +232,38 @@ function ProdutoEditor({ produto, creating, categorias, secoes, produtoSecoes, o
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose}>
       <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto p-4 space-y-3" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between">
-          <h2 className="font-bold">{creating ? "Novo produto" : "Editar produto"}</h2>
+          <h2 className="font-bold">{creating ? "Nuevo producto" : "Editar producto"}</h2>
           <Button variant="ghost" size="icon" onClick={onClose}><X size={18} /></Button>
         </div>
-        <div><Label>Nome</Label><Input value={nome} onChange={(e) => setNome(e.target.value)} /></div>
-        <div><Label>Descrição</Label><Textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} rows={2} /></div>
+        <div><Label>Nombre</Label><Input value={nome} onChange={(e) => setNome(e.target.value)} /></div>
+        <div><Label>Descripción</Label><Textarea value={descricao} onChange={(e) => setDescricao(e.target.value)} rows={2} /></div>
         <div className="grid grid-cols-2 gap-2">
-          <div><Label>Preço</Label><Input type="number" step="0.01" value={preco} onChange={(e) => setPreco(e.target.value)} /></div>
-          <div><Label>Ordem</Label><Input type="number" value={ordem} onChange={(e) => setOrdem(e.target.value)} /></div>
+          <div><Label>Precio</Label><Input type="number" step="0.01" value={preco} onChange={(e) => setPreco(e.target.value)} /></div>
+          <div><Label>Orden</Label><Input type="number" value={ordem} onChange={(e) => setOrdem(e.target.value)} /></div>
         </div>
         <div>
-          <Label>Categoria</Label>
+          <Label>Categoría</Label>
           <select className="w-full h-10 rounded-md border border-input bg-background px-3" value={categoriaId} onChange={(e) => setCategoriaId(e.target.value)}>
-            <option value="">— Sem categoria —</option>
+            <option value="">— Sin categoría —</option>
             {categorias.map(c => <option key={c.id} value={c.id}>{c.nome as string}</option>)}
           </select>
         </div>
         <div>
-          <Label>Foto (max 2MB)</Label>
+          <Label>Foto (máx. 2MB)</Label>
           <Input type="file" accept="image/*" onChange={async (e) => {
             const f = e.target.files?.[0]; if (!f) return;
             try { setImagem(await fileToBase64(f)); } catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
           }} />
           {imagem && <img src={imagem} className="mt-2 w-24 h-24 object-cover rounded" alt="" />}
         </div>
-        <div className="flex items-center justify-between"><Label>Ativo</Label><Switch checked={ativo} onCheckedChange={setAtivo} /></div>
-        <div className="flex items-center justify-between"><Label>Com borda</Label><Switch checked={comBorda} onCheckedChange={setComBorda} /></div>
+        <div className="flex items-center justify-between"><Label>Activo</Label><Switch checked={ativo} onCheckedChange={setAtivo} /></div>
+        <div className="flex items-center justify-between"><Label>Con borde</Label><Switch checked={comBorda} onCheckedChange={setComBorda} /></div>
         <div className="grid grid-cols-2 gap-2">
-          <div><Label>Cor borda</Label><Input type="color" value={corBorda} onChange={(e) => setCorBorda(e.target.value)} /></div>
-          <div><Label>Fundo do card</Label><Input type="color" value={corFundoCard} onChange={(e) => setCorFundoCard(e.target.value)} /></div>
+          <div><Label>Color del borde</Label><Input type="color" value={corBorda} onChange={(e) => setCorBorda(e.target.value)} /></div>
+          <div><Label>Fondo de la tarjeta</Label><Input type="color" value={corFundoCard} onChange={(e) => setCorFundoCard(e.target.value)} /></div>
         </div>
         <div>
-          <Label>Seções de complementos</Label>
+          <Label>Secciones de complementos</Label>
           <div className="space-y-1 mt-1 max-h-40 overflow-y-auto border rounded p-2">
             {secoes.map(s => (
               <label key={s.id} className="flex items-center gap-2 text-sm">
@@ -284,7 +284,7 @@ function ProdutoEditor({ produto, creating, categorias, secoes, produtoSecoes, o
               cor_borda: corBorda, cor_fundo_card: corFundoCard, ordem: parseInt(ordem) || 0,
             }, vinculos);
           } finally { setSaving(false); }
-        }}>{saving ? "Salvando..." : "Salvar"}</Button>
+        }}>{saving ? "Guardando..." : "Guardar"}</Button>
       </Card>
     </div>
   );
@@ -305,37 +305,37 @@ function ComplementosTab({ secoes, complementos, onCrud }: {
     <div className="space-y-4">
       {/* Seções */}
       <Card className="p-3 space-y-2">
-        <h3 className="font-semibold text-sm">Seções</h3>
+        <h3 className="font-semibold text-sm">Secciones</h3>
         {secoes.map(s => (
           <div key={s.id} className="flex items-center gap-2">
             <button className={`flex-1 text-left text-sm px-2 py-1 rounded ${secaoSelId === s.id ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`} onClick={() => setSecaoSelId(s.id)}>
               {s.titulo as string} <span className="text-xs opacity-70">({s.tipo as string})</span>
             </button>
             <Button variant="ghost" size="sm" onClick={async () => {
-              const novo = prompt("Novo título", s.titulo as string);
+              const novo = prompt("Nuevo título", s.titulo as string);
               if (novo && novo !== s.titulo) onCrud("update", "secoes_complementos", { id: s.id, data: { titulo: novo } });
             }}><Pencil size={14} /></Button>
             <Switch checked={s.ativo as boolean} onCheckedChange={(v) => onCrud("update", "secoes_complementos", { id: s.id, data: { ativo: v } })} />
           </div>
         ))}
         <Button size="sm" onClick={async () => {
-          const titulo = prompt("Título da nova seção");
+          const titulo = prompt("Título de la nueva sección");
           if (!titulo) return;
-          const tipo = prompt("Tipo (gratis ou pago)", "pago");
+          const tipo = prompt("Tipo (gratis o pago)", "pago");
           if (tipo !== "gratis" && tipo !== "pago") return;
           onCrud("create", "secoes_complementos", { data: { titulo, subtitulo: "", tipo, max_itens: 15, ordem: secoes.length + 1 } });
-        }}><Plus size={14} className="mr-1" /> Nova seção</Button>
+        }}><Plus size={14} className="mr-1" /> Nueva sección</Button>
       </Card>
 
       {/* Itens da seção */}
       {secaoSelId && (
         <Card className="p-3 space-y-2">
-          <h3 className="font-semibold text-sm">Itens</h3>
+          <h3 className="font-semibold text-sm">Artículos</h3>
           {items.map(c => (
             <div key={c.id} className="flex items-center gap-2 border rounded p-2">
               {c.imagem ? <img src={c.imagem as string} className="w-10 h-10 rounded object-cover" alt="" /> : <div className="w-10 h-10 rounded bg-muted" />}
               <Input className="flex-1" defaultValue={c.nome as string} onBlur={(e) => e.target.value !== c.nome && onCrud("update", "complementos", { id: c.id, data: { nome: e.target.value } })} />
-              <Input className="w-20" type="number" step="0.01" placeholder="Grátis" defaultValue={c.preco == null ? "" : String(c.preco)}
+              <Input className="w-20" type="number" step="0.01" placeholder="Gratis" defaultValue={c.preco == null ? "" : String(c.preco)}
                 onBlur={(e) => {
                   const val = e.target.value === "" ? null : parseFloat(e.target.value);
                   if (val !== c.preco) onCrud("update", "complementos", { id: c.id, data: { preco: val } });
@@ -345,12 +345,12 @@ function ComplementosTab({ secoes, complementos, onCrud }: {
                 try { const b64 = await fileToBase64(f); onCrud("update", "complementos", { id: c.id, data: { imagem: b64 } }); } catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
               }} />
               <Switch checked={c.ativo as boolean} onCheckedChange={(v) => onCrud("update", "complementos", { id: c.id, data: { ativo: v } })} />
-              <Button variant="ghost" size="icon" onClick={() => confirm("Excluir?") && onCrud("delete", "complementos", { id: c.id })}><Trash2 size={14} className="text-destructive" /></Button>
+              <Button variant="ghost" size="icon" onClick={() => confirm("¿Eliminar?") && onCrud("delete", "complementos", { id: c.id })}><Trash2 size={14} className="text-destructive" /></Button>
             </div>
           ))}
           <div className="flex gap-2 pt-2">
-            <Input placeholder="Nome" value={novoNome} onChange={(e) => setNovoNome(e.target.value)} />
-            <Input placeholder="Preço (vazio = grátis)" type="number" step="0.01" value={novoPreco} onChange={(e) => setNovoPreco(e.target.value)} className="w-32" />
+            <Input placeholder="Nombre" value={novoNome} onChange={(e) => setNovoNome(e.target.value)} />
+            <Input placeholder="Precio (vacío = gratis)" type="number" step="0.01" value={novoPreco} onChange={(e) => setNovoPreco(e.target.value)} className="w-32" />
             <Button size="sm" onClick={async () => {
               if (!novoNome) return;
               await onCrud("create", "complementos", { data: {
@@ -375,7 +375,7 @@ function BannersTab({ banners, produtos, categorias, onCrud }: {
   return (
     <div className="space-y-3">
       <div className="rounded-lg border bg-muted/40 p-3 text-xs text-muted-foreground">
-        <strong>Tamanho recomendado:</strong> 1983 × 793 px (proporção 2,5:1). Todos os banners serão exibidos nesse formato no site.
+        <strong>Tamaño recomendado:</strong> 1983 × 793 px (proporción 2,5:1). Todos los banners se mostrarán en este formato en el sitio.
       </div>
       <Button onClick={async () => {
         const inp = document.createElement("input");
@@ -388,7 +388,7 @@ function BannersTab({ banners, produtos, categorias, onCrud }: {
           } catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
         };
         inp.click();
-      }}><Plus size={16} className="mr-1" /> Novo banner</Button>
+      }}><Plus size={16} className="mr-1" /> Nuevo banner</Button>
 
       <div className="grid gap-2">
         {banners.map(b => (
@@ -396,13 +396,13 @@ function BannersTab({ banners, produtos, categorias, onCrud }: {
             <img src={b.imagem as string} className="w-full h-24 object-cover rounded" alt="" />
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <Label className="text-xs">Ação</Label>
+                <Label className="text-xs">Acción</Label>
                 <select className="w-full h-9 rounded border bg-background px-2 text-sm"
                   value={b.acao_tipo as string}
                   onChange={(e) => onCrud("update", "banners", { id: b.id, data: { acao_tipo: e.target.value, acao_valor: null } })}>
-                  <option value="nenhuma">Nenhuma</option>
-                  <option value="produto">Produto</option>
-                  <option value="categoria">Categoria</option>
+                  <option value="nenhuma">Ninguna</option>
+                  <option value="produto">Producto</option>
+                  <option value="categoria">Categoría</option>
                   <option value="url">URL</option>
                 </select>
               </div>
@@ -428,12 +428,12 @@ function BannersTab({ banners, produtos, categorias, onCrud }: {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Label className="text-xs">Ativo</Label>
+              <Label className="text-xs">Activo</Label>
               <Switch checked={b.ativo as boolean} onCheckedChange={(v) => onCrud("update", "banners", { id: b.id, data: { ativo: v } })} />
               <div className="flex-1" />
-              <Label className="text-xs">Ordem</Label>
+              <Label className="text-xs">Orden</Label>
               <Input type="number" className="w-16 h-8" defaultValue={String(b.ordem)} onBlur={(e) => onCrud("update", "banners", { id: b.id, data: { ordem: parseInt(e.target.value) || 0 } })} />
-              <Button variant="ghost" size="icon" onClick={() => confirm("Excluir?") && onCrud("delete", "banners", { id: b.id })}><Trash2 size={14} className="text-destructive" /></Button>
+              <Button variant="ghost" size="icon" onClick={() => confirm("¿Eliminar?") && onCrud("delete", "banners", { id: b.id })}><Trash2 size={14} className="text-destructive" /></Button>
             </div>
           </Card>
         ))}
@@ -458,15 +458,15 @@ function OfertaTab({ entity, rows, produtos, onCrud, label }: {
   return (
     <div className="space-y-3">
       <Card className="p-3 space-y-2">
-        <h3 className="font-semibold text-sm">Novo {label}</h3>
-        <Input placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} />
-        <Textarea placeholder="Descrição" rows={2} value={descricao} onChange={(e) => setDescricao(e.target.value)} />
+        <h3 className="font-semibold text-sm">Nuevo {label}</h3>
+        <Input placeholder="Nombre" value={nome} onChange={(e) => setNome(e.target.value)} />
+        <Textarea placeholder="Descripción" rows={2} value={descricao} onChange={(e) => setDescricao(e.target.value)} />
         <div className="grid grid-cols-2 gap-2">
-          <Input placeholder="Preço original" type="number" step="0.01" value={precoOriginal} onChange={(e) => setPrecoOriginal(e.target.value)} />
-          <Input placeholder="Preço promo" type="number" step="0.01" value={precoPromocional} onChange={(e) => setPrecoPromocional(e.target.value)} />
+          <Input placeholder="Precio original" type="number" step="0.01" value={precoOriginal} onChange={(e) => setPrecoOriginal(e.target.value)} />
+          <Input placeholder="Precio promo" type="number" step="0.01" value={precoPromocional} onChange={(e) => setPrecoPromocional(e.target.value)} />
         </div>
         <select className="w-full h-10 rounded border bg-background px-3 text-sm" value={produtoId} onChange={(e) => setProdutoId(e.target.value)}>
-          <option value="">— Produto vinculado (opcional) —</option>
+          <option value="">— Producto vinculado (opcional) —</option>
           {produtos.map(p => <option key={p.id} value={p.id}>{p.nome as string}</option>)}
         </select>
         <Input type="file" accept="image/*" onChange={async (e) => {
@@ -483,7 +483,7 @@ function OfertaTab({ entity, rows, produtos, onCrud, label }: {
             ativo: true, ordem: rows.length + 1,
           } });
           setNome(""); setDescricao(""); setPrecoOriginal(""); setPrecoPromocional(""); setProdutoId(""); setImagem("");
-        }}>Criar</Button>
+        }}>Crear</Button>
       </Card>
 
       <div className="grid gap-2">
@@ -492,14 +492,14 @@ function OfertaTab({ entity, rows, produtos, onCrud, label }: {
             {r.imagem ? <img src={r.imagem as string} className="w-14 h-14 rounded object-cover" alt="" /> : <div className="w-14 h-14 rounded bg-muted" />}
             <div className="flex-1 min-w-0">
               <div className="font-semibold text-sm truncate">{r.nome as string}</div>
-              <div className="text-xs text-muted-foreground">De R$ {Number(r.preco_original).toFixed(2)} por R$ {Number(r.preco_promocional).toFixed(2)}</div>
+              <div className="text-xs text-muted-foreground">De {Number(r.preco_original).toFixed(2)} € por {Number(r.preco_promocional).toFixed(2)} €</div>
             </div>
             <Switch checked={r.ativo as boolean} onCheckedChange={(v) => onCrud("update", entity, { id: r.id, data: { ativo: v } })} />
-            <Button variant="ghost" size="icon" onClick={() => confirm("Excluir?") && onCrud("delete", entity, { id: r.id })}><Trash2 size={14} className="text-destructive" /></Button>
+            <Button variant="ghost" size="icon" onClick={() => confirm("¿Eliminar?") && onCrud("delete", entity, { id: r.id })}><Trash2 size={14} className="text-destructive" /></Button>
           </Card>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground">Apenas o primeiro {label.toLowerCase()} ativo será exibido no site.</p>
+      <p className="text-xs text-muted-foreground">Solo se mostrará en el sitio el primer {label.toLowerCase()} activo.</p>
     </div>
   );
 }
@@ -530,13 +530,13 @@ function CategoriasTab({ categorias, onCrud }: {
   return (
     <div className="space-y-3">
       <Card className="p-3 flex gap-2">
-        <Input placeholder="Nome da nova categoria" value={novoNome} onChange={(e) => setNovoNome(e.target.value)} />
+        <Input placeholder="Nombre de la nueva categoría" value={novoNome} onChange={(e) => setNovoNome(e.target.value)} />
         <Button onClick={async () => {
           if (!novoNome) return;
           const slug = novoNome.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
           await onCrud("create", "categorias", { data: { nome: novoNome, slug, ordem: categorias.length + 1, ativo: true, cor_fundo: "#FFFFFF", cor_texto: "#1F1F1F" } });
           setNovoNome("");
-        }}><Plus size={14} className="mr-1" /> Criar</Button>
+        }}><Plus size={14} className="mr-1" /> Crear</Button>
       </Card>
 
       <div className="grid gap-2">
@@ -552,29 +552,29 @@ function CategoriasTab({ categorias, onCrud }: {
                 <Button variant="ghost" size="icon" className="h-6 w-6" disabled={i === categorias.length - 1} onClick={() => reorder(categorias, i, i + 1, "categorias", onCrud)}><ArrowDown size={12} /></Button>
               </div>
               <Switch checked={c.ativo as boolean} onCheckedChange={(v) => onCrud("update", "categorias", { id: c.id, data: { ativo: v } })} />
-              <Button variant="ghost" size="icon" onClick={() => confirm(`Excluir categoria "${c.nome}"?`) && onCrud("delete", "categorias", { id: c.id })}><Trash2 size={14} className="text-destructive" /></Button>
+              <Button variant="ghost" size="icon" onClick={() => confirm(`¿Eliminar categoría "${c.nome}"?`) && onCrud("delete", "categorias", { id: c.id })}><Trash2 size={14} className="text-destructive" /></Button>
             </div>
             <div className="grid grid-cols-3 gap-2 items-end">
               <div>
-                <Label className="text-xs">Ícone</Label>
+                <Label className="text-xs">Icono</Label>
                 <Input type="file" accept="image/*" className="text-xs" onChange={async (e) => {
                   const f = e.target.files?.[0]; if (!f) return;
                   try { const b64 = await fileToBase64(f); onCrud("update", "categorias", { id: c.id, data: { icone: b64 } }); } catch (err) { toast.error(err instanceof Error ? err.message : "Erro"); }
                 }} />
               </div>
               <div>
-                <Label className="text-xs">Cor de fundo</Label>
+                <Label className="text-xs">Color de fondo</Label>
                 <Input type="color" defaultValue={(c.cor_fundo as string) || "#FFFFFF"} onBlur={(e) => onCrud("update", "categorias", { id: c.id, data: { cor_fundo: e.target.value } })} />
               </div>
               <div>
-                <Label className="text-xs">Cor do texto</Label>
+                <Label className="text-xs">Color del texto</Label>
                 <Input type="color" defaultValue={(c.cor_texto as string) || "#1F1F1F"} onBlur={(e) => onCrud("update", "categorias", { id: c.id, data: { cor_texto: e.target.value } })} />
               </div>
             </div>
           </Card>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground">A cor de fundo e cor do texto são usadas nos chips de categoria do site.</p>
+      <p className="text-xs text-muted-foreground">El color de fondo y el color del texto se usan en los chips de categoría del sitio.</p>
     </div>
   );
 }

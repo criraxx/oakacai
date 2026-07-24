@@ -38,7 +38,7 @@ export const todosProdutos: Produto[] = [
     image: acaiCombo300,
     title: "Combo premium 2 açaí 300ml + 4 complementos gratis",
     description: "Combo 2 Açaís 300 ml (4 complementos gratis cada).",
-    price: 49.90,
+    price: 9.90,
     categoria: "Combo Premium"
   },
   {
@@ -46,7 +46,7 @@ export const todosProdutos: Produto[] = [
     image: acaiCombo500,
     title: "Combo premium 2 açaí 500ml + 4 complementos gratis",
     description: "Combo 2 Açaís 500 ml (4 complementos gratis cada).",
-    price: 59.90,
+    price: 13.90,
     categoria: "Combo Premium"
   },
   
@@ -56,7 +56,7 @@ export const todosProdutos: Produto[] = [
     image: acaiPuro,
     title: "Vaso 300ml Açaí Puro - Personalízalo a tu gusto",
     description: "¡Personaliza tu vaso a tu gusto con tantos extras como quieras!",
-    price: 25.90,
+    price: 6.90,
     categoria: "Personaliza tu vaso"
   },
   {
@@ -64,7 +64,7 @@ export const todosProdutos: Produto[] = [
     image: acaiPuro,
     title: "Vaso 500ml Açaí Puro - personalízalo a tu gusto",
     description: "¡Personaliza tu vaso a tu gusto con tantos extras como quieras!",
-    price: 29.90,
+    price: 8.90,
     categoria: "Personaliza tu vaso"
   },
   {
@@ -72,7 +72,7 @@ export const todosProdutos: Produto[] = [
     image: acaiPuro,
     title: "Vaso 700ml Açaí Puro - personalízalo a tu gusto",
     description: "¡Personaliza tu vaso a tu gusto con tantos extras como quieras!",
-    price: 34.90,
+    price: 10.90,
     categoria: "Personaliza tu vaso"
   },
   
@@ -82,7 +82,7 @@ export const todosProdutos: Produto[] = [
     image: acaiRoleta,
     title: "Ruleta de açaí puro 500g - Personalízala a tu gusto",
     description: "¡Personaliza tu ruleta a tu gusto con tantos extras como quieras!",
-    price: 32.90,
+    price: 9.90,
     categoria: "Ruleta"
   },
   {
@@ -90,7 +90,7 @@ export const todosProdutos: Produto[] = [
     image: acaiRoleta,
     title: "Ruleta de açaí puro 1L - Personalízala a tu gusto",
     description: "¡Personaliza tu ruleta a tu gusto con tantos extras como quieras!",
-    price: 59.90,
+    price: 15.90,
     categoria: "Ruleta"
   },
   
@@ -100,7 +100,7 @@ export const todosProdutos: Produto[] = [
     image: acaiSonhoValsa,
     title: "Vaso trufado Sonho de Valsa - 300ml",
     description: "Leche condensada, leche en polvo, Sonho de Valsa, por encima crema de avellana",
-    price: 32.90,
+    price: 8.90,
     categoria: "Trufados"
   },
   {
@@ -108,7 +108,7 @@ export const todosProdutos: Produto[] = [
     image: acaiSonhoValsa,
     title: "Vaso Trufado Sonho de Valsa - 500ml",
     description: "Leche condensada, leche en polvo, Sonho de Valsa, por encima crema de avellana",
-    price: 37.90,
+    price: 11.90,
     categoria: "Trufados"
   },
   {
@@ -116,7 +116,7 @@ export const todosProdutos: Produto[] = [
     image: acaiSonhoValsa,
     title: "Vaso Trufado Sonho de Valsa - 700ml",
     description: "Leche condensada, leche en polvo, Sonho de Valsa, por encima crema de avellana",
-    price: 42.90,
+    price: 14.90,
     categoria: "Trufados"
   },
   {
@@ -124,7 +124,7 @@ export const todosProdutos: Produto[] = [
     image: acaiOuroBranco,
     title: "Vaso Trufado Ouro Branco - 300ml",
     description: "Leche condensada, leche en polvo, Ouro Branco, por encima crema de Ninho",
-    price: 32.90,
+    price: 8.90,
     categoria: "Trufados"
   },
   {
@@ -132,7 +132,7 @@ export const todosProdutos: Produto[] = [
     image: acaiOuroBranco,
     title: "Vaso Trufado Ouro Branco - 500ml",
     description: "Leche condensada, leche en polvo, Ouro Branco, por encima crema de Ninho",
-    price: 37.90,
+    price: 11.90,
     categoria: "Trufados"
   },
   {
@@ -140,7 +140,7 @@ export const todosProdutos: Produto[] = [
     image: acaiOuroBranco,
     title: "Vaso Trufado Ouro Branco - 700ml",
     description: "Leche condensada, leche en polvo, Ouro Branco, por encima crema de Ninho",
-    price: 42.90,
+    price: 14.90,
     categoria: "Trufados"
   },
   {
@@ -148,7 +148,7 @@ export const todosProdutos: Produto[] = [
     image: acaiDiamanteNegro,
     title: "Vaso Trufado Diamante Negro 300 ML",
     description: "Leche condensada, leche en polvo, diamante negro, por encima cobertura de chocolate",
-    price: 24.00,
+    price: 7.90,
     categoria: "Trufados"
   },
   {
@@ -156,7 +156,7 @@ export const todosProdutos: Produto[] = [
     image: acaiDiamanteNegro,
     title: "Vaso Trufado Diamante Negro 400 ML",
     description: "Leche condensada, leche en polvo, diamante negro, por encima cobertura de chocolate",
-    price: 29.00,
+    price: 9.90,
     categoria: "Trufados"
   },
   {
@@ -164,7 +164,7 @@ export const todosProdutos: Produto[] = [
     image: acaiDiamanteNegro,
     title: "Vaso Trufado Diamante Negro 700 ML",
     description: "Leche condensada, leche en polvo, diamante negro, por encima cobertura de chocolate",
-    price: 35.00,
+    price: 12.90,
     categoria: "Trufados"
   },
   {
@@ -172,7 +172,7 @@ export const todosProdutos: Produto[] = [
     image: acaiKitkat,
     title: "Vaso Trufado Kit Kat 300ml",
     description: "Leche condensada, leche en polvo, Kit Kat, por encima crema de Nutella",
-    price: 33.90,
+    price: 8.90,
     categoria: "Trufados"
   },
   {
@@ -180,7 +180,7 @@ export const todosProdutos: Produto[] = [
     image: acaiKitkat,
     title: "Vaso Trufado Kit Kat 500 ml",
     description: "Leche condensada, leche en polvo, Kit Kat, por encima crema de Nutella",
-    price: 38.90,
+    price: 11.90,
     categoria: "Trufados"
   },
   {
@@ -188,7 +188,7 @@ export const todosProdutos: Produto[] = [
     image: acaiKitkat,
     title: "Vaso Trufado Kit Kat 700 ml",
     description: "Leche condensada, leche en polvo, Kit Kat, por encima crema de Nutella",
-    price: 43.90,
+    price: 14.90,
     categoria: "Trufados"
   },
   {
@@ -196,7 +196,7 @@ export const todosProdutos: Produto[] = [
     image: acaiLaka,
     title: "Vaso trufado Laka 300 ml",
     description: "Leche condensada, leche en polvo, laka, por encima crema de ninho",
-    price: 33.90,
+    price: 8.90,
     categoria: "Trufados"
   },
   {
@@ -204,7 +204,7 @@ export const todosProdutos: Produto[] = [
     image: acaiLaka,
     title: "Vaso trufado Laka 500 ml",
     description: "Leche condensada, leche en polvo, laka, por encima crema de ninho",
-    price: 38.90,
+    price: 11.90,
     categoria: "Trufados"
   },
   {
@@ -212,7 +212,7 @@ export const todosProdutos: Produto[] = [
     image: acaiLaka,
     title: "Vaso trufado Laka 700 ml",
     description: "Leche condensada, leche en polvo, laka, por encima crema de ninho",
-    price: 44.90,
+    price: 14.90,
     categoria: "Trufados"
   },
   {
@@ -220,7 +220,7 @@ export const todosProdutos: Produto[] = [
     image: acaiFerreiro,
     title: "Vaso trufado Ferreiro 300 ML",
     description: "Crema de avellana, 2 bombones Ferrero, por encima nutella",
-    price: 34.99,
+    price: 9.90,
     categoria: "Trufados"
   },
   {
@@ -228,7 +228,7 @@ export const todosProdutos: Produto[] = [
     image: acaiFerreiro,
     title: "Vaso trufado Ferreiro 500 ML",
     description: "Crema de avellana, 2 bombones Ferrero, por encima nutella",
-    price: 39.99,
+    price: 12.90,
     categoria: "Trufados"
   },
   {
@@ -236,7 +236,7 @@ export const todosProdutos: Produto[] = [
     image: acaiFerreiro,
     title: "Vaso trufado Ferreiro 700 ML",
     description: "Crema de avellana, 2 bombones Ferrero, por encima nutella",
-    price: 44.99,
+    price: 15.90,
     categoria: "Trufados"
   },
   {
@@ -244,7 +244,7 @@ export const todosProdutos: Produto[] = [
     image: acaiRafaelo,
     title: "Vaso trufado Rafaelo 300 ML",
     description: "Crema raffaelo, 1 bombón raffaelo, leche condensada",
-    price: 34.99,
+    price: 9.90,
     categoria: "Trufados"
   },
   {
@@ -252,7 +252,7 @@ export const todosProdutos: Produto[] = [
     image: acaiRafaelo,
     title: "Vaso trufado Rafaelo 500 ML",
     description: "Crema raffaelo, 2 bombones raffaelo, leche condensada",
-    price: 39.99,
+    price: 12.90,
     categoria: "Trufados"
   },
   {
@@ -260,7 +260,7 @@ export const todosProdutos: Produto[] = [
     image: acaiRafaelo,
     title: "Vaso trufado Rafaelo 700 ML",
     description: "Crema raffaelo, 2 bombones raffaelo, leche condensada",
-    price: 44.99,
+    price: 15.90,
     categoria: "Trufados"
   },
   
@@ -270,7 +270,7 @@ export const todosProdutos: Produto[] = [
     image: acaiKids,
     title: "Açaí Kids 300ml",
     description: "¡Leche condensada, confeti y chocobol!",
-    price: 29.90,
+    price: 7.90,
     categoria: "Tradicionales"
   },
   {
@@ -278,7 +278,7 @@ export const todosProdutos: Produto[] = [
     image: acaiKids,
     title: "Açaí Kids 500ml",
     description: "¡Leche condensada, confeti y chocobol!",
-    price: 34.90,
+    price: 9.90,
     categoria: "Tradicionales"
   },
   {
@@ -286,7 +286,7 @@ export const todosProdutos: Produto[] = [
     image: acaiKids,
     title: "Açaí kids 700ml",
     description: "¡Leche condensada, confeti y chocobol!",
-    price: 39.90,
+    price: 12.90,
     categoria: "Tradicionales"
   },
   {
@@ -294,7 +294,7 @@ export const todosProdutos: Produto[] = [
     image: acaiTradicional,
     title: "Açaí Tradicional 300ml",
     description: "Leche condensada, leche en polvo, plátano y fresa",
-    price: 29.90,
+    price: 7.90,
     categoria: "Tradicionales"
   },
   {
@@ -302,7 +302,7 @@ export const todosProdutos: Produto[] = [
     image: acaiTradicional,
     title: "Açaí Tradicional 500ml",
     description: "Leche condensada, leche en polvo, plátano y fresa",
-    price: 34.90,
+    price: 9.90,
     categoria: "Tradicionales"
   },
   {
@@ -310,7 +310,7 @@ export const todosProdutos: Produto[] = [
     image: acaiTradicional,
     title: "Açaí Tradicional 700ml",
     description: "Leche condensada, leche en polvo, plátano y fresa",
-    price: 39.90,
+    price: 12.90,
     categoria: "Tradicionales"
   },
   {
@@ -318,7 +318,7 @@ export const todosProdutos: Produto[] = [
     image: acaiMega,
     title: "Açaí Mega 300ml",
     description: "Leche condensada, plátano, fresa, confeti y cereales",
-    price: 29.90,
+    price: 7.90,
     categoria: "Tradicionales"
   },
   {
@@ -326,7 +326,7 @@ export const todosProdutos: Produto[] = [
     image: acaiMega,
     title: "Açaí Mega 500ml",
     description: "Leche condensada, plátano, fresa, confeti y cereales",
-    price: 34.90,
+    price: 9.90,
     categoria: "Tradicionales"
   },
   {
@@ -334,7 +334,7 @@ export const todosProdutos: Produto[] = [
     image: acaiMega,
     title: "Açaí Mega 700ml",
     description: "Leche condensada, plátano, fresa, confeti y cereales",
-    price: 39.90,
+    price: 12.90,
     categoria: "Tradicionales"
   },
   {
@@ -342,7 +342,7 @@ export const todosProdutos: Produto[] = [
     image: acaiDaCasa,
     title: "Açaí De la Casa 300ml",
     description: "Leche condensada, plátano, paçoca",
-    price: 29.90,
+    price: 7.90,
     categoria: "Tradicionales"
   },
   {
@@ -350,7 +350,7 @@ export const todosProdutos: Produto[] = [
     image: acaiDaCasa,
     title: "Açaí De la Casa 500ml",
     description: "¡Leche condensada, plátano y chocobol!",
-    price: 34.90,
+    price: 9.90,
     categoria: "Tradicionales"
   },
   {
@@ -358,7 +358,7 @@ export const todosProdutos: Produto[] = [
     image: acaiDaCasa,
     title: "Açaí De la Casa 700ml",
     description: "¡Leche condensada, plátano y chocobol!",
-    price: 39.90,
+    price: 12.90,
     categoria: "Tradicionales"
   },
   {
@@ -366,7 +366,7 @@ export const todosProdutos: Produto[] = [
     image: acaiSensacao,
     title: "Açaí Sensación 300ml",
     description: "Nutella y fresa",
-    price: 31.90,
+    price: 7.90,
     categoria: "Tradicionales"
   },
   {
@@ -374,7 +374,7 @@ export const todosProdutos: Produto[] = [
     image: acaiSensacao,
     title: "Açaí sensación 500ml",
     description: "Nutella y fresa",
-    price: 36.90,
+    price: 9.90,
     categoria: "Tradicionales"
   },
   {
@@ -382,7 +382,7 @@ export const todosProdutos: Produto[] = [
     image: acaiSensacao,
     title: "Açaí sensación 700ml",
     description: "Nutella y fresa",
-    price: 41.90,
+    price: 12.90,
     categoria: "Tradicionales"
   },
   
@@ -392,7 +392,7 @@ export const todosProdutos: Produto[] = [
     image: balde22l,
     title: "CUBO 2,2 L",
     description: "¡Elige el açaí y los extras!",
-    price: 90.00,
+    price: 39.90,
     categoria: "Cubo"
   },
   
@@ -402,7 +402,7 @@ export const todosProdutos: Produto[] = [
     image: picoleTrufado,
     title: "LAKA OREO",
     description: "Polo trufado sabor Laka Oreo",
-    price: 4.00,
+    price: 2.90,
     categoria: "Polo Trufado"
   },
   {
@@ -410,7 +410,7 @@ export const todosProdutos: Produto[] = [
     image: picoleTrufado,
     title: "FRESA CON NINHO",
     description: "Polo trufado sabor Fresa con Ninho",
-    price: 4.00,
+    price: 2.90,
     categoria: "Polo Trufado"
   },
   {
@@ -418,7 +418,7 @@ export const todosProdutos: Produto[] = [
     image: picoleTrufado,
     title: "CHOCONINHO",
     description: "Polo trufado sabor Choconinho",
-    price: 4.00,
+    price: 2.90,
     categoria: "Polo Trufado"
   },
   
@@ -428,7 +428,7 @@ export const todosProdutos: Produto[] = [
     image: cocaColaLata,
     title: "COCA COLA LATA",
     description: "Coca-Cola Original 350ml",
-    price: 6.00,
+    price: 2.50,
     categoria: "Bebidas"
   },
   {
@@ -436,7 +436,7 @@ export const todosProdutos: Produto[] = [
     image: aguaComGas,
     title: "AGUA CON GAS",
     description: "Agua mineral con gas 500ml",
-    price: 4.00,
+    price: 1.90,
     categoria: "Bebidas"
   },
   {

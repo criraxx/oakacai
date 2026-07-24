@@ -136,13 +136,50 @@ const CheckoutCartao = () => {
     setLoading(true);
 
     try {
-      // 1) Parse MM/AA
+      // 1) Se for pedido novo, cria PRIMEIRO no banco (status pendente) antes de qualquer coisa
+      let pedidoIdParaPagar: string | undefined =
+        pedidoExistente?.id || location.state?.pedidoDBId || pedidoAtual?.id;
+
+      if (pedidoPayload && !pedidoExistente && !pedidoIdParaPagar) {
+        try {
+          const resp = await fetch(
+            "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/criar-pedido",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                ...pedidoPayload,
+                status_pagamento: "pendente",
+                status_pedido: "pendente",
+                payment_id: null,
+                pix_copia_e_cola: null,
+                pix_expires_at: null,
+              }),
+            },
+          );
+          const result = await resp.json();
+          if (!result.success) {
+            console.error("[checkout-cartao] criar-pedido falhou:", result.error);
+            setLoading(false);
+            setShowError(true);
+            return;
+          }
+          pedidoIdParaPagar = result.pedido?.id || result.id;
+        } catch (e) {
+          console.error("[checkout-cartao] erro ao criar pedido:", e);
+          setLoading(false);
+          setShowError(true);
+          return;
+        }
+      }
+
+      // 2) Parse MM/AA
       const [mmStr, aaStr] = cardData.validade.split("/");
       const exp_month = parseInt(mmStr, 10);
       const exp_year = 2000 + parseInt(aaStr, 10);
       const number = cardData.numero.replace(/\s/g, "");
 
-      // 2) Tokeniza o cartão na Stripe
+      // 3) Tokeniza o cartão na Stripe
       const stripe = await getStripe();
       const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
         type: "card",
@@ -157,7 +194,7 @@ const CheckoutCartao = () => {
         return;
       }
 
-      // 3) Envia o card_token para nossa Edge Function → IronPay
+      // 4) Envia o card_token para nossa Edge Function → IronPay
       const { data, error } = await supabase.functions.invoke(
         "create-ironpay-card-payment",
         {
@@ -168,7 +205,7 @@ const CheckoutCartao = () => {
             telefone: clienteInfo.telefone,
             cpf: clienteInfo.cpf,
             email: `${(clienteInfo.telefone || "").replace(/\D/g, "")}@cliente.local`,
-            pedidoId: pedidoExistente?.id || location.state?.pedidoDBId || pedidoAtual?.id,
+            pedidoId: pedidoIdParaPagar,
             card_token: paymentMethod.id,
           },
         },
@@ -181,7 +218,7 @@ const CheckoutCartao = () => {
         return;
       }
 
-      // 4) 3DS: se veio client_secret, confirmar no navegador
+      // 5) 3DS: se veio client_secret, confirmar no navegador
       if (data.paymentIntentClientSecret) {
         const { paymentIntent, error: confirmError } = await stripe.confirmCardPayment(
           data.paymentIntentClientSecret,
@@ -196,33 +233,6 @@ const CheckoutCartao = () => {
         setLoading(false);
         setShowError(true);
         return;
-      }
-
-      // 5) Pagamento aprovado — agora cria o pedido no banco (com payment_id)
-      if (pedidoPayload && !pedidoExistente) {
-        try {
-          const resp = await fetch(
-            "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/criar-pedido",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                ...pedidoPayload,
-                status_pagamento: "aprovado",
-                status_pedido: "pendente",
-                payment_id: data.transactionHash || null,
-                pix_copia_e_cola: null,
-                pix_expires_at: null,
-              }),
-            },
-          );
-          const result = await resp.json();
-          if (!result.success) {
-            console.error("[checkout-cartao] criar-pedido falhou:", result.error);
-          }
-        } catch (e) {
-          console.error("[checkout-cartao] erro ao criar pedido:", e);
-        }
       }
 
       setLoading(false);

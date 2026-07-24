@@ -5,15 +5,15 @@ import ProductCardHorizontal from "./ProductCardHorizontal";
 const PromoComboSection = () => {
   return (
     <section className="mb-4">
-      <SectionTitle title="Promoção Combo Premium !" />
+      <SectionTitle title="¡Promoción Combo Premium!" />
       <div className="px-4">
         <ProductCardHorizontal
           id="combo-500ml"
           image={acaiCombo500}
-          title="Combo premium — 2 açaís + 4 complementos grátis"
-          description="Leve 2 açaís com nossa base super cremosa. Escolha o tamanho (300ml ou 500ml) dentro do produto."
-          price="A partir de R$ 49,90"
-          badge="Mais vendido"
+          title="Combo premium — 2 açaís + 4 complementos gratis"
+          description="Llévate 2 açaís con nuestra base súper cremosa. Elige el tamaño (300 ml o 500 ml) dentro del producto."
+          price="Desde 49,90 €"
+          badge="Más vendido"
         />
       </div>
     </section>

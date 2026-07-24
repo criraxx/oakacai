@@ -14,7 +14,7 @@ const PaymentMethodModal = ({ open, onClose, onSelectPix, onSelectCard }: Paymen
     <Dialog open={open} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-center">Escolha a forma de pagamento</DialogTitle>
+          <DialogTitle className="text-center">Elige la forma de pago</DialogTitle>
         </DialogHeader>
         <div className="grid gap-3 py-4">
           <Button
@@ -24,8 +24,8 @@ const PaymentMethodModal = ({ open, onClose, onSelectPix, onSelectCard }: Paymen
           >
             <QrCode className="w-8 h-8 text-accent" />
             <div className="text-center">
-              <p className="font-bold">PIX</p>
-              <p className="text-xs text-muted-foreground">Pagamento instantâneo com 6% de desconto</p>
+              <p className="font-bold">Pago online</p>
+              <p className="text-xs text-muted-foreground">Pago instantáneo con 6% de descuento</p>
             </div>
           </Button>
           <Button
@@ -35,8 +35,8 @@ const PaymentMethodModal = ({ open, onClose, onSelectPix, onSelectCard }: Paymen
           >
             <CreditCard className="w-8 h-8 text-blue-500" />
             <div className="text-center">
-              <p className="font-bold">Cartão de crédito</p>
-              <p className="text-xs text-muted-foreground">Pague com Visa, Master, Elo e mais</p>
+              <p className="font-bold">Tarjeta de crédito</p>
+              <p className="text-xs text-muted-foreground">Paga con Visa, Mastercard, Elo y más</p>
             </div>
           </Button>
         </div>

@@ -5,9 +5,9 @@ import aguaComGas from "@/assets/bebidas/agua-com-gas.jpg";
 import aguaSemGas from "@/assets/bebidas/agua-sem-gas.jpg";
 
 const bebidas = [
-  { id: "coca-cola-lata", title: "COCA COLA LATA", description: "Coca-Cola Original 350ml", price: "R$ 6,00", image: cocaColaLata },
-  { id: "agua-com-gas", title: "ÁGUA COM GÁS", description: "Água mineral com gás 500ml", price: "R$ 4,00", image: aguaComGas },
-  { id: "agua-sem-gas", title: "ÁGUA SEM GÁS", description: "Água mineral sem gás 500ml", price: "R$ 3,50", image: aguaSemGas }
+  { id: "coca-cola-lata", title: "COCA-COLA LATA", description: "Coca-Cola Original 350 ml", price: "6,00 €", image: cocaColaLata },
+  { id: "agua-com-gas", title: "AGUA CON GAS", description: "Agua mineral con gas 500 ml", price: "4,00 €", image: aguaComGas },
+  { id: "agua-sem-gas", title: "AGUA SIN GAS", description: "Agua mineral sin gas 500 ml", price: "3,50 €", image: aguaSemGas }
 ];
 
 const BebidasSection = () => {

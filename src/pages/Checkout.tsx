@@ -406,140 +406,6 @@ const Checkout = () => {
         ? `${formData.endereco}, ${formData.numero}${formData.complemento ? ` - ${formData.complemento}` : ""}`
         : "";
 
-      // Se for WhatsApp + PIX, redirecionar para o WhatsApp diretamente
-      if (isWhatsApp && formData.formaPagamento === "pix") {
-        if (!numeroWhatsAppAtivo) {
-          toast({
-            title: "Error",
-            description: "No hay ningún número de WhatsApp activo. Póngase en contacto con la tienda.",
-            variant: "destructive",
-          });
-          setLoading(false);
-          return;
-        }
-
-        // Salvar pedido via edge function segura
-        const itensParaSalvar = itens.map((item) => ({
-          produto_nome: item.produtoNome,
-          produto_preco: item.produtoPreco,
-          quantidade: item.quantidade ?? 1,
-          adicionais: item.complementos,
-          total_adicionais: item.totalAdicionais,
-          total_item: (item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1),
-          observacoes: item.observacoes || "",
-        }));
-
-        const pedidoResponse = await fetch(
-          "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/criar-pedido",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              numero_pedido: numeroPedido,
-              cliente_nome: dadosCliente?.nome || "",
-              cliente_telefone: dadosCliente?.telefone || "",
-              cliente_cpf: dadosCliente?.cpf || "",
-              endereco_completo: enderecoCompleto,
-              bairro: formData.bairro,
-              cidade: formData.cidade,
-              cep: formData.cep.replace(/\D/g, ""),
-              tipo_entrega: tipoEntrega,
-              forma_pagamento: "pix",
-              status_pagamento: "pendente",
-              status_pedido: "pendente",
-              subtotal: getSubtotal(),
-              desconto_pix: getDescontoPix(),
-              total: getTotalComDesconto(),
-              payment_id: null,
-              pix_copia_e_cola: null,
-              pix_expires_at: null,
-              itens: itensParaSalvar,
-            }),
-          }
-        );
-
-        const pedidoResult = await pedidoResponse.json();
-
-        if (!pedidoResult.success) {
-          console.error("[Checkout] Erro ao salvar pedido:", pedidoResult.error);
-          throw new Error("Error al guardar el pedido");
-        }
-
-        // Montar mensagem do WhatsApp
-        const itensTexto = itens.map(i => `- ${i.quantidade ?? 1}x ${i.produtoNome}: ${((i.produtoPreco + i.totalAdicionais) * (i.quantidade ?? 1)).toFixed(2).replace(".", ",")} €`).join("\n");
-        const enderecoTexto = tipoEntrega === "delivery" 
-          ? `\n📍 *Dirección:* ${enderecoCompleto}, ${formData.bairro} - ${formData.cidade}`
-          : "\n🏪 *Recogida en el local*";
-        
-        const mensagem = `🛒 *NUEVO PEDIDO - ${numeroPedido}*\n\n` +
-          `👤 *Cliente:* ${dadosCliente?.nome}\n` +
-          `📞 *Teléfono:* ${dadosCliente?.telefone}\n` +
-          enderecoTexto + `\n\n` +
-          `📋 *Artículos:*\n${itensTexto}\n\n` +
-          `💰 *Total:* ${getTotalComDesconto().toFixed(2).replace(".", ",")} €`;
-
-        const urlWhatsApp = `https://wa.me/55${numeroWhatsAppAtivo}?text=${encodeURIComponent(mensagem)}`;
-        
-        window.open(urlWhatsApp, "_blank");
-        
-        // Navegar para página de retorno
-        navigate("/whatsapp-retorno");
-        setLoading(false);
-        return;
-      }
-
-      // Primeiro criar o pagamento PIX para obter o payment_id
-      let paymentId: string | undefined;
-      let pixResponse: any = null;
-      
-      if (formData.formaPagamento === "pix") {
-        const valorComDesconto = getTotalComDesconto();
-        
-        console.log('[Checkout] === INICIANDO PAGAMENTO PIX ===');
-        console.log('[Checkout] Valor:', valorComDesconto);
-        
-        // Chamar edge function unificada de pagamento PIX
-        const { data: response, error: pixError } = await supabase.functions.invoke("create-pix-payment", {
-          body: {
-            valor: valorComDesconto,
-            descricao: "Acesso Liberado",
-            nome: dadosCliente?.nome || "",
-            telefone: dadosCliente?.telefone || "",
-            cpf: dadosCliente?.cpf || "",
-            email: `${(dadosCliente?.telefone || "").replace(/\D/g, "")}@cliente.local`,
-          },
-        });
-
-        console.log('[Checkout] === RESPOSTA RECEBIDA ===');
-        console.log('[Checkout] Response completa:', JSON.stringify(response, null, 2));
-
-        if (pixError || !response?.success) {
-          throw new Error(response?.error || pixError?.message || 'Error al crear el pago online');
-        }
-        
-        // Verificar se tem código PIX (obrigatório)
-        if (!response.pixCopiaECola) {
-          throw new Error('No se generó el código de pago. Inténtelo de nuevo.');
-        }
-        
-        // Extrair paymentId
-        console.log('[Checkout] === EXTRAINDO PAYMENT ID ===');
-        console.log('[Checkout] response.paymentId:', response.paymentId);
-        
-        if (response.paymentId !== undefined && response.paymentId !== null && response.paymentId !== '') {
-          paymentId = String(response.paymentId);
-          console.log('[Checkout] paymentId extraído:', paymentId);
-        } else {
-          throw new Error('No se devolvió el ID del pago. Inténtelo de nuevo.');
-        }
-        
-        console.log('[Checkout] === PAYMENT ID FINAL ===');
-        console.log('[Checkout] paymentId:', paymentId);
-        
-        // Salvar dados do PIX para uso posterior
-        pixResponse = response;
-      }
-
       // Salvar pedido via edge function segura
       const itensParaSalvar = itens.map((item) => ({
         produto_nome: item.produtoNome,
@@ -566,24 +432,21 @@ const Checkout = () => {
             cidade: formData.cidade,
             cep: formData.cep.replace(/\D/g, ""),
             tipo_entrega: tipoEntrega,
-            forma_pagamento: formData.formaPagamento,
+            forma_pagamento: "cartao",
             status_pagamento: "pendente",
             status_pedido: "pendente",
             subtotal: getSubtotal(),
-            desconto_pix: formData.formaPagamento === "pix" ? getDescontoPix() : 0,
-            total: formData.formaPagamento === "pix" ? getTotalComDesconto() : getTotal(),
-            payment_id: paymentId,
-            pix_copia_e_cola: pixResponse?.pixCopiaECola || null,
-            pix_expires_at: pixResponse?.expiresAt || null,
+            desconto_pix: 0,
+            total: getTotal(),
+            payment_id: null,
+            pix_copia_e_cola: null,
+            pix_expires_at: null,
             itens: itensParaSalvar,
           }),
         }
       );
 
       const pedidoResult = await pedidoResponse.json();
-
-      console.log('[Checkout] === INSERINDO PEDIDO NO BANCO ===');
-      console.log('[Checkout] payment_id sendo inserido:', paymentId);
 
       if (!pedidoResult.success) {
         console.error("[Checkout] Erro ao salvar pedido:", pedidoResult.error);
@@ -592,29 +455,14 @@ const Checkout = () => {
 
       const pedidoDB = pedidoResult.pedido;
 
-      console.log('[Checkout] === PEDIDO SALVO COM SUCESSO ===');
-      console.log('[Checkout] pedidoDB.id:', pedidoDB.id);
-
-      if (formData.formaPagamento === "pix" && pixResponse) {
-        const pedido = finalizarPedido(formData);
-        
-        // Redirecionar para página de pagamento PIX (Purchase será disparado lá)
-        navigate("/pagamento-pix", { 
-          state: { 
-            pixData: {
-              id: pixResponse.paymentId,
-              copiaCola: pixResponse.pixCopiaECola,
-              expiresAt: pixResponse.expiresAt,
-              secureUrl: pixResponse.checkoutUrl,
-            },
-            pedidoId: pedido.id,
-            pedidoDBId: pedidoDB.id,
-            pedido: pedido,
-            economia: getDescontoPix(),
-            totalComDesconto: getTotalComDesconto(),
-          } 
-        });
-      }
+      // Redirecionar para pagamento com cartão (Stripe + IronPay)
+      navigate("/checkout-cartao", {
+        state: {
+          pedidoDBId: pedidoDB.id,
+          numeroPedido: numeroPedido,
+          descontoCartao: 0.06,
+        },
+      });
     } catch (error) {
       console.error('Erro ao processar pagamento:', error);
       toast({

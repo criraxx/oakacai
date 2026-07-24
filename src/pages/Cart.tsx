@@ -91,8 +91,10 @@ const Cart = () => {
   }
 
   const subtotal = getSubtotal();
-  const descontoPix = subtotal * 0.06;
-  const total = getTotal() - descontoPix;
+  const descontoMetade = getDescontoMetadePreco();
+  const subtotalComMetade = subtotal - descontoMetade;
+  const descontoPix = subtotalComMetade * 0.06;
+  const total = subtotalComMetade - descontoPix;
 
 
   return (

@@ -9,17 +9,16 @@ const MetadePrecoSection = () => {
   const navigate = useNavigate();
   
   const subtotal = getSubtotalSemPromocional();
-  const isVisible = subtotal >= 50;
+  const isVisible = subtotal >= 25;
   const jaTemPromocional = temItemPromocional();
 
   // Filtrar productos elegibles (excluir bebidas, polos y cubos)
   const produtosElegiveis = todosProdutos.filter(product => {
     const categoria = product.categoria?.toLowerCase() || "";
     const titulo = product.title.toLowerCase();
-    
-    // Excluir bebidas, polos y cubos de la promoción
-    if (categoria.includes("bebida") || 
-        categoria.includes("picolé") || 
+
+    if (categoria.includes("bebida") ||
+        categoria.includes("picolé") ||
         categoria.includes("balde") ||
         titulo.includes("água") ||
         titulo.includes("coca") ||
@@ -29,6 +28,10 @@ const MetadePrecoSection = () => {
     }
     return true;
   });
+
+  // Solo ofrece el producto MÁS BARATO elegible a mitad de precio
+  const productoMasBarato = [...produtosElegiveis].sort((a, b) => a.price - b.price)[0];
+  const produtosParaMostrar = productoMasBarato ? [productoMasBarato] : [];
 
   if (!isVisible) {
     return null;
@@ -78,7 +81,7 @@ const MetadePrecoSection = () => {
       )}
 
       <div className="px-4 space-y-2">
-        {produtosElegiveis.map((product) => {
+        {produtosParaMostrar.map((product) => {
           const precoPromocional = product.price / 2;
           
           return (

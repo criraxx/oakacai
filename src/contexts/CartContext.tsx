@@ -203,9 +203,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return itens.some(item => item.isPromocional);
   };
 
-  // Verifica se pode adicionar item promocional (carrinho >= R$50 e não tem item promocional)
+  // Verifica se pode adicionar item promocional (carrinho >= 25 € e não tem item promocional)
   const podeAdicionarPromocional = () => {
-    return getSubtotalSemPromocional() >= 50 && !temItemPromocional();
+    return getSubtotalSemPromocional() >= 25 && !temItemPromocional();
   };
 
   // Entrega sempre grátis

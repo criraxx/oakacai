@@ -266,8 +266,8 @@ const ProductDetail = () => {
         toast.error("Ya has añadido 1 artículo promocional. ¡Límite de 1 por pedido!");
         return;
       }
-      if (getSubtotalSemPromocional() < 50) {
-        toast.error("¡El carrito necesita 50 € o más para añadir un artículo promocional!");
+      if (getSubtotalSemPromocional() < 25) {
+        toast.error("¡El carrito necesita 25 € o más para añadir un artículo promocional!");
         return;
       }
     }

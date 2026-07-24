@@ -138,9 +138,8 @@ const Checkout = () => {
         if (data?.whatsapp_numero) {
           setNumeroWhatsAppAtivo(data.whatsapp_numero);
         }
-        if (typeof data?.modo_cartao_apenas === "boolean") {
-          setModoCartaoApenas(data.modo_cartao_apenas);
-        }
+        // Pago online desativado permanentemente — sempre modo cartão
+        setModoCartaoApenas(true);
       } catch (error) {
         console.error("Erro ao buscar config:", error);
       }

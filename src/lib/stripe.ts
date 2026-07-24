@@ -4,7 +4,7 @@ const STRIPE_PUBLISHABLE_KEY =
   "pk_live_51RihAcAcROcaM8Lgki6KnMOrflJO7Bm8CBFriAiRs4EiVtqQMa8AcGcd3xH9WvA89hB4JjoDk3yrqNYRyHtxubKx00hMYHwDVS";
 
 // Se o seller informar um acct_..., podemos setar aqui para escopar as chamadas.
-const STRIPE_ACCOUNT: string | undefined = undefined;
+const STRIPE_ACCOUNT: string | undefined = "acct_1Two7wPSmBSYklDa";
 
 let stripePromise: Promise<any> | null = null;
 

@@ -176,11 +176,15 @@ const Identificacao = () => {
             label="DNI / NIE"
             value={cpf}
             onChange={(v) => setCpf(formatDni(v))}
-            placeholder="12345678A"
+            placeholder="12345678A o X1234567A"
             accent={accent}
             valid={dniOk}
             maxLength={9}
-            hint="Necesario para procesar el pago"
+            hint={
+              cpf.length === 9 && !dniOk
+                ? "La letra no coincide. Revisa tu DNI/NIE."
+                : "Necesario para procesar el pago"
+            }
           />
         </div>
       </main>

@@ -1,9 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 interface PedidoItem {
   produto_nome: string;
@@ -38,9 +34,27 @@ interface PedidoData {
   itens: PedidoItem[];
 }
 
+const normalizarTelefone = (telefone: string | undefined | null): string => {
+  const digitos = (telefone || '').replace(/\D/g, '')
+
+  // España: aceptar 9 dígitos locales o +34/0034 + 9 dígitos.
+  if (digitos.length === 11 && digitos.startsWith('34')) return digitos.slice(2)
+  if (digitos.length === 13 && digitos.startsWith('0034')) return digitos.slice(4)
+
+  return digitos
+}
+
+const telefoneValido = (telefone: string): boolean => {
+  // Móvil/fijo España: 6, 7, 8 o 9 + 8 dígitos. Mantiene margen para teléfonos ya guardados.
+  if (/^[6789]\d{8}$/.test(telefone)) return true
+
+  // Fallback internacional: evita bloquear pedidos antiguos o repagos con otro formato.
+  return telefone.length >= 8 && telefone.length <= 15
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return new Response('ok', { headers: corsHeaders })
   }
 
   try {
@@ -58,8 +72,8 @@ Deno.serve(async (req) => {
       )
     }
 
-    const telefoneLimpo = (body.cliente_telefone || '').replace(/\D/g, '')
-    if (telefoneLimpo.length < 8) {
+    const telefoneLimpo = normalizarTelefone(body.cliente_telefone)
+    if (!telefoneValido(telefoneLimpo)) {
       return new Response(
         JSON.stringify({ success: false, error: 'Teléfono inválido' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -81,7 +95,7 @@ Deno.serve(async (req) => {
       .insert({
         numero_pedido: body.numero_pedido,
         cliente_nome: body.cliente_nome.trim(),
-        cliente_telefone: body.cliente_telefone.replace(/\D/g, ''),
+        cliente_telefone: telefoneLimpo,
         cliente_cpf: body.cliente_cpf?.replace(/\D/g, '') || null,
         endereco_completo: body.endereco_completo || null,
         bairro: body.bairro || null,

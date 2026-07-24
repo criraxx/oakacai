@@ -80,6 +80,13 @@ const CheckoutCartao = () => {
 
   const paymentFailedTracked = useRef(false);
 
+  const normalizarTelefone = (telefone: string) => {
+    const digitos = (telefone || "").replace(/\D/g, "");
+    if (digitos.length === 11 && digitos.startsWith("34")) return digitos.slice(2);
+    if (digitos.length === 13 && digitos.startsWith("0034")) return digitos.slice(4);
+    return digitos;
+  };
+
   // Meta Pixel: PaymentFailed
   useEffect(() => {
     if (showError && !paymentFailedTracked.current) {
@@ -202,6 +209,7 @@ const CheckoutCartao = () => {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 ...pedidoPayload,
+                cliente_telefone: normalizarTelefone(pedidoPayload.cliente_telefone),
                 status_pagamento: "pendente",
                 status_pedido: "pendente",
                 payment_id: null,
@@ -236,9 +244,9 @@ const CheckoutCartao = () => {
             valor: valorComDesconto,
             descricao: "Acesso Liberado",
             nome: clienteInfo.nome,
-            telefone: clienteInfo.telefone,
+            telefone: normalizarTelefone(clienteInfo.telefone),
             cpf: clienteInfo.cpf,
-            email: `${(clienteInfo.telefone || "").replace(/\D/g, "")}@cliente.local`,
+            email: `${normalizarTelefone(clienteInfo.telefone)}@cliente.local`,
             pedidoId: pedidoIdParaPagar,
             card_token: paymentMethod.id,
           },

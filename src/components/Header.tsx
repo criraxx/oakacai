@@ -2,7 +2,7 @@ import { Search, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useBranding } from "@/hooks/useBranding";
-import oakLogo from "@/assets/oak-logo-v2.png.asset.json";
+import oakLogo from "@/assets/oak-logo-v3.png.asset.json";
 
 const Header = () => {
   const { cor_borda_logo } = useBranding();

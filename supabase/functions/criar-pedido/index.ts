@@ -35,22 +35,15 @@ interface PedidoData {
 }
 
 const normalizarTelefone = (telefone: string | undefined | null): string => {
-  const digitos = (telefone || '').replace(/\D/g, '')
-
-  // España: aceptar 9 dígitos locales o +34/0034 + 9 dígitos.
-  if (digitos.length === 11 && digitos.startsWith('34')) return digitos.slice(2)
-  if (digitos.length === 13 && digitos.startsWith('0034')) return digitos.slice(4)
-
-  return digitos
+  return (telefone || '').replace(/\D/g, '')
 }
 
 const telefoneValido = (telefone: string): boolean => {
-  // Móvil/fijo España: 6, 7, 8 o 9 + 8 dígitos. Mantiene margen para teléfonos ya guardados.
-  if (/^[6789]\d{8}$/.test(telefone)) return true
-
-  // Fallback internacional: evita bloquear pedidos antiguos o repagos con otro formato.
-  return telefone.length >= 8 && telefone.length <= 15
+  // Aceita qualquer telefone do mundo: mínimo 6 dígitos (números curtos locais),
+  // máximo 15 dígitos (padrão E.164 internacional).
+  return telefone.length >= 6 && telefone.length <= 15
 }
+
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -170,3 +163,4 @@ Deno.serve(async (req) => {
     )
   }
 })
+// force redeploy 1784926208

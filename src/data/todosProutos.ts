@@ -16,9 +16,9 @@ import acaiSonhoValsa from "@/assets/acai-sonho-valsa.jpg";
 import acaiOuroBranco from "@/assets/acai-ouro-branco.jpg";
 import acaiDiamanteNegro from "@/assets/acai-diamante-negro.jpg";
 import balde22l from "@/assets/balde-22l.jpg";
-import picoleTrufado from "@/assets/picole-trufado.jpg";
 import cocaColaLata from "@/assets/bebidas/coca-cola-lata.jpg";
 import aguaMineral from "@/assets/agua-mineral.png.asset.json";
+import aguaConGas from "@/assets/agua-con-gas.png.asset.json";
 import aguaDeCoco from "@/assets/agua-de-coco.jpg.asset.json";
 
 export interface Produto {
@@ -396,32 +396,6 @@ export const todosProdutos: Produto[] = [
     categoria: "Cubo"
   },
   
-  // Picolés Trufados
-  {
-    id: "picole-laka-oreo",
-    image: picoleTrufado,
-    title: "LAKA OREO",
-    description: "Polo trufado sabor Laka Oreo",
-    price: 2.90,
-    categoria: "Polo Trufado"
-  },
-  {
-    id: "picole-morango-ninho",
-    image: picoleTrufado,
-    title: "FRESA CON NINHO",
-    description: "Polo trufado sabor Fresa con Ninho",
-    price: 2.90,
-    categoria: "Polo Trufado"
-  },
-  {
-    id: "picole-choconinho",
-    image: picoleTrufado,
-    title: "CHOCONINHO",
-    description: "Polo trufado sabor Choconinho",
-    price: 2.90,
-    categoria: "Polo Trufado"
-  },
-  
   // Bebidas
   {
     id: "coca-cola-lata",
@@ -445,6 +419,14 @@ export const todosProdutos: Produto[] = [
     title: "AGUA MINERAL",
     description: "Agua mineral sin gas 330ml",
     price: 2.00,
+    categoria: "Bebidas"
+  },
+  {
+    id: "agua-con-gas",
+    image: aguaConGas.url,
+    title: "AGUA CON GAS",
+    description: "Agua con gas Ocean52 330ml",
+    price: 10.00,
     categoria: "Bebidas"
   }
 ];

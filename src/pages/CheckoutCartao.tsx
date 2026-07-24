@@ -198,9 +198,36 @@ const CheckoutCartao = () => {
         return;
       }
 
-      // 5) Sucesso — redireciona para confirmação
+      // 5) Pagamento aprovado — agora cria o pedido no banco (com payment_id)
+      if (pedidoPayload && !pedidoExistente) {
+        try {
+          const resp = await fetch(
+            "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/criar-pedido",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                ...pedidoPayload,
+                status_pagamento: "aprovado",
+                status_pedido: "pendente",
+                payment_id: data.transactionHash || null,
+                pix_copia_e_cola: null,
+                pix_expires_at: null,
+              }),
+            },
+          );
+          const result = await resp.json();
+          if (!result.success) {
+            console.error("[checkout-cartao] criar-pedido falhou:", result.error);
+          }
+        } catch (e) {
+          console.error("[checkout-cartao] erro ao criar pedido:", e);
+        }
+      }
+
       setLoading(false);
       navigate("/pedido-confirmado");
+
     } catch (err) {
       console.error("[checkout-cartao] erro inesperado:", err);
       setLoading(false);

@@ -19,68 +19,67 @@ import { toast } from "sonner";
 const produtosPorId: Record<string, { nome: string; preco: number; imagem: string; descricao: string }> = {
   "combo-500ml": {
     nome: "Combo premium 2 açaí 500ml + 4 complementos gratis",
-    preco: 59.90,
+    preco: 13.90,
     imagem: acaiCombo500,
     descricao: "Combo 2 Açaís 500 ml (4 complementos gratis cada uno)\nLlévate 2 açaís de 500 ml con nuestra base súper cremosa y además consigue 4 complementos gratis en cada vaso."
   },
   "combo-300ml": {
     nome: "Combo premium 2 açaí 300ml + 4 complementos gratis",
-    preco: 49.90,
+    preco: 9.90,
     imagem: acaiCombo500,
     descricao: "Combo 2 Açaís 300 ml (4 complementos gratis cada uno)\nLlévate 2 açaís de 300 ml con nuestra base súper cremosa y además consigue 4 complementos gratis en cada vaso."
   },
   "monte-300ml": {
     nome: "Vaso 300ml Açaí Puro - Personalízalo a tu gusto",
-    preco: 25.90,
+    preco: 6.90,
     imagem: acaiPuro,
     descricao: "¡Personaliza tu vaso a tu gusto con tantos adicionales como quieras!"
   },
   "monte-500ml": {
     nome: "Vaso 500ml Açaí Puro - Personalízalo a tu gusto",
-    preco: 29.90,
+    preco: 8.90,
     imagem: acaiPuro,
     descricao: "¡Personaliza tu vaso a tu gusto con tantos adicionales como quieras!"
   },
   "monte-700ml": {
     nome: "Vaso 700ml Açaí Puro - Personalízalo a tu gusto",
-    preco: 34.90,
+    preco: 10.90,
     imagem: acaiPuro,
     descricao: "¡Personaliza tu vaso a tu gusto con tantos adicionales como quieras!"
   },
   "monte-1l": {
     nome: "Vaso 1 litro Açaí Puro - Personalízalo a tu gusto",
-    preco: 44.90,
+    preco: 13.90,
     imagem: acaiPuro,
     descricao: "¡Personaliza tu vaso a tu gusto con tantos adicionales como quieras!"
   },
-  // IDs usados na seção "Mais Pedidos"
   "copo-500ml-puro": {
     nome: "Vaso 500ml Açaí Puro - Personalízalo a tu gusto",
-    preco: 29.90,
+    preco: 8.90,
     imagem: acaiPuro,
     descricao: "¡Personaliza tu vaso a tu gusto con tantos adicionales como quieras!"
   },
   "copo-300ml-puro": {
     nome: "Vaso 300ml Açaí Puro - Personalízalo a tu gusto",
-    preco: 25.90,
+    preco: 6.90,
     imagem: acaiPuro,
     descricao: "¡Personaliza tu vaso a tu gusto con tantos adicionales como quieras!"
   },
   "trufado-rafaelo-500": {
     nome: "Vaso trufado Rafaelo 500 ml",
-    preco: 39.99,
+    preco: 12.90,
     imagem: acaiRafaelo,
     descricao: "Açaí trufado con Rafaelo"
   },
   "trufado-rafaelo-300": {
     nome: "Vaso trufado Rafaelo 300 ml",
-    preco: 34.99,
+    preco: 9.90,
     imagem: acaiRafaelo,
     descricao: "Açaí trufado con Rafaelo"
   },
   "trufado-rafaelo-700": {
     nome: "Vaso trufado Rafaelo 700 ml",
-    preco: 46.99,
+    preco: 15.90,
     imagem: acaiRafaelo,
     descricao: "Açaí trufado con Rafaelo"
   }

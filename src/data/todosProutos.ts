@@ -409,7 +409,7 @@ export const todosProdutos: Produto[] = [
     id: "agua-de-coco",
     image: aguaDeCoco.url,
     title: "AGUA DE COCO",
-    description: "Agua de coco natural 330ml",
+    description: "Agua de Coco Natural 330ml",
     price: 2.50,
     categoria: "Bebidas"
   },
@@ -417,7 +417,7 @@ export const todosProdutos: Produto[] = [
     id: "agua-mineral",
     image: aguaMineral.url,
     title: "AGUA MINERAL",
-    description: "Agua mineral sin gas 330ml",
+    description: "Agua Mineral sin Gas 330ml",
     price: 2.00,
     categoria: "Bebidas"
   },
@@ -425,7 +425,7 @@ export const todosProdutos: Produto[] = [
     id: "agua-con-gas",
     image: aguaConGas.url,
     title: "AGUA CON GAS",
-    description: "Agua con gas Ocean52 330ml",
+    description: "Agua con Gas Ocean52 330ml",
     price: 10.00,
     categoria: "Bebidas"
   }

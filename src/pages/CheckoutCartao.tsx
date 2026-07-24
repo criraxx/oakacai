@@ -22,6 +22,27 @@ const CheckoutCartao = () => {
     | { id: string; numero_pedido: string; cliente_nome: string; cliente_telefone: string; cliente_cpf: string; total: number }
     | undefined;
 
+  // Payload do novo pedido vindo de /checkout (só cria após pagamento aprovado)
+  const pedidoPayload = location.state?.pedidoPayload as
+    | {
+        numero_pedido: string;
+        cliente_nome: string;
+        cliente_telefone: string;
+        cliente_cpf: string;
+        endereco_completo: string;
+        bairro: string;
+        cidade: string;
+        cep: string;
+        tipo_entrega: string;
+        forma_pagamento: string;
+        subtotal: number;
+        desconto_pix: number;
+        total: number;
+        itens: Array<Record<string, unknown>>;
+      }
+    | undefined;
+
+
   // Desconto recebido via state (ex: 0.08 quando vem do modo PIX-em-manutenção)
   const descontoCartao: number =
     typeof location.state?.descontoCartao === "number" ? location.state.descontoCartao : 0;

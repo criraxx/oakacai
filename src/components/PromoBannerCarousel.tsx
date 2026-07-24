@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useCatalogo } from "@/hooks/useCatalogo";
-import promoMitadPrecio from "@/assets/hero-oak-banner.png";
+import deliveryBannerAsset from "@/assets/delivery-promo-banner.png.asset.json";
 
 const STATIC_BANNERS = [
   {
-    id: "promo-mitad-precio",
-    imagem: promoMitadPrecio,
+    id: "delivery-gratis",
+    imagem: deliveryBannerAsset.url,
     ordem: -1,
     intervalo_segundos: 6,
     acao_tipo: null as string | null,
@@ -15,15 +14,9 @@ const STATIC_BANNERS = [
 ];
 
 const PromoBannerCarousel = () => {
-  const { data } = useCatalogo();
   const navigate = useNavigate();
 
-  const banners = useMemo(() => {
-    const dynamic = (data?.banners ?? []).slice();
-    return [...STATIC_BANNERS, ...dynamic].sort(
-      (a, b) => (a.ordem ?? 0) - (b.ordem ?? 0)
-    );
-  }, [data]);
+  const banners = useMemo(() => STATIC_BANNERS, []);
 
 
   const [currentBanner, setCurrentBanner] = useState(0);

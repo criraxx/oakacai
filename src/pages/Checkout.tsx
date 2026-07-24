@@ -581,11 +581,10 @@ const Checkout = () => {
               icon={<CreditCard size={20} />}
               title="Tarjeta de crédito"
               subtitle="Débito o crédito"
-              badge="6% OFF"
             />
           </div>
           <p className="text-muted-foreground text-[11px] mt-3 ml-1">
-            Pago con tarjeta con 6% de descuento automático.
+            Pago seguro con tarjeta de crédito o débito.
           </p>
         </section>
 

@@ -2,9 +2,11 @@ import { Search, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useBranding } from "@/hooks/useBranding";
+import oakLogo from "@/assets/oak-logo-v2.png.asset.json";
 
 const Header = () => {
-  const { logo_url, cor_borda_logo } = useBranding();
+  const { cor_borda_logo } = useBranding();
+
   const navigate = useNavigate();
 
   const handleShare = async () => {
@@ -38,7 +40,7 @@ const Header = () => {
             className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0 -mt-8 bg-background shadow-sm"
             style={{ border: `3px solid ${cor_borda_logo}` }}
           >
-            <img alt="Oak Açaí" className="w-full h-full object-cover" src={logo_url} />
+            <img alt="Oak Açaí" className="w-full h-full object-cover" src={oakLogo.url} />
           </div>
           <div className="flex flex-col">
             <span className="text-foreground font-semibold text-sm leading-tight">Oak Açaí </span>

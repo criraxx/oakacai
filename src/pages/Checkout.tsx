@@ -709,11 +709,11 @@ const Checkout = () => {
           <button
             onClick={() => navigate(-1)}
             className="w-9 h-9 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
-            aria-label="Voltar"
+            aria-label="Volver"
           >
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-foreground font-semibold text-base">Pagamento</h1>
+          <h1 className="text-foreground font-semibold text-base">Pago</h1>
           <span className="ml-auto text-xs text-muted-foreground font-medium">3/3</span>
         </div>
         <div className="h-1 bg-muted">
@@ -737,7 +737,7 @@ const Checkout = () => {
             onClick={() => (pedidoExistente ? navigate("/pedidos") : navigate("/identificacao"))}
             className="text-xs font-semibold px-3 py-1.5 rounded-full border border-border hover:bg-muted transition-colors"
           >
-            Trocar
+            Cambiar
           </button>
         </div>
 
@@ -762,7 +762,7 @@ const Checkout = () => {
               onClick={() => setTipoEntrega("pickup")}
               accent={accent}
               icon={<Store size={18} />}
-              label="Retirar"
+              label="Recoger"
             />
           </div>
         </section>
@@ -771,11 +771,11 @@ const Checkout = () => {
         {tipoEntrega === "delivery" && (
           <section className="mb-6">
             <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5">
-              Endereço
+              Dirección
             </h2>
             <div className="space-y-3">
               <FieldInput
-                label="CEP"
+                label="Código postal"
                 value={formatCep(formData.cep)}
                 onChange={(v) => handleInputChange("cep", v)}
                 accent={accent}
@@ -784,7 +784,7 @@ const Checkout = () => {
                 rightAdornment={buscandoCep ? <Loader2 size={14} className="animate-spin text-muted-foreground" /> : null}
               />
               <FieldInput
-                label="Rua / Avenida"
+                label="Calle / Avenida"
                 value={formData.endereco}
                 onChange={(v) => handleInputChange("endereco", v)}
                 accent={accent}
@@ -808,13 +808,13 @@ const Checkout = () => {
                 </div>
               </div>
               <FieldInput
-                label="Bairro"
+                label="Barrio"
                 value={formData.bairro}
                 onChange={(v) => handleInputChange("bairro", v)}
                 accent={accent}
               />
               <FieldInput
-                label="Cidade"
+                label="Ciudad"
                 value={formData.cidade}
                 onChange={(v) => handleInputChange("cidade", v)}
                 accent={accent}
@@ -826,7 +826,7 @@ const Checkout = () => {
         {/* Pagamento */}
         <section className="mb-6">
           <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5">
-            Pagamento
+            Pago
           </h2>
           <div className="space-y-2">
             <PaymentOption
@@ -838,8 +838,8 @@ const Checkout = () => {
               }}
               accent={accent}
               icon={<QrCode size={20} />}
-              title="PIX"
-              subtitle={modoCartaoApenas ? "Em manutenção" : "Aprovação imediata"}
+              title="Pago online"
+              subtitle={modoCartaoApenas ? "En mantenimiento" : "Aprobación inmediata"}
               badge={!modoCartaoApenas ? "6% OFF" : undefined}
               fastTag={!modoCartaoApenas}
             />
@@ -848,22 +848,22 @@ const Checkout = () => {
               onClick={() => handleInputChange("formaPagamento", "cartao")}
               accent={accent}
               icon={<CreditCard size={20} />}
-              title="Cartão de crédito"
-              subtitle="Débito ou crédito"
+              title="Tarjeta de crédito"
+              subtitle="Débito o crédito"
               badge={modoCartaoApenas ? "8% OFF" : undefined}
             />
           </div>
           <p className="text-muted-foreground text-[11px] mt-3 ml-1">
             {modoCartaoApenas
-              ? "PIX em manutenção. Cartão com 8% de desconto."
-              : "PIX com 6% de desconto no total."}
+              ? "Pago online en mantenimiento. Tarjeta con 8% de descuento."
+              : "Pago online con 6% de descuento en el total."}
           </p>
         </section>
 
         {/* Resumo */}
         <section className="mb-6">
           <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2.5">
-            Resumo
+            Resumen
           </h2>
           <div className="rounded-2xl border border-border p-4">
             <div className="space-y-1.5">
@@ -888,7 +888,7 @@ const Checkout = () => {
               {((isPix && !modoCartaoApenas && !pedidoExistente) || (pedidoExistente && pedidoDescontoPix > 0)) && (
                 <div className="flex justify-between text-[13px]">
                   <span className="text-foreground/70 flex items-center gap-1">
-                    <Percent size={12} /> Desconto PIX
+                    <Percent size={12} /> Descuento pago online
                   </span>
                   <span className="font-medium" style={{ color: accent }}>
                     -R$ {(pedidoExistente ? pedidoDescontoPix : getDescontoPix()).toFixed(2).replace(".", ",")}
@@ -898,7 +898,7 @@ const Checkout = () => {
               {modoCartaoApenas && !pedidoExistente && (
                 <div className="flex justify-between text-[13px]">
                   <span className="text-foreground/70 flex items-center gap-1">
-                    <Percent size={12} /> Desconto cartão
+                    <Percent size={12} /> Descuento tarjeta
                   </span>
                   <span className="font-medium" style={{ color: accent }}>
                     -R$ {(getSubtotal() * 0.08).toFixed(2).replace(".", ",")}
@@ -916,7 +916,7 @@ const Checkout = () => {
         </section>
 
         <p className="text-muted-foreground text-[11px] text-center">
-          Ao continuar, você concorda com nossa Política de Privacidade.
+          Al continuar, usted acepta nuestra Política de Privacidad.
         </p>
       </main>
 
@@ -938,7 +938,7 @@ const Checkout = () => {
             {loading ? (
               <>
                 <Loader2 size={18} className="animate-spin" />
-                Processando
+                Procesando
               </>
             ) : (
               <>

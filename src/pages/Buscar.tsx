@@ -61,7 +61,7 @@ const Buscar = () => {
         <div className="flex items-center gap-3 mb-4">
           <button
             onClick={() => navigate(-1)}
-            aria-label="Voltar"
+            aria-label="Volver"
             className="w-9 h-9 rounded-full flex items-center justify-center text-foreground hover:bg-muted transition-colors"
           >
             <ArrowLeft size={20} strokeWidth={2} />
@@ -80,7 +80,7 @@ const Buscar = () => {
             autoFocus
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="O que você quer hoje?"
+            placeholder="¿Qué te apetece hoy?"
             style={{
               borderColor: `${accentColor}50`,
             }}
@@ -90,7 +90,7 @@ const Buscar = () => {
             <button
               onClick={() => setQuery("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-              aria-label="Limpar"
+              aria-label="Limpiar"
             >
               <X size={18} strokeWidth={2} />
             </button>
@@ -122,9 +122,9 @@ const Buscar = () => {
             >
               <Search size={28} style={{ color: accentColor }} strokeWidth={1.5} />
             </div>
-            <p className="text-lg font-semibold text-foreground">O que você procura?</p>
+            <p className="text-lg font-semibold text-foreground">¿Qué estás buscando?</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Digite o nome de um produto, açaí, combo...
+              Escribe el nombre de un producto, açaí, combo...
             </p>
           </div>
         ) : resultados.length === 0 ? (
@@ -135,9 +135,9 @@ const Buscar = () => {
             >
               <X size={28} style={{ color: accentColor }} strokeWidth={1.5} />
             </div>
-            <p className="text-lg font-semibold text-foreground">Nenhum resultado</p>
+            <p className="text-lg font-semibold text-foreground">Sin resultados</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Tente outro termo de busca
+              Prueba con otro término de búsqueda
             </p>
           </div>
         ) : (
@@ -185,7 +185,7 @@ const Buscar = () => {
                     className="text-base font-bold mt-1"
                     style={{ color: accentColor }}
                   >
-                    R$ {p.price.toFixed(2).replace(".", ",")}
+                    {p.price.toFixed(2).replace(".", ",")} €
                   </p>
                 </div>
                 <div

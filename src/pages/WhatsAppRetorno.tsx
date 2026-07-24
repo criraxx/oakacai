@@ -29,7 +29,7 @@ const WhatsAppRetorno = () => {
     if (!numeroWhatsAppAtivo) {
       return;
     }
-    const mensagem = encodeURIComponent("Olá! Gostaria de falar sobre meu pedido.");
+    const mensagem = encodeURIComponent("¡Hola! Me gustaría hablar sobre mi pedido.");
     window.open(`https://wa.me/55${numeroWhatsAppAtivo}?text=${mensagem}`, "_blank");
   };
 
@@ -44,7 +44,7 @@ const WhatsAppRetorno = () => {
           >
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-foreground font-semibold text-lg">Pedido Enviado</h1>
+          <h1 className="text-foreground font-semibold text-lg">Pedido enviado</h1>
         </div>
       </header>
 
@@ -58,12 +58,12 @@ const WhatsAppRetorno = () => {
 
           {/* Título */}
           <h2 className="text-xl font-bold text-card-foreground mb-3">
-            Pedido Recebido!
+            ¡Pedido recibido!
           </h2>
 
           {/* Descrição */}
           <p className="text-muted-foreground mb-6">
-            Seu pedido foi enviado para a loja via WhatsApp. Para mais informações ou acompanhar seu pedido, entre em contato conosco.
+            Tu pedido se ha enviado a la tienda a través de WhatsApp. Para más información o para hacer seguimiento de tu pedido, ponte en contacto con nosotros.
           </p>
 
           {/* Botão WhatsApp */}
@@ -73,7 +73,7 @@ const WhatsAppRetorno = () => {
             className="w-full bg-success hover:bg-success/90 text-success-foreground gap-2 mb-4"
           >
             <Phone className="w-5 h-5" />
-            {numeroWhatsAppAtivo ? "Falar com a Loja" : "Carregando..."}
+            {numeroWhatsAppAtivo ? "Hablar con la tienda" : "Cargando..."}
           </Button>
 
           {/* Botão Voltar */}
@@ -82,13 +82,13 @@ const WhatsAppRetorno = () => {
             onClick={() => navigate("/")}
             className="w-full"
           >
-            Voltar ao Início
+            Volver al inicio
           </Button>
         </div>
 
         {/* Informação adicional */}
         <p className="text-sm text-muted-foreground mt-6 text-center">
-          Se você não conseguiu enviar a mensagem, clique no botão acima para entrar em contato diretamente.
+          Si no has podido enviar el mensaje, haz clic en el botón de arriba para ponerte en contacto directamente.
         </p>
       </main>
     </div>

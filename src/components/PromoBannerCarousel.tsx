@@ -43,7 +43,7 @@ const PromoBannerCarousel = () => {
     if (currentBanner >= banners.length) setCurrentBanner(0);
   }, [banners.length, currentBanner]);
 
-  // Swipe handling
+  // Manejo de deslizamiento (swipe)
   const touchStartX = useRef<number | null>(null);
   const touchDeltaX = useRef(0);
   const [dragOffset, setDragOffset] = useState(0);

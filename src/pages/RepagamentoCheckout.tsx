@@ -27,7 +27,7 @@ const RepagamentoCheckout = ({ pedido }: { pedido: PedidoExistente }) => {
   const economiaPix = subtotal * 0.06;
 
   const formatBRL = (v: number) =>
-    v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    `${v.toFixed(2).replace(".", ",")} €`;
 
   const handlePix = async () => {
     setLoading(true);
@@ -45,7 +45,7 @@ const RepagamentoCheckout = ({ pedido }: { pedido: PedidoExistente }) => {
       });
 
       if (error || !data?.success) {
-        throw new Error(data?.error || error?.message || "Erro ao gerar PIX");
+        throw new Error(data?.error || error?.message || "Error al generar el código de pago");
       }
 
       navigate("/pagamento-pix", {
@@ -67,8 +67,8 @@ const RepagamentoCheckout = ({ pedido }: { pedido: PedidoExistente }) => {
       });
     } catch (err: any) {
       toast({
-        title: "Erro ao gerar PIX",
-        description: err.message || "Tente novamente",
+        title: "Error al generar el código de pago",
+        description: err.message || "Inténtalo de nuevo",
         variant: "destructive",
       });
     } finally {
@@ -99,13 +99,13 @@ const RepagamentoCheckout = ({ pedido }: { pedido: PedidoExistente }) => {
           <button
             onClick={() => navigate(-1)}
             className="w-10 h-10 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
-            aria-label="Voltar"
+            aria-label="Volver"
           >
             <ArrowLeft size={20} />
           </button>
           <div className="flex-1">
             <h1 className="text-foreground font-bold text-lg tracking-tight">
-              Finalizar pagamento
+              Finalizar pago
             </h1>
             <p className="text-xs text-muted-foreground">Pedido {pedido.numero_pedido}</p>
           </div>
@@ -116,18 +116,18 @@ const RepagamentoCheckout = ({ pedido }: { pedido: PedidoExistente }) => {
         {/* Resumo do cliente */}
         <div className="bg-card rounded-2xl p-4 border border-border/60 shadow-sm">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-2">
-            Dados do cliente
+            Datos del cliente
           </p>
           <p className="text-card-foreground font-semibold text-sm">{pedido.cliente_nome}</p>
           <p className="text-xs text-muted-foreground mt-0.5">{pedido.cliente_telefone}</p>
           {pedido.cliente_cpf && (
-            <p className="text-xs text-muted-foreground mt-0.5">CPF: {pedido.cliente_cpf}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">DNI: {pedido.cliente_cpf}</p>
           )}
         </div>
 
         <div>
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium mb-2 px-1">
-            Escolha a forma de pagamento
+            Elige la forma de pago
           </p>
 
           {/* PIX */}
@@ -149,15 +149,15 @@ const RepagamentoCheckout = ({ pedido }: { pedido: PedidoExistente }) => {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <p className="font-bold text-card-foreground">PIX</p>
+                <p className="font-bold text-card-foreground">Pago online</p>
                 <span
                   className="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5"
                   style={{ background: "#22c55e20", color: "#16a34a" }}
                 >
-                  <Percent className="w-2.5 h-2.5" /> 6% OFF
+                  <Percent className="w-2.5 h-2.5" /> 6% DTO
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">Aprovação em segundos</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Aprobación en segundos</p>
               <p className="text-sm font-bold mt-1" style={{ color: accent }}>
                 {formatBRL(totalPix)}
               </p>
@@ -174,9 +174,9 @@ const RepagamentoCheckout = ({ pedido }: { pedido: PedidoExistente }) => {
               <CreditCard className="w-6 h-6 text-blue-500" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-bold text-card-foreground">Cartão de crédito</p>
+              <p className="font-bold text-card-foreground">Tarjeta de crédito</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Visa, Master, Elo e mais
+                Visa, Master, Elo y más
               </p>
               <p className="text-sm font-bold text-card-foreground mt-1">
                 {formatBRL(pedido.total)}

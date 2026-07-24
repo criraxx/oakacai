@@ -82,8 +82,8 @@ const CheckoutCartao = () => {
 
   const normalizarTelefone = (telefone: string) => {
     const digitos = (telefone || "").replace(/\D/g, "");
-    if (digitos.length === 11 && digitos.startsWith("34")) return digitos.slice(2);
-    if (digitos.length === 13 && digitos.startsWith("0034")) return digitos.slice(4);
+    if (/^[6789]\d{8}$/.test(digitos)) return `34${digitos}`;
+    if (digitos.length === 13 && digitos.startsWith("0034")) return digitos.slice(2);
     return digitos;
   };
 
@@ -174,29 +174,10 @@ const CheckoutCartao = () => {
   const handleSubmit = async () => {
     if (!isFormValid() || !clienteInfo) return;
 
-    // 0) TOKENIZA PRIMEIRO — antes de qualquer setState que possa desmontar os Elements
-    const stripe = stripeRef.current || (await getStripe());
-    const cardElement = cardNumberRef.current;
-    if (!cardElement) {
-      console.error("[stripe] elements não prontos");
-      setShowError(true);
-      return;
-    }
-    const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
-      type: "card",
-      card: cardElement,
-      billing_details: { name: nomeCartao },
-    });
-    if (pmError || !paymentMethod?.id) {
-      console.error("[stripe] createPaymentMethod erro:", pmError);
-      setShowError(true);
-      return;
-    }
-
     setLoading(true);
 
     try {
-      // 1) Se for pedido novo, cria PRIMEIRO no banco (status pendente)
+      // 1) Cria/recupera o pedido PRIMEIRO no banco (status pendente)
       let pedidoIdParaPagar: string | undefined =
         pedidoExistente?.id || location.state?.pedidoDBId || pedidoAtual?.id;
 
@@ -234,9 +215,30 @@ const CheckoutCartao = () => {
         }
       }
 
+      // 2) Tokeniza a tarjeta via Stripe Elements somente depois do pedido existir
+      const stripe = stripeRef.current || (await getStripe());
+      const cardElement = cardNumberRef.current;
+      if (!cardElement) {
+        console.error("[stripe] elements não prontos");
+        setLoading(false);
+        setShowError(true);
+        return;
+      }
 
+      const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
+        type: "card",
+        card: cardElement,
+        billing_details: { name: nomeCartao },
+      });
 
-      // 4) Envia o card_token para nossa Edge Function → IronPay
+      if (pmError || !paymentMethod?.id) {
+        console.error("[stripe] createPaymentMethod erro:", pmError);
+        setLoading(false);
+        setShowError(true);
+        return;
+      }
+
+      // 3) Envia o card_token para nossa Edge Function → IronPay
       const { data, error } = await supabase.functions.invoke(
         "create-ironpay-card-payment",
         {
@@ -260,7 +262,7 @@ const CheckoutCartao = () => {
         return;
       }
 
-      // 5) 3DS: se veio client_secret, confirmar no navegador
+      // 4) 3DS: se veio client_secret, confirmar no navegador
       if (data.paymentIntentClientSecret) {
         const { paymentIntent, error: confirmError } = await stripe.confirmCardPayment(
           data.paymentIntentClientSecret,

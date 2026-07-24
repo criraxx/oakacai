@@ -1,9 +1,5 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const IRONPAY_URL = 'https://api.ironpayapp.com.br/api/public/v1';
 
@@ -138,4 +134,4 @@ Deno.serve(async (req) => {
   }
 });
 
-// redeploy trigger
+// force redeploy 1784927141

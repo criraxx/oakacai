@@ -8,7 +8,7 @@ const roletaProducts = [
     image: acaiRoleta,
     title: "Ruleta de açaí puro — monta a tu gusto",
     description: "Elige el tamaño (500 g o 1 L) ¡y potencia con todos los adicionales que quieras!",
-    price: "Desde 32,90 €"
+    price: "Desde 9,90 €"
   }
 ];
 

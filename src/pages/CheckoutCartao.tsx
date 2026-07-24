@@ -147,7 +147,7 @@ const CheckoutCartao = () => {
             telefone: clienteInfo.telefone,
             cpf: clienteInfo.cpf,
             email: `${(clienteInfo.telefone || "").replace(/\D/g, "")}@cliente.local`,
-            pedidoId: pedidoExistente?.id || pedidoAtual?.id,
+            pedidoId: pedidoExistente?.id || location.state?.pedidoDBId || pedidoAtual?.id,
             card_token: paymentMethod.id,
           },
         },

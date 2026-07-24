@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Loader2, Home, Store, QrCode, CreditCard, Zap, Percent } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Home, Store, CreditCard, Zap, Percent } from "lucide-react";
 import { useCart, DadosEntrega } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { useBranding } from "@/hooks/useBranding";
 import { trackInitiateCheckout, trackAddPaymentInfo, trackAddAddress } from "@/lib/metaPixel";
 import { gaTrackBeginCheckout, gaTrackAddShippingInfo, gaTrackAddPaymentInfo } from "@/lib/googleAnalytics";
 import { supabase } from "@/integrations/supabase/client";
-import PixManutencaoModal from "@/components/PixManutencaoModal";
+
 import OrderBumpList from "@/components/OrderBumpList";
 import DownsellModal from "@/components/DownsellModal";
 
@@ -67,7 +67,7 @@ const Checkout = () => {
     complemento: "",
     bairro: pedidoExistente?.bairro || "",
     cidade: pedidoExistente?.cidade || "",
-    formaPagamento: pedidoExistente?.forma_pagamento === "cartao" ? "cartao" : "pix",
+    formaPagamento: "cartao",
     troco: undefined,
   });
 
@@ -75,8 +75,7 @@ const Checkout = () => {
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [gatewayAtivo, setGatewayAtivo] = useState<string>("umbrellapag");
   const [numeroWhatsAppAtivo, setNumeroWhatsAppAtivo] = useState<string>("");
-  const [modoCartaoApenas, setModoCartaoApenas] = useState<boolean>(true);
-  const [showPixManutencao, setShowPixManutencao] = useState<boolean>(false);
+  const modoCartaoApenas = true;
   const initiateCheckoutTracked = useRef(false);
   const paymentInfoTracked = useRef<string | null>(null);
   const addressTracked = useRef(false);
@@ -85,7 +84,6 @@ const Checkout = () => {
   const gaPaymentTracked = useRef<string | null>(null);
 
   const isWhatsApp = gatewayAtivo === "whatsapp";
-  const isPix = formData.formaPagamento === "pix";
 
   const clienteCheckout = pedidoExistente
     ? {
@@ -138,8 +136,6 @@ const Checkout = () => {
         if (data?.whatsapp_numero) {
           setNumeroWhatsAppAtivo(data.whatsapp_numero);
         }
-        // Pago online desativado permanentemente — sempre modo cartão
-        setModoCartaoApenas(true);
       } catch (error) {
         console.error("Erro ao buscar config:", error);
       }
@@ -344,77 +340,18 @@ const Checkout = () => {
   const handleRepagamentoSubmit = async () => {
     if (!pedidoExistente) return;
 
-    if (modoCartaoApenas && formData.formaPagamento === "pix") {
-      setShowPixManutencao(true);
-      return;
-    }
-
-    if (formData.formaPagamento === "cartao") {
-      navigate("/checkout-cartao", {
-        state: {
-          pedidoExistente: {
-            id: pedidoExistente.id,
-            numero_pedido: pedidoExistente.numero_pedido,
-            cliente_nome: pedidoExistente.cliente_nome,
-            cliente_telefone: pedidoExistente.cliente_telefone,
-            cliente_cpf: pedidoExistente.cliente_cpf || "",
-            total: pedidoTotal,
-          },
+    navigate("/checkout-cartao", {
+      state: {
+        pedidoExistente: {
+          id: pedidoExistente.id,
+          numero_pedido: pedidoExistente.numero_pedido,
+          cliente_nome: pedidoExistente.cliente_nome,
+          cliente_telefone: pedidoExistente.cliente_telefone,
+          cliente_cpf: pedidoExistente.cliente_cpf || "",
+          total: pedidoTotal,
         },
-      });
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { data: response, error: pixError } = await supabase.functions.invoke("create-pix-payment", {
-        body: {
-          valor: pedidoTotal,
-          descricao: "Acesso Liberado",
-          nome: pedidoExistente.cliente_nome,
-          telefone: pedidoExistente.cliente_telefone,
-          cpf: pedidoExistente.cliente_cpf || "",
-          email: `${(pedidoExistente.cliente_telefone || "").replace(/\D/g, "")}@cliente.local`,
-          pedidoId: pedidoExistente.id,
-        },
-      });
-
-      if (pixError || !response?.success) {
-        throw new Error(response?.error || pixError?.message || "Error al crear el pago online");
-      }
-
-      if (!response.pixCopiaECola) {
-        throw new Error("No se generó el código de pago. Inténtelo de nuevo.");
-      }
-
-      navigate("/pagamento-pix", {
-        state: {
-          pixData: {
-            id: response.paymentId,
-            copiaCola: response.pixCopiaECola,
-            expiresAt: response.expiresAt,
-            secureUrl: response.checkoutUrl,
-          },
-          pedidoId: pedidoExistente.numero_pedido,
-          pedidoDBId: pedidoExistente.id,
-          pedido: {
-            cliente_nome: pedidoExistente.cliente_nome,
-            cliente_telefone: pedidoExistente.cliente_telefone,
-          },
-          economia: pedidoDescontoPix,
-          totalComDesconto: pedidoTotal,
-        },
-      });
-    } catch (error) {
-      console.error("Erro ao processar pagamento do pedido existente:", error);
-      toast({
-        title: "Error al procesar el pago",
-        description: error instanceof Error ? error.message : "Inténtelo de nuevo",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+      },
+    });
   };
 
   const handleSubmit = async () => {
@@ -445,18 +382,6 @@ const Checkout = () => {
       }
     }
 
-    // Modo Cartão Apenas: bloquear PIX e abrir modal persuasivo
-    if (modoCartaoApenas && formData.formaPagamento === "pix") {
-      setShowPixManutencao(true);
-      return;
-    }
-
-    // Forma de pagamento cartão: ir para tela do cartão (com desconto se modo ativo)
-    if (formData.formaPagamento === "cartao") {
-      navigate("/checkout-cartao", modoCartaoApenas ? { state: { descontoCartao: 0.06 } } : undefined);
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -467,140 +392,6 @@ const Checkout = () => {
       const enderecoCompleto = tipoEntrega === "delivery" 
         ? `${formData.endereco}, ${formData.numero}${formData.complemento ? ` - ${formData.complemento}` : ""}`
         : "";
-
-      // Se for WhatsApp + PIX, redirecionar para o WhatsApp diretamente
-      if (isWhatsApp && formData.formaPagamento === "pix") {
-        if (!numeroWhatsAppAtivo) {
-          toast({
-            title: "Error",
-            description: "No hay ningún número de WhatsApp activo. Póngase en contacto con la tienda.",
-            variant: "destructive",
-          });
-          setLoading(false);
-          return;
-        }
-
-        // Salvar pedido via edge function segura
-        const itensParaSalvar = itens.map((item) => ({
-          produto_nome: item.produtoNome,
-          produto_preco: item.produtoPreco,
-          quantidade: item.quantidade ?? 1,
-          adicionais: item.complementos,
-          total_adicionais: item.totalAdicionais,
-          total_item: (item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1),
-          observacoes: item.observacoes || "",
-        }));
-
-        const pedidoResponse = await fetch(
-          "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/criar-pedido",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              numero_pedido: numeroPedido,
-              cliente_nome: dadosCliente?.nome || "",
-              cliente_telefone: dadosCliente?.telefone || "",
-              cliente_cpf: dadosCliente?.cpf || "",
-              endereco_completo: enderecoCompleto,
-              bairro: formData.bairro,
-              cidade: formData.cidade,
-              cep: formData.cep.replace(/\D/g, ""),
-              tipo_entrega: tipoEntrega,
-              forma_pagamento: "pix",
-              status_pagamento: "pendente",
-              status_pedido: "pendente",
-              subtotal: getSubtotal(),
-              desconto_pix: getDescontoPix(),
-              total: getTotalComDesconto(),
-              payment_id: null,
-              pix_copia_e_cola: null,
-              pix_expires_at: null,
-              itens: itensParaSalvar,
-            }),
-          }
-        );
-
-        const pedidoResult = await pedidoResponse.json();
-
-        if (!pedidoResult.success) {
-          console.error("[Checkout] Erro ao salvar pedido:", pedidoResult.error);
-          throw new Error("Error al guardar el pedido");
-        }
-
-        // Montar mensagem do WhatsApp
-        const itensTexto = itens.map(i => `- ${i.quantidade ?? 1}x ${i.produtoNome}: ${((i.produtoPreco + i.totalAdicionais) * (i.quantidade ?? 1)).toFixed(2).replace(".", ",")} €`).join("\n");
-        const enderecoTexto = tipoEntrega === "delivery" 
-          ? `\n📍 *Dirección:* ${enderecoCompleto}, ${formData.bairro} - ${formData.cidade}`
-          : "\n🏪 *Recogida en el local*";
-        
-        const mensagem = `🛒 *NUEVO PEDIDO - ${numeroPedido}*\n\n` +
-          `👤 *Cliente:* ${dadosCliente?.nome}\n` +
-          `📞 *Teléfono:* ${dadosCliente?.telefone}\n` +
-          enderecoTexto + `\n\n` +
-          `📋 *Artículos:*\n${itensTexto}\n\n` +
-          `💰 *Total:* ${getTotalComDesconto().toFixed(2).replace(".", ",")} €`;
-
-        const urlWhatsApp = `https://wa.me/55${numeroWhatsAppAtivo}?text=${encodeURIComponent(mensagem)}`;
-        
-        window.open(urlWhatsApp, "_blank");
-        
-        // Navegar para página de retorno
-        navigate("/whatsapp-retorno");
-        setLoading(false);
-        return;
-      }
-
-      // Primeiro criar o pagamento PIX para obter o payment_id
-      let paymentId: string | undefined;
-      let pixResponse: any = null;
-      
-      if (formData.formaPagamento === "pix") {
-        const valorComDesconto = getTotalComDesconto();
-        
-        console.log('[Checkout] === INICIANDO PAGAMENTO PIX ===');
-        console.log('[Checkout] Valor:', valorComDesconto);
-        
-        // Chamar edge function unificada de pagamento PIX
-        const { data: response, error: pixError } = await supabase.functions.invoke("create-pix-payment", {
-          body: {
-            valor: valorComDesconto,
-            descricao: "Acesso Liberado",
-            nome: dadosCliente?.nome || "",
-            telefone: dadosCliente?.telefone || "",
-            cpf: dadosCliente?.cpf || "",
-            email: `${(dadosCliente?.telefone || "").replace(/\D/g, "")}@cliente.local`,
-          },
-        });
-
-        console.log('[Checkout] === RESPOSTA RECEBIDA ===');
-        console.log('[Checkout] Response completa:', JSON.stringify(response, null, 2));
-
-        if (pixError || !response?.success) {
-          throw new Error(response?.error || pixError?.message || 'Error al crear el pago online');
-        }
-        
-        // Verificar se tem código PIX (obrigatório)
-        if (!response.pixCopiaECola) {
-          throw new Error('No se generó el código de pago. Inténtelo de nuevo.');
-        }
-        
-        // Extrair paymentId
-        console.log('[Checkout] === EXTRAINDO PAYMENT ID ===');
-        console.log('[Checkout] response.paymentId:', response.paymentId);
-        
-        if (response.paymentId !== undefined && response.paymentId !== null && response.paymentId !== '') {
-          paymentId = String(response.paymentId);
-          console.log('[Checkout] paymentId extraído:', paymentId);
-        } else {
-          throw new Error('No se devolvió el ID del pago. Inténtelo de nuevo.');
-        }
-        
-        console.log('[Checkout] === PAYMENT ID FINAL ===');
-        console.log('[Checkout] paymentId:', paymentId);
-        
-        // Salvar dados do PIX para uso posterior
-        pixResponse = response;
-      }
 
       // Salvar pedido via edge function segura
       const itensParaSalvar = itens.map((item) => ({
@@ -628,24 +419,21 @@ const Checkout = () => {
             cidade: formData.cidade,
             cep: formData.cep.replace(/\D/g, ""),
             tipo_entrega: tipoEntrega,
-            forma_pagamento: formData.formaPagamento,
+            forma_pagamento: "cartao",
             status_pagamento: "pendente",
             status_pedido: "pendente",
             subtotal: getSubtotal(),
-            desconto_pix: formData.formaPagamento === "pix" ? getDescontoPix() : 0,
-            total: formData.formaPagamento === "pix" ? getTotalComDesconto() : getTotal(),
-            payment_id: paymentId,
-            pix_copia_e_cola: pixResponse?.pixCopiaECola || null,
-            pix_expires_at: pixResponse?.expiresAt || null,
+            desconto_pix: 0,
+            total: getTotal(),
+            payment_id: null,
+            pix_copia_e_cola: null,
+            pix_expires_at: null,
             itens: itensParaSalvar,
           }),
         }
       );
 
       const pedidoResult = await pedidoResponse.json();
-
-      console.log('[Checkout] === INSERINDO PEDIDO NO BANCO ===');
-      console.log('[Checkout] payment_id sendo inserido:', paymentId);
 
       if (!pedidoResult.success) {
         console.error("[Checkout] Erro ao salvar pedido:", pedidoResult.error);
@@ -654,29 +442,14 @@ const Checkout = () => {
 
       const pedidoDB = pedidoResult.pedido;
 
-      console.log('[Checkout] === PEDIDO SALVO COM SUCESSO ===');
-      console.log('[Checkout] pedidoDB.id:', pedidoDB.id);
-
-      if (formData.formaPagamento === "pix" && pixResponse) {
-        const pedido = finalizarPedido(formData);
-        
-        // Redirecionar para página de pagamento PIX (Purchase será disparado lá)
-        navigate("/pagamento-pix", { 
-          state: { 
-            pixData: {
-              id: pixResponse.paymentId,
-              copiaCola: pixResponse.pixCopiaECola,
-              expiresAt: pixResponse.expiresAt,
-              secureUrl: pixResponse.checkoutUrl,
-            },
-            pedidoId: pedido.id,
-            pedidoDBId: pedidoDB.id,
-            pedido: pedido,
-            economia: getDescontoPix(),
-            totalComDesconto: getTotalComDesconto(),
-          } 
-        });
-      }
+      // Redirecionar para pagamento com cartão (Stripe + IronPay)
+      navigate("/checkout-cartao", {
+        state: {
+          pedidoDBId: pedidoDB.id,
+          numeroPedido: numeroPedido,
+          descontoCartao: 0.06,
+        },
+      });
     } catch (error) {
       console.error('Erro ao processar pagamento:', error);
       toast({
@@ -694,11 +467,7 @@ const Checkout = () => {
 
   const totalFinal = pedidoExistente
     ? pedidoTotal
-    : modoCartaoApenas
-    ? getSubtotal() * 0.94
-    : isPix
-    ? getTotalComDesconto()
-    : getTotal();
+    : getSubtotal() * 0.94;
 
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
@@ -829,33 +598,17 @@ const Checkout = () => {
           </h2>
           <div className="space-y-2">
             <PaymentOption
-              active={formData.formaPagamento === "pix" && !modoCartaoApenas}
-              disabled={modoCartaoApenas}
-              onClick={() => {
-                if (modoCartaoApenas) return setShowPixManutencao(true);
-                handleInputChange("formaPagamento", "pix");
-              }}
-              accent={accent}
-              icon={<QrCode size={20} />}
-              title="Pago online"
-              subtitle={modoCartaoApenas ? "En mantenimiento" : "Aprobación inmediata"}
-              badge={!modoCartaoApenas ? "6% OFF" : undefined}
-              fastTag={!modoCartaoApenas}
-            />
-            <PaymentOption
               active={formData.formaPagamento === "cartao"}
               onClick={() => handleInputChange("formaPagamento", "cartao")}
               accent={accent}
               icon={<CreditCard size={20} />}
               title="Tarjeta de crédito"
               subtitle="Débito o crédito"
-              badge={modoCartaoApenas ? "6% OFF" : undefined}
+              badge="6% OFF"
             />
           </div>
           <p className="text-muted-foreground text-[11px] mt-3 ml-1">
-            {modoCartaoApenas
-              ? "Pago online en mantenimiento. Tarjeta con 6% de descuento."
-              : "Pago online con 6% de descuento en el total."}
+            Pago con tarjeta con 6% de descuento automático.
           </p>
         </section>
 
@@ -884,13 +637,13 @@ const Checkout = () => {
                   {(pedidoExistente ? pedidoSubtotal : getSubtotal()).toFixed(2).replace(".", ",")} €
                 </span>
               </div>
-              {((isPix && !modoCartaoApenas && !pedidoExistente) || (pedidoExistente && pedidoDescontoPix > 0)) && (
+              {pedidoExistente && pedidoDescontoPix > 0 && (
                 <div className="flex justify-between text-[13px]">
                   <span className="text-foreground/70 flex items-center gap-1">
                     <Percent size={12} /> Descuento pago online
                   </span>
                   <span className="font-medium" style={{ color: accent }}>
-                    -{(pedidoExistente ? pedidoDescontoPix : getDescontoPix()).toFixed(2).replace(".", ",")} €
+                    -{pedidoDescontoPix.toFixed(2).replace(".", ",")} €
                   </span>
                 </div>
               )}
@@ -949,30 +702,6 @@ const Checkout = () => {
         </div>
       </footer>
 
-      <PixManutencaoModal
-        open={showPixManutencao}
-        onClose={() => setShowPixManutencao(false)}
-        onIrParaCartao={() => {
-          setShowPixManutencao(false);
-          navigate("/checkout-cartao", {
-            state: pedidoExistente
-              ? {
-                  pedidoExistente: {
-                    id: pedidoExistente.id,
-                    numero_pedido: pedidoExistente.numero_pedido,
-                    cliente_nome: pedidoExistente.cliente_nome,
-                    cliente_telefone: pedidoExistente.cliente_telefone,
-                    cliente_cpf: pedidoExistente.cliente_cpf || "",
-                    total: pedidoTotal,
-                  },
-                }
-              : { descontoCartao: 0.06 },
-          });
-        }}
-        totalOriginal={pedidoExistente ? pedidoTotal : getTotal()}
-        totalComDesconto={(pedidoExistente ? pedidoTotal : getTotal()) * 0.94}
-        economia={(pedidoExistente ? pedidoTotal : getTotal()) * 0.06}
-      />
     </div>
   );
 };

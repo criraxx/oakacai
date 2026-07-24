@@ -18,7 +18,6 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useBranding } from "@/hooks/useBranding";
-import PaymentMethodModal from "./PaymentMethodModal";
 import ReciboModal from "./ReciboModal";
 
 interface PedidoItem {
@@ -76,8 +75,6 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const [itens, setItens] = useState<PedidoItem[]>(pedido.itens || []);
   const [loadingItens, setLoadingItens] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [loadingPayment, setLoadingPayment] = useState(false);
   const [showRecibo, setShowRecibo] = useState(false);
   const [complementosMap, setComplementosMap] = useState<Record<string, string>>({});
 
@@ -158,7 +155,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
   };
 
   const handlePagarAgora = () => {
-    navigate("/checkout", {
+    navigate("/checkout-cartao", {
       state: {
         pedidoExistente: {
           id: pedido.id,
@@ -167,79 +164,13 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
           cliente_telefone: pedido.cliente_telefone,
           cliente_cpf: pedido.cliente_cpf || "",
           total: pedido.total,
-          subtotal: pedido.subtotal,
-          desconto_pix: pedido.desconto_pix || 0,
-          forma_pagamento: pedido.forma_pagamento,
-          tipo_entrega: pedido.tipo_entrega,
-          endereco_completo: pedido.endereco_completo,
-          bairro: pedido.bairro,
-          cidade: pedido.cidade,
-          itens: pedido.itens || itens,
         },
       },
     });
   };
 
 
-  const handleSelectPix = async () => {
-    setShowPaymentModal(false);
-    setLoadingPayment(true);
-
-    try {
-      const valorComDesconto =
-        pedido.forma_pagamento === "pix"
-          ? pedido.total
-          : pedido.subtotal - pedido.subtotal * 0.06;
-
-      const { data, error } = await supabase.functions.invoke("create-pix-payment", {
-        body: {
-          valor: valorComDesconto,
-          descricao: "Acceso Liberado",
-          nome: pedido.cliente_nome,
-          telefone: pedido.cliente_telefone,
-          cpf: pedido.cliente_cpf || "",
-          email: `${pedido.cliente_telefone}@cliente.local`,
-          pedidoId: pedido.id,
-        },
-      });
-
-      if (error || !data?.success) {
-        throw new Error(data?.error || error?.message || "Error al generar el pago online");
-      }
-
-      const pixData = {
-        id: data.paymentId,
-        copiaCola: data.pixCopiaECola,
-        expiresAt: data.expiresAt || new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-      };
-
-      navigate("/pagamento-pix", {
-        state: {
-          pixData,
-          pedidoId: pedido.numero_pedido,
-          pedidoDBId: pedido.id,
-          totalComDesconto: valorComDesconto,
-          economia: pedido.subtotal * 0.06,
-          pedido: {
-            cliente_nome: pedido.cliente_nome,
-            cliente_telefone: pedido.cliente_telefone,
-          },
-        },
-      });
-    } catch (error: any) {
-      console.error("Error al procesar el pago online:", error);
-      toast({
-        title: "Error al generar el pago online",
-        description: error.message || "Inténtalo de nuevo",
-        variant: "destructive",
-      });
-    } finally {
-      setLoadingPayment(false);
-    }
-  };
-
   const handleSelectCard = () => {
-    setShowPaymentModal(false);
     navigate("/checkout-cartao", {
       state: {
         pedidoExistente: {
@@ -422,12 +353,11 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
         {isPagamentoPendente ? (
           <Button
             onClick={handlePagarAgora}
-            disabled={loadingPayment}
-            className="w-full h-12 rounded-xl font-semibold text-[15px] transition-all active:scale-[0.98] disabled:opacity-50 shadow-md"
+            className="w-full h-12 rounded-xl font-semibold text-[15px] transition-all active:scale-[0.98] shadow-md"
             style={{ background: accent, color: "#000" }}
           >
             <CreditCard className="w-4 h-4 mr-2" />
-            {loadingPayment ? "Procesando..." : "Pagar ahora"}
+            Pagar ahora
           </Button>
         ) : (
           <Button
@@ -518,14 +448,6 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
           )}
         </div>
       )}
-
-      {/* Modal de elección de pago */}
-      <PaymentMethodModal
-        open={showPaymentModal}
-        onClose={() => setShowPaymentModal(false)}
-        onSelectPix={handleSelectPix}
-        onSelectCard={handleSelectCard}
-      />
 
       {/* Modal de recibo */}
       <ReciboModal

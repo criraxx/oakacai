@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, QrCode, CreditCard, Loader2, Percent } from "lucide-react";
+import { ArrowLeft, CreditCard, Loader2 } from "lucide-react";
 import { useBranding } from "@/hooks/useBranding";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface PedidoExistente {
@@ -22,59 +21,8 @@ const RepagamentoCheckout = ({ pedido }: { pedido: PedidoExistente }) => {
   const accent = cor_borda_logo || "#F5E6D3";
   const [loading, setLoading] = useState(false);
 
-  const subtotal = pedido.subtotal ?? pedido.total;
-  const totalPix = subtotal - subtotal * 0.06;
-  const economiaPix = subtotal * 0.06;
-
   const formatBRL = (v: number) =>
     `${v.toFixed(2).replace(".", ",")} €`;
-
-  const handlePix = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("create-pix-payment", {
-        body: {
-          valor: totalPix,
-          descricao: `Pedido ${pedido.numero_pedido}`,
-          nome: pedido.cliente_nome,
-          telefone: pedido.cliente_telefone,
-          cpf: pedido.cliente_cpf || "",
-          email: `${(pedido.cliente_telefone || "").replace(/\D/g, "")}@cliente.local`,
-          pedidoId: pedido.id,
-        },
-      });
-
-      if (error || !data?.success) {
-        throw new Error(data?.error || error?.message || "Error al generar el código de pago");
-      }
-
-      navigate("/pagamento-pix", {
-        state: {
-          pixData: {
-            id: data.paymentId,
-            copiaCola: data.pixCopiaECola,
-            expiresAt: data.expiresAt || new Date(Date.now() + 15 * 60 * 1000).toISOString(),
-          },
-          pedidoId: pedido.numero_pedido,
-          pedidoDBId: pedido.id,
-          totalComDesconto: totalPix,
-          economia: economiaPix,
-          pedido: {
-            cliente_nome: pedido.cliente_nome,
-            cliente_telefone: pedido.cliente_telefone,
-          },
-        },
-      });
-    } catch (err: any) {
-      toast({
-        title: "Error al generar el código de pago",
-        description: err.message || "Inténtalo de nuevo",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleCartao = () => {
     navigate("/checkout-cartao", {
@@ -130,53 +78,22 @@ const RepagamentoCheckout = ({ pedido }: { pedido: PedidoExistente }) => {
             Elige la forma de pago
           </p>
 
-          {/* PIX */}
-          <button
-            onClick={handlePix}
-            disabled={loading}
-            className="w-full bg-card rounded-2xl p-4 border-2 flex items-center gap-4 mb-3 transition-all active:scale-[0.98] hover:shadow-md disabled:opacity-60 text-left"
-            style={{ borderColor: `${accent}60` }}
-          >
-            <div
-              className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: `${accent}25` }}
-            >
-              {loading ? (
-                <Loader2 className="w-6 h-6 animate-spin" style={{ color: accent }} />
-              ) : (
-                <QrCode className="w-6 h-6" style={{ color: accent }} />
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <p className="font-bold text-card-foreground">Pago online</p>
-                <span
-                  className="text-[10px] font-bold px-1.5 py-0.5 rounded-full flex items-center gap-0.5"
-                  style={{ background: "#22c55e20", color: "#16a34a" }}
-                >
-                  <Percent className="w-2.5 h-2.5" /> 6% DTO
-                </span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-0.5">Aprobación en segundos</p>
-              <p className="text-sm font-bold mt-1" style={{ color: accent }}>
-                {formatBRL(totalPix)}
-              </p>
-            </div>
-          </button>
-
-          {/* Cartão */}
           <button
             onClick={handleCartao}
             disabled={loading}
             className="w-full bg-card rounded-2xl p-4 border-2 border-border/60 flex items-center gap-4 transition-all active:scale-[0.98] hover:shadow-md disabled:opacity-60 text-left"
           >
             <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 bg-blue-500/10">
-              <CreditCard className="w-6 h-6 text-blue-500" />
+              {loading ? (
+                <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+              ) : (
+                <CreditCard className="w-6 h-6 text-blue-500" />
+              )}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-bold text-card-foreground">Tarjeta de crédito</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Visa, Master, Elo y más
+                Visa, Master, Maestro y más
               </p>
               <p className="text-sm font-bold text-card-foreground mt-1">
                 {formatBRL(pedido.total)}

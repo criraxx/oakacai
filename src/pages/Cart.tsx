@@ -92,9 +92,7 @@ const Cart = () => {
 
   const subtotal = getSubtotal();
   const descontoMetade = getDescontoMetadePreco();
-  const subtotalComMetade = subtotal - descontoMetade;
-  const descontoPix = subtotalComMetade * 0.06;
-  const total = subtotalComMetade - descontoPix;
+  const total = subtotal - descontoMetade;
 
 
   return (
@@ -293,12 +291,6 @@ const Cart = () => {
                 <span className="text-green-500 font-medium">- {formatEUR(descontoMetade)}</span>
               </div>
             )}
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground flex items-center gap-1">
-                <Tag size={12} /> Descuento pago online (6%)
-              </span>
-              <span className="text-green-500 font-medium">- {formatEUR(descontoPix)}</span>
-            </div>
             <div className="border-t border-border my-2" />
             <div className="flex items-center justify-between">
               <span className="text-foreground font-semibold">Total</span>
@@ -306,14 +298,6 @@ const Cart = () => {
             </div>
           </div>
         </section>
-
-        {/* Aviso pago online */}
-        <div className="mx-4 mb-4 p-3 bg-accent/10 rounded-xl border border-accent/30 flex items-center gap-2">
-          <Tag size={16} className="text-accent flex-shrink-0" />
-          <p className="text-accent text-xs font-medium">
-            ¡Paga online y consigue un <strong>6% de descuento</strong> automático!
-          </p>
-        </div>
         {/* Botón Continuar inline */}
         <div className="mx-4 mb-4">
           <button

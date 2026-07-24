@@ -209,18 +209,24 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return getSubtotalSemPromocional() >= 25 && !temItemPromocional();
   };
 
-  // Desconto "mitad de precio" — cheapest unit vai pela metade quando subtotal (sem promocional) >= 25 €
+  // Desconto "mitad de precio" — cheapest unit vai pela metade,
+  // mas só se ao remover essa unidade o subtotal (sem promocional) continuar >= 25 €.
+  // Ou seja, o desconto se aplica ao "próximo" artigo depois do gatilho, nunca ao que atingiu 25 €.
   const getDescontoMetadePreco = () => {
     const elegiveis = itens.filter((i) => !i.isPromocional);
     if (elegiveis.length === 0) return 0;
     const subtotalSemPromo = getSubtotalSemPromocional();
     if (subtotalSemPromo < 25) return 0;
-    const menorUnitario = elegiveis.reduce((min, item) => {
+    const margem = subtotalSemPromo - 25; // valor máximo de unidade que pode receber desconto
+    let menorUnitario = Infinity;
+    for (const item of elegiveis) {
       const preco = Number.isFinite(Number(item.produtoPreco)) ? Number(item.produtoPreco) : 0;
       const add = Number.isFinite(Number(item.totalAdicionais)) ? Number(item.totalAdicionais) : 0;
       const unit = preco + add;
-      return unit > 0 && unit < min ? unit : min;
-    }, Infinity);
+      if (unit > 0 && unit <= margem && unit < menorUnitario) {
+        menorUnitario = unit;
+      }
+    }
     if (!Number.isFinite(menorUnitario)) return 0;
     return menorUnitario / 2;
   };

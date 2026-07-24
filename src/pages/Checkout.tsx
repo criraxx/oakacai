@@ -44,6 +44,13 @@ const isNomeValido = (value: string) => {
   return /^\p{L}+(?:\s+\p{L}+)*$/u.test(trimmed);
 };
 
+const normalizarTelefone = (telefone: string) => {
+  const digitos = (telefone || "").replace(/\D/g, "");
+  if (digitos.length === 11 && digitos.startsWith("34")) return digitos.slice(2);
+  if (digitos.length === 13 && digitos.startsWith("0034")) return digitos.slice(4);
+  return digitos;
+};
+
 const Checkout = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -405,7 +412,7 @@ const Checkout = () => {
       const pedidoPayload = {
         numero_pedido: numeroPedido,
         cliente_nome: dadosCliente?.nome || "",
-        cliente_telefone: dadosCliente?.telefone || "",
+        cliente_telefone: normalizarTelefone(dadosCliente?.telefone || ""),
         cliente_cpf: dadosCliente?.cpf || "",
         endereco_completo: enderecoCompleto,
         bairro: formData.bairro,

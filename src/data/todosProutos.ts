@@ -399,9 +399,9 @@ export const todosProdutos: Produto[] = [
   // Bebidas
   {
     id: "coca-cola-lata",
-    image: cocaColaLata,
+    image: cocaColaLata.url,
     title: "COCA COLA LATA",
-    description: "Coca-Cola Original 350ml",
+    description: "Coca-Cola Lata Original 330ml",
     price: 2.50,
     categoria: "Bebidas"
   },

@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Loader2, Home, Store, QrCode, CreditCard, Zap, Percent } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, Home, Store, CreditCard, Zap, Percent } from "lucide-react";
 import { useCart, DadosEntrega } from "@/contexts/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { useBranding } from "@/hooks/useBranding";
 import { trackInitiateCheckout, trackAddPaymentInfo, trackAddAddress } from "@/lib/metaPixel";
 import { gaTrackBeginCheckout, gaTrackAddShippingInfo, gaTrackAddPaymentInfo } from "@/lib/googleAnalytics";
 import { supabase } from "@/integrations/supabase/client";
-import PixManutencaoModal from "@/components/PixManutencaoModal";
+
 import OrderBumpList from "@/components/OrderBumpList";
 import DownsellModal from "@/components/DownsellModal";
 
@@ -84,7 +84,6 @@ const Checkout = () => {
   const gaPaymentTracked = useRef<string | null>(null);
 
   const isWhatsApp = gatewayAtivo === "whatsapp";
-  const isPix = formData.formaPagamento === "pix";
 
   const clienteCheckout = pedidoExistente
     ? {

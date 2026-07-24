@@ -16,7 +16,7 @@ import acaiSonhoValsa from "@/assets/acai-sonho-valsa.jpg";
 import acaiOuroBranco from "@/assets/acai-ouro-branco.jpg";
 import acaiDiamanteNegro from "@/assets/acai-diamante-negro.jpg";
 import balde22l from "@/assets/balde-22l.jpg";
-import cocaColaLata from "@/assets/bebidas/coca-cola-lata.jpg";
+import cocaColaLata from "@/assets/coca-cola-lata.png.asset.json";
 import aguaMineral from "@/assets/agua-mineral.png.asset.json";
 import aguaConGas from "@/assets/agua-con-gas.png.asset.json";
 import aguaDeCoco from "@/assets/agua-de-coco.jpg.asset.json";

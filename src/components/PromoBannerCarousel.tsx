@@ -5,17 +5,17 @@ import promo25BannerAsset from "@/assets/promo-25euros-banner.png.asset.json";
 
 const STATIC_BANNERS = [
   {
-    id: "delivery-gratis",
-    imagem: deliveryBannerAsset.url,
-    ordem: -1,
+    id: "promo-25-euros",
+    imagem: promo25BannerAsset.url,
+    ordem: 0,
     intervalo_segundos: 6,
     acao_tipo: null as string | null,
     acao_valor: null as string | null,
   },
   {
-    id: "promo-25-euros",
-    imagem: promo25BannerAsset.url,
-    ordem: 0,
+    id: "delivery-gratis",
+    imagem: deliveryBannerAsset.url,
+    ordem: 1,
     intervalo_segundos: 6,
     acao_tipo: null as string | null,
     acao_valor: null as string | null,

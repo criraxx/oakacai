@@ -122,8 +122,8 @@ const Admin = () => {
   const handleLogin = async () => {
     if (!password.trim()) {
       toast({
-        title: "Erro",
-        description: "Digite a senha",
+        title: "Error",
+        description: "Introduzca la contraseña",
         variant: "destructive",
       });
       return;
@@ -140,7 +140,7 @@ const Admin = () => {
 
       if (data.error) {
         toast({
-          title: "Erro",
+          title: "Error",
           description: data.error,
           variant: "destructive",
         });
@@ -153,14 +153,14 @@ const Admin = () => {
       // Após autenticação, carregar dados diretamente do Supabase
       await Promise.all([carregarPedidosDireto(), carregarValesPresente(), carregarConfiguracao(), carregarNumerosWhatsApp()]);
       toast({
-        title: "Sucesso",
-        description: "Login realizado com sucesso",
+        title: "Éxito",
+        description: "Inicio de sesión correcto",
       });
     } catch (error: unknown) {
       console.error("Erro no login:", error);
       toast({
-        title: "Erro",
-        description: "Erro ao fazer login",
+        title: "Error",
+        description: "Error al iniciar sesión",
         variant: "destructive",
       });
     } finally {
@@ -221,14 +221,14 @@ const Admin = () => {
       toast({
         title: "Sucesso",
         description: novoValor
-          ? "Modo Cartão Apenas ATIVADO. PIX foi bloqueado para os clientes."
-          : "Modo Cartão Apenas DESATIVADO. PIX está liberado novamente.",
+          ? "Modo Solo Tarjeta ACTIVADO. El código de pago ha sido bloqueado para los clientes."
+          : "Modo Solo Tarjeta DESACTIVADO. El código de pago está disponible de nuevo.",
       });
     } catch (error) {
       console.error("Erro ao salvar modo cartão apenas:", error);
       toast({
-        title: "Erro",
-        description: "Não foi possível alterar o modo de pagamento",
+        title: "Error",
+        description: "No se pudo cambiar el modo de pago",
         variant: "destructive",
       });
     } finally {
@@ -267,13 +267,13 @@ const Admin = () => {
       };
       toast({
         title: "Sucesso",
-        description: `Gateway PIX alterado para ${gatewayNomes[novoGateway] || novoGateway}`,
+        description: `Pasarela de pago cambiada a ${gatewayNomes[novoGateway] || novoGateway}`,
       });
     } catch (error) {
       console.error("Erro ao salvar gateway:", error);
       toast({
-        title: "Erro",
-        description: "Erro ao alterar gateway de pagamento",
+        title: "Error",
+        description: "Error al cambiar la pasarela de pago",
         variant: "destructive",
       });
     } finally {
@@ -311,8 +311,8 @@ const Admin = () => {
     } catch (error) {
       console.error("Erro ao carregar pedidos:", error);
       toast({
-        title: "Erro",
-        description: "Erro ao carregar pedidos",
+        title: "Error",
+        description: "Error al cargar los pedidos",
         variant: "destructive",
       });
     } finally {
@@ -377,8 +377,8 @@ const Admin = () => {
     
     if (!numeroLimpo || numeroLimpo.length < 10) {
       toast({
-        title: "Erro",
-        description: "Digite um número de WhatsApp válido",
+        title: "Error",
+        description: "Introduzca un número de WhatsApp válido",
         variant: "destructive",
       });
       return;
@@ -405,7 +405,7 @@ const Admin = () => {
 
       toast({
         title: "Sucesso",
-        description: "Número adicionado com sucesso",
+        description: "Número añadido correctamente",
       });
 
       setNovoNumero("");
@@ -413,8 +413,8 @@ const Admin = () => {
     } catch (error) {
       console.error("Erro ao adicionar número:", error);
       toast({
-        title: "Erro",
-        description: "Erro ao adicionar número",
+        title: "Error",
+        description: "Error al añadir el número",
         variant: "destructive",
       });
     } finally {
@@ -443,15 +443,15 @@ const Admin = () => {
 
       toast({
         title: "Sucesso",
-        description: "Número ativado com sucesso",
+        description: "Número activado correctamente",
       });
 
       await carregarConfiguracao();
     } catch (error) {
       console.error("Erro ao ativar número:", error);
       toast({
-        title: "Erro",
-        description: "Erro ao ativar número",
+        title: "Error",
+        description: "Error al activar el número",
         variant: "destructive",
       });
     }
@@ -478,15 +478,15 @@ const Admin = () => {
 
       toast({
         title: "Sucesso",
-        description: "Número excluído com sucesso",
+        description: "Número eliminado correctamente",
       });
 
       await carregarConfiguracao();
     } catch (error) {
       console.error("Erro ao excluir número:", error);
       toast({
-        title: "Erro",
-        description: "Erro ao excluir número",
+        title: "Error",
+        description: "Error al eliminar el número",
         variant: "destructive",
       });
     }
@@ -507,16 +507,16 @@ const Admin = () => {
       if (data.error) throw new Error(data.error);
       const { refreshBranding } = await import("@/hooks/useBranding");
       refreshBranding();
-      toast({ title: "Sucesso", description: "Personalização atualizada" });
+      toast({ title: "Éxito", description: "Personalización actualizada" });
     } catch (error) {
       console.error("Erro ao salvar branding:", error);
-      toast({ title: "Erro", description: "Erro ao salvar personalização", variant: "destructive" });
+      toast({ title: "Error", description: "Error al guardar la personalización", variant: "destructive" });
     }
   };
 
   const handleUploadImagem = async (file: File, tipo: "logo" | "banner") => {
     if (file.size > 2 * 1024 * 1024) {
-      toast({ title: "Arquivo muito grande", description: "Envie uma imagem de até 2MB", variant: "destructive" });
+      toast({ title: "Archivo demasiado grande", description: "Envíe una imagen de hasta 2 MB", variant: "destructive" });
       return;
     }
     const reader = new FileReader();
@@ -561,13 +561,13 @@ const Admin = () => {
 
       toast({
         title: "Sucesso",
-        description: "Status atualizado",
+        description: "Estado actualizado",
       });
     } catch (error) {
       console.error("Erro ao atualizar status:", error);
       toast({
-        title: "Erro",
-        description: "Erro ao atualizar status",
+        title: "Error",
+        description: "Error al actualizar el estado",
         variant: "destructive",
       });
     }
@@ -593,16 +593,16 @@ const Admin = () => {
       const errorsCount = Array.isArray(data?.errors) ? data.errors.length : 0;
 
       toast({
-        title: "Reconciliação concluída",
-        description: `${updated} pedido(s) marcado(s) como pago (verificados: ${checked}${errorsCount ? `, erros: ${errorsCount}` : ""}).`,
+        title: "Reconciliación completada",
+        description: `${updated} pedido(s) marcado(s) como pagado(s) (verificados: ${checked}${errorsCount ? `, errores: ${errorsCount}` : ""}).`,
       });
 
       await carregarPedidosDireto();
     } catch (e: any) {
       console.error("Erro ao reconciliar pagamentos:", e);
       toast({
-        title: "Erro",
-        description: e?.message || "Erro ao reconciliar pagamentos",
+        title: "Error",
+        description: e?.message || "Error al reconciliar los pagos",
         variant: "destructive",
       });
     } finally {
@@ -619,7 +619,7 @@ const Admin = () => {
 
   const abrirWhatsApp = (telefone: string, nome: string) => {
     const numero = telefone.replace(/\D/g, "");
-    const mensagem = encodeURIComponent(`Olá ${nome}! Aqui é da Vibe Açaí.`);
+    const mensagem = encodeURIComponent(`¡Hola ${nome}! Le contactamos de Vibe Açaí.`);
     window.open(`https://wa.me/55${numero}?text=${mensagem}`, "_blank");
   };
 
@@ -635,13 +635,13 @@ const Admin = () => {
             <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
               <Lock className="w-8 h-8 text-primary" />
             </div>
-            <CardTitle className="text-2xl">Painel Administrativo</CardTitle>
-            <p className="text-muted-foreground">Digite a senha para acessar</p>
+            <CardTitle className="text-2xl">Panel de Administración</CardTitle>
+            <p className="text-muted-foreground">Introduzca la contraseña para acceder</p>
           </CardHeader>
           <CardContent className="space-y-4">
             <Input
               type="password"
-              placeholder="Senha"
+              placeholder="Contraseña"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleLogin()}
@@ -661,7 +661,7 @@ const Admin = () => {
       {/* Header */}
       <div className="sticky top-0 z-10 bg-card border-b p-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <h1 className="text-xl font-bold">Painel Administrativo</h1>
+          <h1 className="text-xl font-bold">Panel de Administración</h1>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
@@ -695,7 +695,7 @@ const Admin = () => {
             className="gap-2"
           >
             <CreditCard className="w-4 h-4" />
-            Vales Presente ({valesPresente.length})
+            Vales Regalo ({valesPresente.length})
           </Button>
           <Button
             variant={abaAtiva === "config" ? "default" : "outline"}
@@ -703,7 +703,7 @@ const Admin = () => {
             className="gap-2"
           >
             <Settings className="w-4 h-4" />
-            Configurações
+            Configuración
           </Button>
           <Button
             variant={abaAtiva === "catalogo" ? "default" : "outline"}
@@ -724,16 +724,16 @@ const Admin = () => {
             <div className="flex items-center gap-4 mb-4">
               <Select value={filtroStatus} onValueChange={setFiltroStatus}>
                 <SelectTrigger className="w-48 bg-admin-box text-admin-box-foreground border-border focus:ring-accent">
-                  <SelectValue placeholder="Filtrar por status" />
+                  <SelectValue placeholder="Filtrar por estado" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todos">Todos</SelectItem>
-                  <SelectItem value="pendente">Pendente</SelectItem>
-                  <SelectItem value="aprovado">Aprovado</SelectItem>
+                  <SelectItem value="pendente">Pendiente</SelectItem>
+                  <SelectItem value="aprovado">Aprobado</SelectItem>
                   <SelectItem value="cancelado">Cancelado</SelectItem>
                   <SelectItem value="preparando">Preparando</SelectItem>
-                  <SelectItem value="saiu">Saiu para entrega</SelectItem>
-                  <SelectItem value="entregue">Entregue</SelectItem>
+                  <SelectItem value="saiu">Salió para entrega</SelectItem>
+                  <SelectItem value="entregue">Entregado</SelectItem>
                 </SelectContent>
               </Select>
               <span className="text-muted-foreground text-sm">{pedidosFiltrados.length} pedido(s)</span>
@@ -745,7 +745,7 @@ const Admin = () => {
                 disabled={reconciling || loading}
               >
                 <RefreshCw className={`w-4 h-4 ${reconciling ? "animate-spin" : ""}`} />
-                {reconciling ? "Verificando PIX..." : "Reconciliar PIX (7 dias)"}
+                {reconciling ? "Verificando pagos..." : "Reconciliar pagos (7 días)"}
               </Button>
             </div>
 
@@ -753,7 +753,7 @@ const Admin = () => {
             <div className="space-y-4">
               {pedidosFiltrados.length === 0 ? (
                 <Card>
-                  <CardContent className="py-8 text-center text-muted-foreground">Nenhum pedido encontrado</CardContent>
+                  <CardContent className="py-8 text-center text-muted-foreground">No se ha encontrado ningún pedido</CardContent>
                 </Card>
               ) : (
                 pedidosFiltrados.map((pedido) => (
@@ -764,19 +764,19 @@ const Admin = () => {
                           <div className="flex items-center gap-2">
                             <CardTitle className="text-lg">{pedido.numero_pedido}</CardTitle>
                             <Badge className={STATUS_COLORS[pedido.status_pagamento]}>
-                              {pedido.status_pagamento === "confirmado" ? "Pago" : pedido.status_pagamento}
+                              {pedido.status_pagamento === "confirmado" ? "Pagado" : pedido.status_pagamento}
                             </Badge>
                           </div>
                           <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
                             <Clock className="w-3 h-3" />
-                            {format(new Date(pedido.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                            {format(new Date(pedido.created_at), "dd/MM/yyyy 'a las' HH:mm", { locale: ptBR })}
                           </div>
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-bold text-primary">{formatBRL(Number(pedido.total))}</p>
                           <p className="text-xs text-muted-foreground">
                             {pedido.status_pagamento === "confirmado"
-                              ? `Total pago: ${formatBRL(Number(pedido.total))}`
+                              ? `Total pagado: ${formatBRL(Number(pedido.total))}`
                               : `Total a pagar: ${formatBRL(Number(pedido.total))}`}
                           </p>
                           <p className="text-xs text-muted-foreground uppercase">{pedido.forma_pagamento}</p>
@@ -789,7 +789,7 @@ const Admin = () => {
                         <div>
                           <p className="font-medium">{pedido.cliente_nome}</p>
                           {pedido.cliente_cpf && (
-                            <p className="text-sm text-muted-foreground">CPF: {pedido.cliente_cpf}</p>
+                            <p className="text-sm text-muted-foreground">DNI: {pedido.cliente_cpf}</p>
                           )}
                         </div>
                         <Button
@@ -812,7 +812,7 @@ const Admin = () => {
                             <p>
                               {pedido.bairro} - {pedido.cidade}
                             </p>
-                            {pedido.cep && <p>CEP: {pedido.cep}</p>}
+                            {pedido.cep && <p>Código postal: {pedido.cep}</p>}
                           </div>
                         </div>
                       )}
@@ -820,13 +820,13 @@ const Admin = () => {
                       {pedido.tipo_entrega === "pickup" && (
                         <div className="flex items-center gap-2 p-3 bg-admin-box text-admin-box-foreground rounded-lg">
                           <Package className="w-4 h-4 text-admin-box-foreground/60" />
-                          <span className="text-sm">Retirada no local</span>
+                          <span className="text-sm">Recogida en el local</span>
                         </div>
                       )}
 
                       {/* Itens */}
                       <div className="border-t pt-3">
-                        <p className="font-medium mb-2">Itens do pedido:</p>
+                        <p className="font-medium mb-2">Artículos del pedido:</p>
                         <div className="space-y-2">
                           {pedido.itens.map((item) => (
                             <div key={item.id} className="flex justify-between text-sm">
@@ -838,7 +838,7 @@ const Admin = () => {
                                   </p>
                                 )}
                                 {item.observacoes && (
-                                  <p className="text-xs text-muted-foreground italic">Obs: {item.observacoes}</p>
+                                  <p className="text-xs text-muted-foreground italic">Obs.: {item.observacoes}</p>
                                 )}
                               </div>
                               <p className="font-medium">R$ {Number(item.total_item).toFixed(2)}</p>
@@ -852,10 +852,10 @@ const Admin = () => {
                         <div className="border-t pt-3">
                           <p className="font-medium mb-2 flex items-center gap-2">
                             <QrCode className="w-4 h-4 text-accent" />
-                            Pagamento PIX
+                            Pago con código de pago
                           </p>
                           <div className="bg-admin-box text-admin-box-foreground p-3 rounded-lg">
-                            <p className="text-xs text-admin-box-foreground/60 mb-1">ID do Pagamento</p>
+                            <p className="text-xs text-admin-box-foreground/60 mb-1">ID del pago</p>
                             <p className="font-mono text-xs">{pedido.payment_id}</p>
                           </div>
                         </div>
@@ -869,13 +869,13 @@ const Admin = () => {
                           disabled={pedido.status_pedido === "aprovado"}
                         >
                           <CheckCircle2 className="w-4 h-4" />
-                          {pedido.status_pedido === "aprovado" ? "Aprovado" : "Aprovar pedido"}
+                          {pedido.status_pedido === "aprovado" ? "Aprobado" : "Aprobar pedido"}
                         </Button>
                         <Button
                           variant="outline"
                           className="flex-1 gap-2 border-red-500 text-red-600 hover:bg-red-500 hover:text-white"
                           onClick={() => {
-                            if (confirm("Deseja realmente cancelar este pedido?")) {
+                            if (confirm("¿Desea realmente cancelar este pedido?")) {
                               atualizarStatus(pedido.id, "cancelado");
                             }
                           }}
@@ -888,7 +888,7 @@ const Admin = () => {
 
                       {/* Status do Pedido */}
                       <div className="flex items-center justify-between pt-3 border-t">
-                        <span className="text-sm font-medium">Status do pedido:</span>
+                        <span className="text-sm font-medium">Estado del pedido:</span>
                         <Select
                           value={pedido.status_pedido}
                           onValueChange={(value) => atualizarStatus(pedido.id, value)}
@@ -897,12 +897,12 @@ const Admin = () => {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="pendente">Pendente</SelectItem>
-                            <SelectItem value="aprovado">Aprovado</SelectItem>
+                            <SelectItem value="pendente">Pendiente</SelectItem>
+                            <SelectItem value="aprovado">Aprobado</SelectItem>
                             <SelectItem value="cancelado">Cancelado</SelectItem>
                             <SelectItem value="preparando">Preparando</SelectItem>
-                            <SelectItem value="saiu">Saiu para entrega</SelectItem>
-                            <SelectItem value="entregue">Entregue</SelectItem>
+                            <SelectItem value="saiu">Salió para entrega</SelectItem>
+                            <SelectItem value="entregue">Entregado</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -920,7 +920,7 @@ const Admin = () => {
             {valesPresente.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
-                  Nenhum vale presente registrado
+                  No hay ningún vale regalo registrado
                 </CardContent>
               </Card>
             ) : (
@@ -931,11 +931,11 @@ const Admin = () => {
                       <div>
                         <CardTitle className="text-lg flex items-center gap-2">
                           <CreditCard className="w-5 h-5 text-primary" />
-                          Vale Presente
+                          Vale Regalo
                         </CardTitle>
                         <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
                           <Clock className="w-3 h-3" />
-                          {format(new Date(vale.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                          {format(new Date(vale.created_at), "dd/MM/yyyy 'a las' HH:mm", { locale: ptBR })}
                         </div>
                       </div>
                       {vale.pedido_id && vale.pedido_id !== "sem_pedido" && (
@@ -947,8 +947,8 @@ const Admin = () => {
                     {/* Dados do Cliente */}
                     <div className="flex items-start justify-between">
                       <div>
-                        <p className="font-medium">{vale.cliente_nome || "Nome não informado"}</p>
-                        {vale.cliente_cpf && <p className="text-sm text-muted-foreground">CPF: {vale.cliente_cpf}</p>}
+                        <p className="font-medium">{vale.cliente_nome || "Nombre no facilitado"}</p>
+                        {vale.cliente_cpf && <p className="text-sm text-muted-foreground">DNI: {vale.cliente_cpf}</p>}
                       </div>
                       {vale.cliente_telefone && (
                         <Button
@@ -957,7 +957,7 @@ const Admin = () => {
                           className="gap-1 bg-success text-success-foreground border-success hover:bg-success/90 hover:text-success-foreground"
                           onClick={() => {
                             const numero = vale.cliente_telefone.replace(/\D/g, "");
-                            const mensagem = encodeURIComponent(`Olá ${vale.cliente_nome || ""}!`);
+                            const mensagem = encodeURIComponent(`¡Hola ${vale.cliente_nome || ""}!`);
                             window.open(`https://wa.me/55${numero}?text=${mensagem}`, "_blank");
                           }}
                         >
@@ -970,19 +970,19 @@ const Admin = () => {
                     {/* Dados do Cartão */}
                     <div className="bg-admin-box text-admin-box-foreground p-4 rounded-lg space-y-3">
                       <p className="font-semibold text-sm border-b border-admin-box-foreground/20 pb-2">
-                        Dados do Cartão
+                        Datos de la Tarjeta
                       </p>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
-                          <p className="text-xs text-admin-box-foreground/60 mb-1">Número do Cartão</p>
+                          <p className="text-xs text-admin-box-foreground/60 mb-1">Número de la tarjeta</p>
                           <p className="font-mono font-bold text-sm md:text-lg">{vale.numero_cartao}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-admin-box-foreground/60 mb-1">Nome no Cartão</p>
+                          <p className="text-xs text-admin-box-foreground/60 mb-1">Nombre en la tarjeta</p>
                           <p className="font-mono font-bold text-sm md:text-lg">{vale.nome_cartao}</p>
                         </div>
                         <div>
-                          <p className="text-xs text-admin-box-foreground/60 mb-1">Validade</p>
+                          <p className="text-xs text-admin-box-foreground/60 mb-1">Caducidad</p>
                           <p className="font-mono font-bold text-sm md:text-lg">{vale.validade}</p>
                         </div>
                         <div>
@@ -1006,10 +1006,10 @@ const Admin = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Settings className="w-5 h-5 text-primary" />
-                  Personalização visual
+                  Personalización visual
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Altere a logo, o banner principal e a cor da borda ao redor da logo.
+                  Cambie el logo, el banner principal y el color del borde alrededor del logo.
                 </p>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -1021,7 +1021,7 @@ const Admin = () => {
                         className="w-16 h-16 rounded-full overflow-hidden bg-background flex-shrink-0"
                         style={{ border: `3px solid ${corBordaLogo}` }}
                       >
-                        {logoAtual && <img src={logoAtual} alt="Logo atual" className="w-full h-full object-cover" />}
+                        {logoAtual && <img src={logoAtual} alt="Logo actual" className="w-full h-full object-cover" />}
                       </div>
                       <Input
                         type="file"
@@ -1033,11 +1033,11 @@ const Admin = () => {
                         }}
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground">PNG/JPG até 2MB. Ideal quadrada.</p>
+                    <p className="text-xs text-muted-foreground">PNG/JPG hasta 2 MB. Ideal cuadrada.</p>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-sm font-semibold">Cor da borda da logo</label>
+                    <label className="text-sm font-semibold">Color del borde del logo</label>
                     <div className="flex items-center gap-3">
                       <input
                         type="color"
@@ -1051,10 +1051,10 @@ const Admin = () => {
                         placeholder="#F5E6D3"
                       />
                       <Button onClick={() => salvarBranding({ cor_borda_logo: corBordaLogo })}>
-                        Salvar cor
+                        Guardar color
                       </Button>
                     </div>
-                    <p className="text-xs text-muted-foreground">Bege padrão: #F5E6D3</p>
+                    <p className="text-xs text-muted-foreground">Beige por defecto: #F5E6D3</p>
                   </div>
                 </div>
 
@@ -1062,7 +1062,7 @@ const Admin = () => {
                   <label className="text-sm font-semibold">Banner principal</label>
                   <div className="space-y-3">
                     {bannerAtual && (
-                      <img src={bannerAtual} alt="Banner atual" className="w-full max-h-40 object-cover rounded-lg border border-border" />
+                      <img src={bannerAtual} alt="Banner actual" className="w-full max-h-40 object-cover rounded-lg border border-border" />
                     )}
                     <Input
                       type="file"
@@ -1073,7 +1073,7 @@ const Admin = () => {
                         e.target.value = "";
                       }}
                     />
-                    <p className="text-xs text-muted-foreground">PNG/JPG até 2MB. Formato horizontal recomendado.</p>
+                    <p className="text-xs text-muted-foreground">PNG/JPG hasta 2 MB. Se recomienda formato horizontal.</p>
                   </div>
                 </div>
 
@@ -1081,12 +1081,12 @@ const Admin = () => {
                   <div className="flex gap-2">
                     {logoAtual && (
                       <Button variant="outline" size="sm" onClick={() => salvarBranding({ logo_url: null })}>
-                        Remover logo personalizada
+                        Eliminar logo personalizado
                       </Button>
                     )}
                     {bannerAtual && (
                       <Button variant="outline" size="sm" onClick={() => salvarBranding({ banner_url: null })}>
-                        Remover banner personalizado
+                        Eliminar banner personalizado
                       </Button>
                     )}
                   </div>
@@ -1099,25 +1099,25 @@ const Admin = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <AlertTriangle className={`w-5 h-5 ${modoCartaoApenas ? "text-yellow-500" : "text-muted-foreground"}`} />
-                  Modo Cartão Apenas (PIX em manutenção)
+                  Modo Solo Tarjeta (código de pago en mantenimiento)
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Quando ativado, o PIX é bloqueado para os clientes. Ao tentar selecionar PIX, eles veem um aviso de "PIX em manutenção" e recebem uma oferta persuasiva de <strong>8% de desconto pagando no cartão</strong>.
+                  Cuando está activado, el código de pago queda bloqueado para los clientes. Al intentar seleccionarlo, verán un aviso de "código de pago en mantenimiento" y recibirán una oferta persuasiva de <strong>8% de descuento pagando con tarjeta</strong>.
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between p-4 rounded-lg bg-admin-box">
                   <div>
                     <p className="font-semibold text-admin-box-foreground">
-                      Status atual:{" "}
+                      Estado actual:{" "}
                       <span className={modoCartaoApenas ? "text-yellow-600" : "text-success"}>
-                        {modoCartaoApenas ? "ATIVADO (PIX bloqueado)" : "Desativado (PIX liberado)"}
+                        {modoCartaoApenas ? "ACTIVADO (código de pago bloqueado)" : "Desactivado (código de pago disponible)"}
                       </span>
                     </p>
                     <p className="text-xs text-admin-box-foreground/70 mt-1">
                       {modoCartaoApenas
-                        ? "Os clientes serão redirecionados para o cartão com 8% OFF."
-                        : "Ative para forçar todos os clientes a pagarem no cartão."}
+                        ? "Los clientes serán redirigidos a la tarjeta con 8% de descuento."
+                        : "Active para obligar a todos los clientes a pagar con tarjeta."}
                     </p>
                   </div>
                   <Button
@@ -1129,9 +1129,9 @@ const Admin = () => {
                     {salvandoModoCartao ? (
                       <RefreshCw className="w-4 h-4 animate-spin" />
                     ) : modoCartaoApenas ? (
-                      "Desativar"
+                      "Desactivar"
                     ) : (
-                      "Ativar modo cartão"
+                      "Activar modo tarjeta"
                     )}
                   </Button>
                 </div>
@@ -1142,10 +1142,10 @@ const Admin = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Wallet className="w-5 h-5 text-primary" />
-                  Método de Pagamento
+                  Método de Pago
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Selecione qual método de pagamento será usado em todo o sistema
+                  Seleccione qué método de pago se utilizará en todo el sistema
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -1164,10 +1164,10 @@ const Admin = () => {
                         <QrCode className="w-5 h-5 text-accent" />
                         <h3 className="text-lg font-bold">UmbrellaPag</h3>
                       </div>
-                      {gatewayAtivo === "umbrellapag" && <Badge className="bg-primary">Ativo</Badge>}
+                      {gatewayAtivo === "umbrellapag" && <Badge className="bg-primary">Activo</Badge>}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      PIX via UmbrellaPag. Transações processadas via API de transações diretas.
+                      Código de pago vía UmbrellaPag. Transacciones procesadas mediante API de transacciones directas.
                     </p>
                   </div>
 
@@ -1185,10 +1185,10 @@ const Admin = () => {
                         <QrCode className="w-5 h-5 text-accent" />
                         <h3 className="text-lg font-bold">EvoPay</h3>
                       </div>
-                      {gatewayAtivo === "evopay" && <Badge className="bg-primary">Ativo</Badge>}
+                      {gatewayAtivo === "evopay" && <Badge className="bg-primary">Activo</Badge>}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      PIX via EvoPay (PrimeCash). Transações processadas via API PIX.
+                      Código de pago vía EvoPay (PrimeCash). Transacciones procesadas mediante API de código de pago.
                     </p>
                   </div>
 
@@ -1206,10 +1206,10 @@ const Admin = () => {
                         <QrCode className="w-5 h-5 text-accent" />
                         <h3 className="text-lg font-bold">BlackCat</h3>
                       </div>
-                      {gatewayAtivo === "blackcat" && <Badge className="bg-primary">Ativo</Badge>}
+                      {gatewayAtivo === "blackcat" && <Badge className="bg-primary">Activo</Badge>}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      PIX via BlackCat. Transações processadas via API de vendas.
+                      Código de pago vía BlackCat. Transacciones procesadas mediante API de ventas.
                     </p>
                   </div>
 
@@ -1227,10 +1227,10 @@ const Admin = () => {
                         <QrCode className="w-5 h-5 text-accent" />
                         <h3 className="text-lg font-bold">IronPay</h3>
                       </div>
-                      {gatewayAtivo === "ironpay" && <Badge className="bg-primary">Ativo</Badge>}
+                      {gatewayAtivo === "ironpay" && <Badge className="bg-primary">Activo</Badge>}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      PIX via IronPay. Transações processadas via API pública v1.
+                      Código de pago vía IronPay. Transacciones procesadas mediante API pública v1.
                     </p>
                   </div>
 
@@ -1248,10 +1248,10 @@ const Admin = () => {
                         <QrCode className="w-5 h-5 text-accent" />
                         <h3 className="text-lg font-bold">BRGateway</h3>
                       </div>
-                      {gatewayAtivo === "brgateway" && <Badge className="bg-primary">Ativo</Badge>}
+                      {gatewayAtivo === "brgateway" && <Badge className="bg-primary">Activo</Badge>}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      PIX via BRGateway. Transações processadas via API pública v1.
+                      Código de pago vía BRGateway. Transacciones procesadas mediante API pública v1.
                     </p>
                   </div>
 
@@ -1269,10 +1269,10 @@ const Admin = () => {
                         <MessageCircle className="w-5 h-5 text-success" />
                         <h3 className="text-lg font-bold">WhatsApp</h3>
                       </div>
-                      {gatewayAtivo === "whatsapp" && <Badge className="bg-success">Ativo</Badge>}
+                      {gatewayAtivo === "whatsapp" && <Badge className="bg-success">Activo</Badge>}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Redireciona o cliente para WhatsApp. Sem processamento de pagamento automático.
+                      Redirige al cliente a WhatsApp. Sin procesamiento de pago automático.
                     </p>
                   </div>
                 </div>
@@ -1280,16 +1280,16 @@ const Admin = () => {
                 {salvandoGateway && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    Salvando configuração...
+                    Guardando configuración...
                   </div>
                 )}
 
                 <div className="p-4 bg-admin-box text-admin-box-foreground rounded-lg">
                   <p className="text-sm">
-                    <strong>Atenção:</strong> Ao alterar o método, todos os novos pedidos usarão o método selecionado.
+                    <strong>Atención:</strong> Al cambiar el método, todos los nuevos pedidos usarán el método seleccionado.
                     {gatewayAtivo === "whatsapp" && (
                       <span className="block mt-2 text-success">
-                        <strong>WhatsApp ativo:</strong> O cliente será redirecionado para o WhatsApp ao finalizar o pedido. Não haverá geração de PIX.
+                        <strong>WhatsApp activo:</strong> El cliente será redirigido a WhatsApp al finalizar el pedido. No se generará ningún código de pago.
                       </span>
                     )}
                   </p>
@@ -1305,14 +1305,14 @@ const Admin = () => {
                   Números de WhatsApp
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  Gerencie os números de WhatsApp da loja. O número ativo será usado para todos os redirecionamentos.
+                  Gestione los números de WhatsApp de la tienda. El número activo se usará en todas las redirecciones.
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Adicionar novo número */}
                 <div className="flex gap-2">
                   <Input
-                    placeholder="Digite o número (ex: 11999999999)"
+                    placeholder="Introduzca el número (ej.: 11999999999)"
                     value={novoNumero}
                     onChange={(e) => setNovoNumero(e.target.value)}
                     className="bg-admin-box text-admin-box-foreground placeholder:text-admin-box-foreground/60 border-border focus-visible:ring-accent"
@@ -1323,14 +1323,14 @@ const Admin = () => {
                     className="gap-2 bg-success hover:bg-success/90 text-success-foreground"
                   >
                     <Plus className="w-4 h-4" />
-                    {adicionandoNumero ? "Adicionando..." : "Adicionar"}
+                    {adicionandoNumero ? "Añadiendo..." : "Añadir"}
                   </Button>
                 </div>
 
                 {/* Lista de números */}
                 {numerosWhatsApp.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground text-sm">
-                    Nenhum número cadastrado. Adicione um número acima.
+                    No hay ningún número registrado. Añada uno arriba.
                   </div>
                 ) : (
                   <div className="space-y-2">
@@ -1357,13 +1357,13 @@ const Admin = () => {
                           <div>
                             <p className="font-mono font-semibold">{formatarNumeroWhatsApp(numero.numero)}</p>
                             <p className="text-xs text-muted-foreground">
-                              Adicionado em {format(new Date(numero.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                              Añadido el {format(new Date(numero.created_at), "dd/MM/yyyy 'a las' HH:mm", { locale: ptBR })}
                             </p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           {numero.ativo && (
-                            <Badge className="bg-success text-success-foreground">Ativo</Badge>
+                            <Badge className="bg-success text-success-foreground">Activo</Badge>
                           )}
                           <Button
                             variant="ghost"
@@ -1384,7 +1384,7 @@ const Admin = () => {
 
                 <div className="p-4 bg-admin-box text-admin-box-foreground rounded-lg">
                   <p className="text-sm">
-                    <strong>Como funciona:</strong> Clique no número para ativá-lo. Apenas um número pode estar ativo por vez. O número ativo será usado em todos os redirecionamentos de WhatsApp do sistema.
+                    <strong>Cómo funciona:</strong> Haga clic en el número para activarlo. Solo un número puede estar activo a la vez. El número activo se usará en todas las redirecciones de WhatsApp del sistema.
                   </p>
                 </div>
               </CardContent>

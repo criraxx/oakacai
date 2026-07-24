@@ -42,48 +42,53 @@ const Identificacao = () => {
     }
   }, [nome, telefone, itens, getSubtotal]);
 
+  // Teléfono España: 9 dígitos, formato "XXX XX XX XX"
   const formatTelefone = (value: string) => {
-    const n = value.replace(/\D/g, "");
-    if (n.length <= 2) return n;
-    if (n.length <= 7) return `(${n.slice(0, 2)}) ${n.slice(2)}`;
-    if (n.length <= 11) return `(${n.slice(0, 2)}) ${n.slice(2, 7)}-${n.slice(7)}`;
-    return `(${n.slice(0, 2)}) ${n.slice(2, 7)}-${n.slice(7, 11)}`;
-  };
-
-  const formatCpf = (value: string) => {
-    const n = value.replace(/\D/g, "");
+    const n = value.replace(/\D/g, "").slice(0, 9);
     if (n.length <= 3) return n;
-    if (n.length <= 6) return `${n.slice(0, 3)}.${n.slice(3)}`;
-    if (n.length <= 9) return `${n.slice(0, 3)}.${n.slice(3, 6)}.${n.slice(6)}`;
-    return `${n.slice(0, 3)}.${n.slice(3, 6)}.${n.slice(6, 9)}-${n.slice(9, 11)}`;
+    if (n.length <= 5) return `${n.slice(0, 3)} ${n.slice(3)}`;
+    if (n.length <= 7) return `${n.slice(0, 3)} ${n.slice(3, 5)} ${n.slice(5)}`;
+    return `${n.slice(0, 3)} ${n.slice(3, 5)} ${n.slice(5, 7)} ${n.slice(7)}`;
   };
 
-  const validarCpf = (cpf: string) => {
-    const n = cpf.replace(/\D/g, "");
-    if (n.length !== 11 || /^(\d)\1+$/.test(n)) return false;
-    let s = 0;
-    for (let i = 0; i < 9; i++) s += parseInt(n[i]) * (10 - i);
-    let r = (s * 10) % 11;
-    if (r === 10 || r === 11) r = 0;
-    if (r !== parseInt(n[9])) return false;
-    s = 0;
-    for (let i = 0; i < 10; i++) s += parseInt(n[i]) * (11 - i);
-    r = (s * 10) % 11;
-    if (r === 10 || r === 11) r = 0;
-    return r === parseInt(n[10]);
+  // DNI/NIE España: 8 dígitos + letra, o X/Y/Z + 7 dígitos + letra
+  const formatDni = (value: string) => {
+    return value.toUpperCase().replace(/[^0-9XYZA-Z]/g, "").slice(0, 9);
+  };
+
+  const validarDni = (dni: string) => {
+    const clean = dni.toUpperCase().trim();
+    const dniRegex = /^(\d{8})([A-Z])$/;
+    const nieRegex = /^([XYZ])(\d{7})([A-Z])$/;
+    const letras = "TRWAGMYFPDXBNJZSQVHLCKE";
+    let numero: number;
+    let letra: string;
+    if (dniRegex.test(clean)) {
+      const m = clean.match(dniRegex)!;
+      numero = parseInt(m[1], 10);
+      letra = m[2];
+    } else if (nieRegex.test(clean)) {
+      const m = clean.match(nieRegex)!;
+      const prefijo = { X: 0, Y: 1, Z: 2 }[m[1] as "X" | "Y" | "Z"];
+      numero = parseInt(`${prefijo}${m[2]}`, 10);
+      letra = m[3];
+    } else {
+      return false;
+    }
+    return letras[numero % 23] === letra;
   };
 
   const nomeOk = isNomeValido(nome);
-  const telOk = telefone.replace(/\D/g, "").length >= 10;
-  const cpfOk = validarCpf(cpf);
-  const isFormValid = nomeOk && telOk && cpfOk;
+  const telOk = telefone.replace(/\D/g, "").length === 9;
+  const dniOk = validarDni(cpf);
+  const isFormValid = nomeOk && telOk && dniOk;
 
   const subtotal = useMemo(() => getSubtotal(), [getSubtotal, itens]);
 
   const handleContinuar = () => {
-    if (!nomeOk) return toast({ title: "Nome inválido", description: "Use apenas letras.", variant: "destructive" });
-    if (!telOk) return toast({ title: "Telefone inválido", variant: "destructive" });
-    if (!cpfOk) return toast({ title: "CPF inválido", variant: "destructive" });
+    if (!nomeOk) return toast({ title: "Nombre no válido", description: "Usa solo letras.", variant: "destructive" });
+    if (!telOk) return toast({ title: "Teléfono no válido", variant: "destructive" });
+    if (!dniOk) return toast({ title: "DNI/NIE no válido", variant: "destructive" });
     setDadosCliente({
       nome: nome.trim(),
       telefone: telefone.replace(/\D/g, ""),
@@ -100,11 +105,11 @@ const Identificacao = () => {
           <button
             onClick={() => navigate(-1)}
             className="w-9 h-9 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
-            aria-label="Voltar"
+            aria-label="Volver"
           >
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-foreground font-semibold text-base">Seus dados</h1>
+          <h1 className="text-foreground font-semibold text-base">Tus datos</h1>
           <span className="ml-auto text-xs text-muted-foreground font-medium">2/3</span>
         </div>
         {/* Progress bar */}
@@ -113,13 +118,13 @@ const Identificacao = () => {
         </div>
       </header>
 
-      {/* Conteúdo */}
+      {/* Contenido */}
       <main className="flex-1 px-4 pt-6 pb-6">
         <h2 className="text-[22px] font-bold text-foreground leading-tight mb-1">
-          Para quem é o pedido?
+          ¿Para quién es el pedido?
         </h2>
         <p className="text-sm text-muted-foreground mb-6">
-          Suas informações para confirmar e enviar no WhatsApp.
+          Tus datos para confirmar y enviar por WhatsApp.
         </p>
 
         <div className="space-y-5">
@@ -128,7 +133,7 @@ const Identificacao = () => {
             label="WhatsApp"
             value={telefone}
             onChange={(v) => setTelefone(formatTelefone(v))}
-            placeholder="(00) 00000-0000"
+            placeholder="600 00 00 00"
             inputMode="numeric"
             type="tel"
             accent={accent}
@@ -136,36 +141,35 @@ const Identificacao = () => {
           />
           <FloatInput
             id="nome"
-            label="Nome completo"
+            label="Nombre completo"
             value={nome}
             onChange={(v) => setNome(sanitizeNome(v))}
-            placeholder="Como você se chama"
+            placeholder="Cómo te llamas"
             accent={accent}
             valid={nomeOk}
             maxLength={80}
           />
           <FloatInput
             id="cpf"
-            label="CPF"
+            label="DNI / NIE"
             value={cpf}
-            onChange={(v) => setCpf(formatCpf(v))}
-            placeholder="000.000.000-00"
-            inputMode="numeric"
+            onChange={(v) => setCpf(formatDni(v))}
+            placeholder="12345678A"
             accent={accent}
-            valid={cpfOk}
-            maxLength={14}
-            hint="Necessário para o PIX"
+            valid={dniOk}
+            maxLength={9}
+            hint="Necesario para procesar el pago"
           />
         </div>
       </main>
 
-      {/* Footer Fixo */}
+      {/* Footer Fijo */}
       <footer className="sticky bottom-0 bg-background border-t border-border">
         <div className="px-4 py-3 flex items-center gap-3">
           <div className="flex flex-col">
             <span className="text-[11px] text-muted-foreground leading-none mb-1">Total</span>
             <span className="text-base font-bold text-foreground leading-none">
-              R$ {subtotal.toFixed(2).replace(".", ",")}
+              {subtotal.toFixed(2).replace(".", ",")} €
             </span>
           </div>
           <button

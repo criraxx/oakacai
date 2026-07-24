@@ -11,9 +11,9 @@ const BottomNavigation = () => {
 
   const totalItens = itens.reduce((acc, item) => acc + (item.quantidade ?? 1), 0);
   const navItems = [
-    { icon: Home, label: "Início", path: "/" },
+    { icon: Home, label: "Inicio", path: "/" },
     { icon: ClipboardList, label: "Pedidos", path: "/pedidos" },
-    { icon: ShoppingCart, label: "Carrinho", path: "/carrinho", badge: totalItens > 0 ? totalItens : null },
+    { icon: ShoppingCart, label: "Carrito", path: "/carrinho", badge: totalItens > 0 ? totalItens : null },
   ];
 
   const activeColor = cor_borda_logo || "#16a34a";

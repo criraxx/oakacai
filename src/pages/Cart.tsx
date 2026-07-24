@@ -14,14 +14,14 @@ import acaiDiamante from "@/assets/acai-diamante-negro.jpg";
 import acaiSensacao from "@/assets/acai-sensacao.jpg";
 
 const produtosSugeridos = [
-  { id: "copo-300ml-puro", nome: "Copo 300ml Açaí Puro", preco: 25.9, imagem: acaiPuro },
-  { id: "combo-300ml", nome: "Combo Premium 300ml", preco: 49.9, imagem: acaiCombo300 },
-  { id: "trufado-rafaelo-300", nome: "Trufado Rafaelo 300ml", preco: 34.99, imagem: acaiRafaelo },
-  { id: "trufado-diamante-300", nome: "Diamante Negro 300ml", preco: 34.99, imagem: acaiDiamante },
-  { id: "trufado-sensacao-300", nome: "Sensação 300ml", preco: 34.99, imagem: acaiSensacao },
+  { id: "copo-300ml-puro", nome: "Vaso 300ml Açaí Puro", preco: 4.90, imagem: acaiPuro },
+  { id: "combo-300ml", nome: "Combo Premium 300ml", preco: 7.90, imagem: acaiCombo300 },
+  { id: "trufado-rafaelo-300", nome: "Trufado Rafaelo 300ml", preco: 5.99, imagem: acaiRafaelo },
+  { id: "trufado-diamante-300", nome: "Diamante Negro 300ml", preco: 5.99, imagem: acaiDiamante },
+  { id: "trufado-sensacao-300", nome: "Sensación 300ml", preco: 5.99, imagem: acaiSensacao },
 ];
 
-const formatBRL = (v: number) => `R$ ${v.toFixed(2).replace(".", ",")}`;
+const formatEUR = (v: number) => `${v.toFixed(2).replace(".", ",")} €`;
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -65,7 +65,7 @@ const Cart = () => {
             >
               <ArrowLeft size={20} />
             </button>
-            <h1 className="text-foreground font-semibold text-lg">Meu carrinho</h1>
+            <h1 className="text-foreground font-semibold text-lg">Mi carrito</h1>
           </div>
         </header>
 
@@ -73,16 +73,16 @@ const Cart = () => {
           <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center mb-5">
             <ShoppingBag size={44} className="text-muted-foreground" />
           </div>
-          <h2 className="text-foreground font-semibold text-xl mb-2">Seu carrinho está vazio</h2>
+          <h2 className="text-foreground font-semibold text-xl mb-2">Tu carrito está vacío</h2>
           <p className="text-muted-foreground text-sm text-center mb-8 max-w-xs">
-            Que tal escolher um açaí delicioso agora mesmo?
+            ¿Y si eliges un açaí delicioso ahora mismo?
           </p>
           <button
             onClick={() => navigate("/")}
             className="px-8 py-3.5 text-white font-semibold rounded-full press-effect hover:opacity-90 transition-opacity shadow-md"
             style={{ backgroundColor: cor_borda_logo }}
           >
-            Ver cardápio
+            Ver carta
           </button>
         </div>
         <BottomNavigation />
@@ -108,9 +108,9 @@ const Cart = () => {
               <ArrowLeft size={20} />
             </button>
             <div>
-              <h1 className="text-foreground font-semibold text-lg leading-tight">Meu carrinho</h1>
+              <h1 className="text-foreground font-semibold text-lg leading-tight">Mi carrito</h1>
               <p className="text-muted-foreground text-xs">
-                {itens.reduce((acc, item) => acc + (item.quantidade ?? 1), 0)} {itens.reduce((acc, item) => acc + (item.quantidade ?? 1), 0) === 1 ? "item" : "itens"}
+                {itens.reduce((acc, item) => acc + (item.quantidade ?? 1), 0)} {itens.reduce((acc, item) => acc + (item.quantidade ?? 1), 0) === 1 ? "artículo" : "artículos"}
               </p>
             </div>
           </div>
@@ -118,21 +118,21 @@ const Cart = () => {
             onClick={limparCarrinho}
             className="text-destructive text-xs font-medium hover:underline flex items-center gap-1"
           >
-            <Trash2 size={14} /> Limpar
+            <Trash2 size={14} /> Vaciar
           </button>
         </div>
       </header>
 
       <main className="flex-1 pt-3">
-        {/* Card: Resumo do pedido */}
+        {/* Card: Resumen del pedido */}
         <section className="mx-4 mb-4 bg-background rounded-2xl border border-border overflow-hidden shadow-sm">
           <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-            <h2 className="text-foreground font-semibold text-sm">Seu pedido</h2>
+            <h2 className="text-foreground font-semibold text-sm">Tu pedido</h2>
             <button
               onClick={() => navigate("/")}
               className="text-xs text-primary font-medium hover:underline flex items-center gap-1"
             >
-              <Plus size={12} /> Adicionar mais
+              <Plus size={12} /> Añadir más
             </button>
           </div>
 
@@ -168,14 +168,14 @@ const Cart = () => {
                               },
                             })
                           }
-                          aria-label="Editar item"
+                          aria-label="Editar artículo"
                           className="text-muted-foreground hover:text-primary transition-colors p-1"
                         >
                           <Pencil size={15} />
                         </button>
                         <button
                           onClick={() => removerItem(item.id)}
-                          aria-label="Remover item"
+                          aria-label="Eliminar artículo"
                           className="text-muted-foreground hover:text-destructive transition-colors p-1"
                         >
                           <Trash2 size={16} />
@@ -193,7 +193,7 @@ const Cart = () => {
                         ))}
                         {complementosSelecionados.length > 2 && (
                           <p className="text-muted-foreground text-xs">
-                            +{complementosSelecionados.length - 2} adicionais
+                            +{complementosSelecionados.length - 2} extras
                           </p>
                         )}
                       </div>
@@ -203,7 +203,7 @@ const Cart = () => {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => decrementarQuantidade(item.id)}
-                          aria-label="Diminuir quantidade"
+                          aria-label="Reducir cantidad"
                           className="w-7 h-7 flex items-center justify-center rounded-full border border-border bg-muted text-foreground hover:bg-muted/80 active:scale-95 transition-all"
                         >
                           −
@@ -213,14 +213,14 @@ const Cart = () => {
                         </span>
                         <button
                           onClick={() => incrementarQuantidade(item.id)}
-                          aria-label="Aumentar quantidade"
+                          aria-label="Aumentar cantidad"
                           className="w-7 h-7 flex items-center justify-center rounded-full bg-primary text-primary-foreground hover:opacity-90 active:scale-95 transition-all"
                         >
                           +
                         </button>
                       </div>
                       <p className="text-foreground font-bold text-sm">
-                        {formatBRL((item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1))}
+                        {formatEUR((item.produtoPreco + item.totalAdicionais) * (item.quantidade ?? 1))}
                       </p>
                     </div>
                   </div>
@@ -230,13 +230,13 @@ const Cart = () => {
           </ul>
         </section>
 
-        {/* Order Bumps dinâmicos */}
+        {/* Order Bumps dinámicos */}
         <OrderBumpList gatilho="carrinho" />
 
-        {/* Peça também */}
+        {/* Añade también */}
         {sugestoesFiltradas.length > 0 && (
           <section className="mb-4">
-            <h3 className="text-foreground font-semibold text-sm px-4 mb-2">Peça também</h3>
+            <h3 className="text-foreground font-semibold text-sm px-4 mb-2">Añade también</h3>
             <div className="flex gap-3 overflow-x-auto pb-2 px-4 scrollbar-hide">
               {sugestoesFiltradas.map((produto) => (
                 <div
@@ -254,11 +254,11 @@ const Cart = () => {
                     </p>
                     <div className="flex items-center justify-between">
                       <p className="text-foreground font-bold text-xs">
-                        {formatBRL(produto.preco)}
+                        {formatEUR(produto.preco)}
                       </p>
                       <button
                         onClick={() => adicionarProdutoSugerido(produto)}
-                        aria-label={`Adicionar ${produto.nome}`}
+                        aria-label={`Añadir ${produto.nome}`}
                         className="w-7 h-7 flex items-center justify-center bg-primary text-primary-foreground rounded-full press-effect"
                       >
                         <Plus size={14} />
@@ -271,40 +271,40 @@ const Cart = () => {
           </section>
         )}
 
-        {/* Card: Resumo de valores */}
+        {/* Card: Resumen de importes */}
         <section className="mx-4 mb-4 bg-background rounded-2xl border border-border p-4 shadow-sm">
-          <h3 className="text-foreground font-semibold text-sm mb-3">Resumo</h3>
+          <h3 className="text-foreground font-semibold text-sm mb-3">Resumen</h3>
           <div className="space-y-1.5 text-sm">
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="text-foreground font-medium">{formatBRL(subtotal)}</span>
+              <span className="text-foreground font-medium">{formatEUR(subtotal)}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Taxa de entrega</span>
-              <span className="text-green-500 font-medium">Grátis</span>
+              <span className="text-muted-foreground">Gastos de envío</span>
+              <span className="text-green-500 font-medium">Gratis</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground flex items-center gap-1">
-                <Tag size={12} /> Desconto no PIX (6%)
+                <Tag size={12} /> Descuento pago online (6%)
               </span>
-              <span className="text-green-500 font-medium">- {formatBRL(descontoPix)}</span>
+              <span className="text-green-500 font-medium">- {formatEUR(descontoPix)}</span>
             </div>
             <div className="border-t border-border my-2" />
             <div className="flex items-center justify-between">
               <span className="text-foreground font-semibold">Total</span>
-              <span className="text-foreground font-bold text-lg">{formatBRL(total)}</span>
+              <span className="text-foreground font-bold text-lg">{formatEUR(total)}</span>
             </div>
           </div>
         </section>
 
-        {/* Aviso PIX */}
+        {/* Aviso pago online */}
         <div className="mx-4 mb-4 p-3 bg-accent/10 rounded-xl border border-accent/30 flex items-center gap-2">
           <Tag size={16} className="text-accent flex-shrink-0" />
           <p className="text-accent text-xs font-medium">
-            Pague com PIX e ganhe <strong>6% de desconto</strong> automático!
+            ¡Paga online y consigue un <strong>6% de descuento</strong> automático!
           </p>
         </div>
-        {/* Botão Avançar inline */}
+        {/* Botón Continuar inline */}
         <div className="mx-4 mb-4">
           <button
             onClick={() => navigate("/identificacao")}
@@ -313,10 +313,10 @@ const Cart = () => {
           >
             <div className="flex flex-col items-start">
               <span className="text-xs opacity-70">Total</span>
-              <span className="font-bold text-lg leading-none">{formatBRL(total)}</span>
+              <span className="font-bold text-lg leading-none">{formatEUR(total)}</span>
             </div>
             <div className="flex items-center gap-2 font-semibold">
-              Avançar <ArrowRight size={18} />
+              Continuar <ArrowRight size={18} />
             </div>
           </button>
         </div>

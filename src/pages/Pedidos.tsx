@@ -35,12 +35,13 @@ interface PedidoDB {
   }[];
 }
 
+// Teléfono España: 9 dígitos, formato "XXX XX XX XX"
 const formatTelefone = (value: string) => {
-  const n = value.replace(/\D/g, "");
-  if (n.length <= 2) return n;
-  if (n.length <= 7) return `(${n.slice(0, 2)}) ${n.slice(2)}`;
-  if (n.length <= 11) return `(${n.slice(0, 2)}) ${n.slice(2, 7)}-${n.slice(7)}`;
-  return `(${n.slice(0, 2)}) ${n.slice(2, 7)}-${n.slice(7, 11)}`;
+  const n = value.replace(/\D/g, "").slice(0, 9);
+  if (n.length <= 3) return n;
+  if (n.length <= 5) return `${n.slice(0, 3)} ${n.slice(3)}`;
+  if (n.length <= 7) return `${n.slice(0, 3)} ${n.slice(3, 5)} ${n.slice(5)}`;
+  return `${n.slice(0, 3)} ${n.slice(3, 5)} ${n.slice(5, 7)} ${n.slice(7)}`;
 };
 
 const Pedidos = () => {
@@ -64,10 +65,10 @@ const Pedidos = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dadosCliente?.telefone]);
 
-  // Auto-busca com debounce quando telefone tem 10+ dígitos
+  // Auto-búsqueda con debounce cuando el teléfono tiene 9 dígitos
   useEffect(() => {
     const clean = telefoneBusca.replace(/\D/g, "");
-    if (clean.length < 10) {
+    if (clean.length < 9) {
       if (!telefoneAtivo) setLoading(false);
       return;
     }
@@ -97,13 +98,13 @@ const Pedidos = () => {
         );
         const result = await response.json();
         if (result.error) {
-          console.error("Erro ao buscar pedidos:", result.error);
+          console.error("Error al buscar pedidos:", result.error);
           setPedidos([]);
         } else {
           setPedidos(result.pedidos || []);
         }
       } catch (error) {
-        console.error("Erro ao buscar pedidos:", error);
+        console.error("Error al buscar pedidos:", error);
         setPedidos([]);
       } finally {
         setLoading(false);
@@ -114,14 +115,14 @@ const Pedidos = () => {
 
   const handleBuscar = () => {
     const clean = telefoneBusca.replace(/\D/g, "");
-    if (clean.length < 10) return;
+    if (clean.length < 9) return;
     if (clean === telefoneAtivo) return;
     setLoading(true);
     setPedidos([]);
     setTelefoneAtivo(clean);
   };
 
-  const telValid = telefoneBusca.replace(/\D/g, "").length >= 10;
+  const telValid = telefoneBusca.replace(/\D/g, "").length === 9;
   const active = focused || telefoneBusca.length > 0;
 
   const header = (
@@ -136,13 +137,13 @@ const Pedidos = () => {
         <button
           onClick={() => navigate(-1)}
           className="w-10 h-10 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
-          aria-label="Voltar"
+          aria-label="Volver"
         >
           <ArrowLeft size={20} />
         </button>
         <div className="flex-1">
-          <h1 className="text-foreground font-bold text-lg tracking-tight">Meus pedidos</h1>
-          <p className="text-xs text-muted-foreground">Acompanhe suas compras</p>
+          <h1 className="text-foreground font-bold text-lg tracking-tight">Mis pedidos</h1>
+          <p className="text-xs text-muted-foreground">Sigue tus compras</p>
         </div>
         {pedidos.length > 0 && (
           <span
@@ -176,8 +177,8 @@ const Pedidos = () => {
               onFocus={() => setFocused(true)}
               onBlur={() => setFocused(false)}
               onKeyDown={(e) => e.key === "Enter" && handleBuscar()}
-              placeholder="(00) 00000-0000"
-              maxLength={15}
+              placeholder="600 00 00 00"
+              maxLength={13}
               className="w-full py-3.5 pl-11 pr-4 bg-transparent text-foreground text-[15px] placeholder:text-muted-foreground/50 focus:outline-none rounded-2xl"
             />
           </div>
@@ -208,7 +209,7 @@ const Pedidos = () => {
           >
             <ClipboardList size={32} style={{ color: accent }} />
           </div>
-          <p className="text-muted-foreground text-sm font-medium">Carregando pedidos...</p>
+          <p className="text-muted-foreground text-sm font-medium">Cargando pedidos...</p>
         </main>
         <BottomNavigation />
       </div>
@@ -227,19 +228,19 @@ const Pedidos = () => {
             <ClipboardList size={44} style={{ color: accent }} />
           </div>
           <h2 className="text-foreground font-bold text-xl mb-2 tracking-tight">
-            {telefoneAtivo ? "Nenhum pedido encontrado" : "Busque seus pedidos"}
+            {telefoneAtivo ? "No se ha encontrado ningún pedido" : "Busca tus pedidos"}
           </h2>
           <p className="text-muted-foreground text-sm mb-8 max-w-[280px] leading-relaxed">
             {telefoneAtivo
-              ? "Não achamos pedidos com esse telefone. Faça seu primeiro pedido e acompanhe por aqui!"
-              : "Digite seu WhatsApp na barra acima para ver seu histórico de pedidos."}
+              ? "No hemos encontrado pedidos con ese teléfono. ¡Haz tu primer pedido y sigue el estado aquí!"
+              : "Escribe tu WhatsApp en la barra superior para ver tu historial de pedidos."}
           </p>
           <Link to="/">
             <button
               className="px-8 py-4 font-semibold rounded-2xl transition-all active:scale-[0.98] text-[15px] shadow-lg"
               style={{ background: accent, color: "#000" }}
             >
-              Ver cardápio
+              Ver carta
             </button>
           </Link>
         </main>
@@ -262,4 +263,3 @@ const Pedidos = () => {
 };
 
 export default Pedidos;
-

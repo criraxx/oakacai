@@ -11,7 +11,7 @@ const Header = () => {
     const url = window.location.origin;
     const shareData = {
       title: "Oak Açaí",
-      text: "Confira o cardápio da Oak Açaí!",
+      text: "¡Descubre la carta de Oak Açaí!",
       url,
     };
     try {
@@ -23,9 +23,9 @@ const Header = () => {
     } catch (err) {
       try {
         await navigator.clipboard.writeText(url);
-        toast.success("Link copiado!", { description: url });
+        toast.success("¡Enlace copiado!", { description: url });
       } catch {
-        toast.error("Não foi possível compartilhar");
+        toast.error("No se ha podido compartir");
       }
     }
   };
@@ -42,12 +42,12 @@ const Header = () => {
           </div>
           <div className="flex flex-col">
             <span className="text-foreground font-semibold text-sm leading-tight">Oak Açaí </span>
-            <span className="text-muted-foreground text-xs">Florianópolis </span>
+            <span className="text-muted-foreground text-xs">Madrid </span>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <button
-            aria-label="Pesquisar produtos"
+            aria-label="Buscar productos"
             onClick={() => navigate("/buscar")}
             className="w-10 h-10 rounded-full flex items-center justify-center bg-muted/60 hover:bg-muted text-foreground transition-all active:scale-95 shadow-sm"
             style={{ border: `1.5px solid ${cor_borda_logo}` }}
@@ -55,7 +55,7 @@ const Header = () => {
             <Search size={18} strokeWidth={2} />
           </button>
           <button
-            aria-label="Compartilhar"
+            aria-label="Compartir"
             onClick={handleShare}
             className="w-10 h-10 rounded-full flex items-center justify-center bg-muted/60 hover:bg-muted text-foreground transition-all active:scale-95 shadow-sm"
             style={{ border: `1.5px solid ${cor_borda_logo}` }}

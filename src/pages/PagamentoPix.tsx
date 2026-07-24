@@ -34,11 +34,9 @@ const PagamentoPix = () => {
   const [copied, setCopied] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Ref de montagem estável (não é resetado quando o effect re-executa)
   const mountedRef = useRef(true);
   useEffect(() => {
     mountedRef.current = true;
-    // Marca que o usuário passou pelo fluxo PIX (para acionar downsell ao voltar do /checkout)
     try { sessionStorage.setItem("oak_pix_flow", "1"); } catch {}
     return () => {
       mountedRef.current = false;
@@ -79,7 +77,7 @@ const PagamentoPix = () => {
           }
         }
       } catch (e) {
-        console.error("[PIX] Erro:", e);
+        console.error("[Pago] Error:", e);
       }
     };
 
@@ -117,10 +115,10 @@ const PagamentoPix = () => {
     try {
       await navigator.clipboard.writeText(pixData.copiaCola);
       setCopied(true);
-      toast({ title: "Código copiado!", description: "Cole no seu app de pagamento" });
+      toast({ title: "¡Código copiado!", description: "Pégalo en tu app de pago" });
       setTimeout(() => setCopied(false), 3000);
     } catch {
-      toast({ title: "Erro ao copiar", description: "Tente copiar manualmente", variant: "destructive" });
+      toast({ title: "Error al copiar", description: "Intenta copiar manualmente", variant: "destructive" });
     }
   };
 
@@ -142,11 +140,11 @@ const PagamentoPix = () => {
           <button
             onClick={() => navigate("/checkout")}
             className="w-9 h-9 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
-            aria-label="Voltar"
+            aria-label="Volver"
           >
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-foreground font-semibold text-base">Pagamento Pix</h1>
+          <h1 className="text-foreground font-semibold text-base">Pago online</h1>
           <span className="ml-auto text-xs text-muted-foreground font-medium">3/3</span>
         </div>
         <div className="h-1 bg-muted">
@@ -154,7 +152,7 @@ const PagamentoPix = () => {
         </div>
       </header>
 
-      {/* Conteúdo */}
+      {/* Contenido */}
       <main className="flex-1 px-4 pt-6 pb-6">
         {status === "approved" && (
           <div
@@ -163,8 +161,8 @@ const PagamentoPix = () => {
           >
             <CheckCircle className="w-6 h-6" style={{ color: accent }} />
             <div>
-              <p className="font-semibold text-foreground">Pagamento confirmado!</p>
-              <p className="text-muted-foreground text-sm">Redirecionando...</p>
+              <p className="font-semibold text-foreground">¡Pago confirmado!</p>
+              <p className="text-muted-foreground text-sm">Redirigiendo...</p>
             </div>
           </div>
         )}
@@ -173,8 +171,8 @@ const PagamentoPix = () => {
           <div className="w-full rounded-2xl p-4 mb-5 flex items-center gap-3 border bg-destructive/10 border-destructive/30">
             <AlertCircle className="w-6 h-6 text-destructive" />
             <div>
-              <p className="text-destructive font-semibold">Tempo expirado</p>
-              <p className="text-destructive/80 text-sm">Volte e gere um novo código</p>
+              <p className="text-destructive font-semibold">Tiempo agotado</p>
+              <p className="text-destructive/80 text-sm">Vuelve y genera un nuevo código</p>
             </div>
           </div>
         )}
@@ -182,26 +180,26 @@ const PagamentoPix = () => {
         {status === "pending" && (
           <>
             <h2 className="text-[22px] font-bold text-foreground leading-tight mb-1">
-              Escaneie para pagar
+              Escanea para pagar
             </h2>
             <p className="text-sm text-muted-foreground mb-5">
-              Abra o app do seu banco e leia o QR Code abaixo.
+              Abre la app de tu banco y escanea el código QR.
             </p>
 
-            {/* Valor + Timer — minimalista */}
+            {/* Importe + Timer */}
             <div className="flex items-end justify-between mb-3">
               <div>
                 <span className="text-[11px] text-muted-foreground uppercase tracking-wide font-medium">
-                  Valor a pagar
+                  Importe a pagar
                 </span>
                 {totalComDesconto && (
                   <p className="text-foreground font-bold text-[28px] leading-none mt-1">
-                    R$ {totalComDesconto.toFixed(2).replace(".", ",")}
+                    {totalComDesconto.toFixed(2).replace(".", ",")} €
                   </p>
                 )}
                 {economia && economia > 0 && (
                   <p className="text-[11px] text-muted-foreground mt-1.5">
-                    Economia de R$ {economia.toFixed(2).replace(".", ",")}
+                    Ahorro de {economia.toFixed(2).replace(".", ",")} €
                   </p>
                 )}
               </div>
@@ -224,14 +222,14 @@ const PagamentoPix = () => {
                 <QRCodeSVG value={pixData.copiaCola} size={200} level="M" includeMargin={false} />
               </div>
               <p className="text-muted-foreground text-xs text-center mt-3">
-                Aponte a câmera do app do seu banco para o código
+                Apunta la cámara de la app de tu banco al código
               </p>
             </div>
 
-            {/* Copia e cola */}
+            {/* Código de pago */}
             <div className="rounded-2xl border border-border bg-background p-4 mb-4">
               <p className="text-[11px] text-muted-foreground uppercase tracking-wide font-medium mb-2">
-                Ou use o Pix copia e cola
+                O usa el código de pago
               </p>
               <div className="bg-muted rounded-lg p-3 mb-3">
                 <p className="text-foreground text-xs font-mono break-all leading-relaxed">
@@ -249,25 +247,25 @@ const PagamentoPix = () => {
                 {copied ? (
                   <>
                     <CheckCircle size={18} />
-                    Código copiado!
+                    ¡Código copiado!
                   </>
                 ) : (
                   <>
                     <Copy size={18} />
-                    Copiar código Pix
+                    Copiar código de pago
                   </>
                 )}
               </button>
             </div>
 
-            {/* Como pagar */}
+            {/* Cómo pagar */}
             <div className="rounded-2xl border border-border bg-background p-4 mb-4">
-              <p className="text-[13px] font-semibold text-foreground mb-3">Como pagar</p>
+              <p className="text-[13px] font-semibold text-foreground mb-3">Cómo pagar</p>
               <ol className="space-y-3">
                 {[
-                  "Abra o app do seu banco",
-                  "Escolha pagar via Pix com QR Code ou copia e cola",
-                  "Confirme e aguarde a confirmação automática",
+                  "Abre la app de tu banco",
+                  "Elige pagar mediante QR o código copiado",
+                  "Confirma y espera la confirmación automática",
                 ].map((t, i) => (
                   <li key={i} className="flex gap-3 text-sm text-foreground/80">
                     <span
@@ -287,10 +285,10 @@ const PagamentoPix = () => {
 
         {/* Rodapé de segurança */}
         <div className="mt-2 flex flex-col items-center gap-2">
-          <img src={ifoodPagoLogo} alt="iFood Pago" className="h-9 object-contain opacity-90" />
+          <img src={ifoodPagoLogo} alt="Pago seguro" className="h-9 object-contain opacity-90" />
           <div className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
             <ShieldCheck size={12} />
-            Pagamento seguro • Seus dados estão protegidos
+            Pago seguro · Tus datos están protegidos
           </div>
         </div>
       </main>

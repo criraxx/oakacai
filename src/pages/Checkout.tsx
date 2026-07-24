@@ -422,7 +422,7 @@ const Checkout = () => {
       navigate("/checkout-cartao", {
         state: {
           numeroPedido,
-          descontoCartao: 0.06,
+          descontoCartao: 0,
           pedidoPayload,
         },
       });
@@ -444,7 +444,7 @@ const Checkout = () => {
 
   const totalFinal = pedidoExistente
     ? pedidoTotal
-    : getSubtotal() * 0.94;
+    : getSubtotal();
 
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
@@ -581,11 +581,10 @@ const Checkout = () => {
               icon={<CreditCard size={20} />}
               title="Tarjeta de crédito"
               subtitle="Débito o crédito"
-              badge="6% OFF"
             />
           </div>
           <p className="text-muted-foreground text-[11px] mt-3 ml-1">
-            Pago con tarjeta con 6% de descuento automático.
+            Pago seguro con tarjeta de crédito o débito.
           </p>
         </section>
 
@@ -621,16 +620,6 @@ const Checkout = () => {
                   </span>
                   <span className="font-medium" style={{ color: accent }}>
                     -{pedidoDescontoPix.toFixed(2).replace(".", ",")} €
-                  </span>
-                </div>
-              )}
-              {modoCartaoApenas && !pedidoExistente && (
-                <div className="flex justify-between text-[13px]">
-                  <span className="text-foreground/70 flex items-center gap-1">
-                    <Percent size={12} /> Descuento tarjeta
-                  </span>
-                  <span className="font-medium" style={{ color: accent }}>
-                    -{(getSubtotal() * 0.06).toFixed(2).replace(".", ",")} €
                   </span>
                 </div>
               )}

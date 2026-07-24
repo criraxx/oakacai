@@ -11,8 +11,8 @@ interface ComplementSectionProps {
 }
 
 const badgeStyles: Record<TipoSecao, { label: string; className: string }> = {
-  gratis: { label: "Grátis", className: "bg-emerald-100 text-emerald-700" },
-  pago: { label: "Pago", className: "bg-amber-100 text-amber-800" },
+  gratis: { label: "Gratis", className: "bg-emerald-100 text-emerald-700" },
+  pago: { label: "De pago", className: "bg-amber-100 text-amber-800" },
   premium: { label: "Premium", className: "bg-fuchsia-100 text-fuchsia-800" },
 };
 
@@ -69,9 +69,9 @@ const ComplementSection = ({
                   atingiuLimite ? "text-emerald-600" : "text-foreground"
                 }`}
               >
-                • {limiteSecao ? `${totalSelecionados}/${limiteSecao}` : `${totalSelecionados} selecionado${totalSelecionados > 1 ? "s" : ""}`}
+                • {limiteSecao ? `${totalSelecionados}/${limiteSecao}` : `${totalSelecionados} seleccionado${totalSelecionados > 1 ? "s" : ""}`}
                 {!isSecaoGratis && valorSelecionado > 0 && (
-                  <> · R$ {valorSelecionado.toFixed(2).replace(".", ",")}</>
+                  <> · {valorSelecionado.toFixed(2).replace(".", ",")} €</>
                 )}
               </span>
             )}

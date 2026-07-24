@@ -24,7 +24,7 @@ const ComplementItem = ({ complemento, quantidade, onQuantidadeChange, bloqueado
 
   return (
     <div className="flex items-center gap-3 py-3 px-4 border-b border-border bg-background">
-      {/* Imagem */}
+      {/* Imagen */}
       <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
         <img 
           src={complemento.imagem} 
@@ -33,15 +33,15 @@ const ComplementItem = ({ complemento, quantidade, onQuantidadeChange, bloqueado
         />
       </div>
 
-      {/* Nome e Preço */}
+      {/* Nombre y Precio */}
       <div className="flex-1 min-w-0">
         <h4 className="text-foreground text-sm font-medium leading-tight">{nome}</h4>
         <p className="text-muted-foreground text-xs mt-0.5">
-          {preco === null ? "Grátis" : `R$ ${preco.toFixed(2).replace(".", ",")}`}
+          {preco === null ? "Gratis" : `${preco.toFixed(2).replace(".", ",")} €`}
         </p>
       </div>
 
-      {/* Contador ou Botão + */}
+      {/* Contador o botón + */}
       <div className="flex items-center gap-2">
         {quantidade > 0 ? (
           <>

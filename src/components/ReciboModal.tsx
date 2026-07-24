@@ -75,7 +75,7 @@ const ReciboModal = ({ open, onClose, pedido, corBorda = "#F5E6D3" }: ReciboModa
       pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
       pdf.save(`recibo-${pedido.numero_pedido}.pdf`);
     } catch (e) {
-      console.error("Erro ao gerar PDF:", e);
+      console.error("Error al generar el PDF:", e);
     } finally {
       setDownloading(false);
     }
@@ -83,7 +83,7 @@ const ReciboModal = ({ open, onClose, pedido, corBorda = "#F5E6D3" }: ReciboModa
 
   if (!open) return null;
 
-  const dataFormatada = new Date(pedido.created_at).toLocaleString("pt-BR", {
+  const dataFormatada = new Date(pedido.created_at).toLocaleString("es-ES", {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -119,16 +119,16 @@ const ReciboModal = ({ open, onClose, pedido, corBorda = "#F5E6D3" }: ReciboModa
           </div>
 
           <div className="px-5 py-4 border-b border-dashed border-border">
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">ID da compra</p>
+            <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">ID de la compra</p>
             <p className="font-mono font-bold text-foreground text-sm break-all">{pedido.numero_pedido}</p>
           </div>
 
           <div className="px-5 py-4 border-b border-dashed border-border">
-            <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-3">Itens</p>
+            <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-3">Artículos</p>
             {loading ? (
-              <p className="text-xs text-muted-foreground">Carregando...</p>
+              <p className="text-xs text-muted-foreground">Cargando...</p>
             ) : itens.length === 0 ? (
-              <p className="text-xs text-muted-foreground">Nenhum item</p>
+              <p className="text-xs text-muted-foreground">Ningún artículo</p>
             ) : (
               <div className="space-y-3">
                 {itens.map((item) => {
@@ -140,7 +140,7 @@ const ReciboModal = ({ open, onClose, pedido, corBorda = "#F5E6D3" }: ReciboModa
                           {item.quantidade ?? 1}x {item.produto_nome}
                         </span>
                         <span className="text-foreground font-medium tabular-nums">
-                          R$ {Number(item.total_item ?? 0).toFixed(2).replace(".", ",")}
+                          {Number(item.total_item ?? 0).toFixed(2).replace(".", ",")} €
                         </span>
                       </div>
                       {adicionaisList.length > 0 && (
@@ -171,11 +171,11 @@ const ReciboModal = ({ open, onClose, pedido, corBorda = "#F5E6D3" }: ReciboModa
           <div className="px-5 py-4 border-b border-dashed border-border">
             <div className="flex justify-between items-center">
               <div>
-                <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Total pago</p>
-                <p className="text-[11px] text-muted-foreground uppercase">via {pedido.forma_pagamento}</p>
+                <p className="text-[11px] uppercase tracking-wider text-muted-foreground">Total pagado</p>
+                <p className="text-[11px] text-muted-foreground uppercase">vía {pedido.forma_pagamento}</p>
               </div>
               <p className="text-2xl font-bold text-foreground tabular-nums">
-                R$ {Number(pedido.total ?? 0).toFixed(2).replace(".", ",")}
+                {Number(pedido.total ?? 0).toFixed(2).replace(".", ",")} €
               </p>
             </div>
           </div>
@@ -197,7 +197,7 @@ const ReciboModal = ({ open, onClose, pedido, corBorda = "#F5E6D3" }: ReciboModa
           </div>
 
           <div className="px-5 py-3 bg-muted/40 text-center">
-            <p className="text-[11px] text-muted-foreground">Obrigado pela preferência</p>
+            <p className="text-[11px] text-muted-foreground">Gracias por tu preferencia</p>
           </div>
         </div>
 
@@ -209,11 +209,11 @@ const ReciboModal = ({ open, onClose, pedido, corBorda = "#F5E6D3" }: ReciboModa
           >
             {downloading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" /> Gerando PDF...
+                <Loader2 className="w-4 h-4 animate-spin" /> Generando PDF...
               </>
             ) : (
               <>
-                <Download className="w-4 h-4" /> BAIXAR RECIBO
+                <Download className="w-4 h-4" /> DESCARGAR RECIBO
               </>
             )}
           </button>

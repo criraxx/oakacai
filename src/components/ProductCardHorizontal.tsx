@@ -13,9 +13,9 @@ const ProductCardHorizontal = ({ id, image, title, description, price, badge }: 
   const navigate = useNavigate();
 
   const handleClick = () => {
-    // Preço mostrado como "A partir de R$ X,XX" também é numérico após parse
+    // Precio mostrado como "Desde X,XX €" también es numérico tras el parseo
     const numeric = parseFloat(
-      price.replace("A partir de", "").replace("R$", "").replace(",", ".").trim()
+      price.replace("Desde", "").replace("€", "").replace(",", ".").trim()
     );
 
     navigate(`/produto/${id}`, {

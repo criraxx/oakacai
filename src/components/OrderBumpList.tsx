@@ -57,10 +57,8 @@ const OrderBumpList = ({ gatilho }: Props) => {
     <div className="mt-4 px-4 space-y-3">
       <h3 className="text-foreground font-semibold text-sm">✨ Oferta exclusiva</h3>
       {bumps.map((bump) => {
-        const desconto = Math.round(
-          ((Number(bump.preco_original) - Number(bump.preco_promocional)) /
-            Number(bump.preco_original)) * 100
-        );
+        const produtoBump = data.produtos.find((p) => p.id === bump.produto_ofertado_id);
+        const precoExibido = Number(produtoBump?.preco ?? bump.preco_promocional);
         return (
           <button
             key={bump.id}
@@ -85,17 +83,9 @@ const OrderBumpList = ({ gatilho }: Props) => {
                 <p className="text-muted-foreground text-xs line-clamp-2 mb-1">{bump.descricao}</p>
               )}
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground text-xs line-through">
-                  {Number(bump.preco_original).toFixed(2).replace(".", ",")} €
-                </span>
                 <span className="text-green-500 font-bold text-sm">
-                  {Number(bump.preco_promocional).toFixed(2).replace(".", ",")} €
+                  {precoExibido.toFixed(2).replace(".", ",")} €
                 </span>
-                {desconto > 0 && (
-                  <span className="text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded font-bold">
-                    -{desconto}%
-                  </span>
-                )}
               </div>
             </div>
             <div className="self-center w-8 h-8 flex items-center justify-center bg-card text-card-foreground rounded-full flex-shrink-0">

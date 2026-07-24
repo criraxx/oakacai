@@ -467,11 +467,7 @@ const Checkout = () => {
 
   const totalFinal = pedidoExistente
     ? pedidoTotal
-    : modoCartaoApenas
-    ? getSubtotal() * 0.94
-    : isPix
-    ? getTotalComDesconto()
-    : getTotal();
+    : getSubtotal() * 0.94;
 
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
@@ -641,13 +637,13 @@ const Checkout = () => {
                   {(pedidoExistente ? pedidoSubtotal : getSubtotal()).toFixed(2).replace(".", ",")} €
                 </span>
               </div>
-              {((isPix && !modoCartaoApenas && !pedidoExistente) || (pedidoExistente && pedidoDescontoPix > 0)) && (
+              {pedidoExistente && pedidoDescontoPix > 0 && (
                 <div className="flex justify-between text-[13px]">
                   <span className="text-foreground/70 flex items-center gap-1">
                     <Percent size={12} /> Descuento pago online
                   </span>
                   <span className="font-medium" style={{ color: accent }}>
-                    -{(pedidoExistente ? pedidoDescontoPix : getDescontoPix()).toFixed(2).replace(".", ",")} €
+                    -{pedidoDescontoPix.toFixed(2).replace(".", ",")} €
                   </span>
                 </div>
               )}

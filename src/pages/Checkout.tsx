@@ -75,7 +75,7 @@ const Checkout = () => {
   const [buscandoCep, setBuscandoCep] = useState(false);
   const [gatewayAtivo, setGatewayAtivo] = useState<string>("umbrellapag");
   const [numeroWhatsAppAtivo, setNumeroWhatsAppAtivo] = useState<string>("");
-  const [modoCartaoApenas, setModoCartaoApenas] = useState<boolean>(false);
+  const [modoCartaoApenas, setModoCartaoApenas] = useState<boolean>(true);
   const [showPixManutencao, setShowPixManutencao] = useState<boolean>(false);
   const initiateCheckoutTracked = useRef(false);
   const paymentInfoTracked = useRef<string | null>(null);

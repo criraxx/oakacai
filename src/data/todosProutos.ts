@@ -20,6 +20,7 @@ import picoleTrufado from "@/assets/picole-trufado.jpg";
 import cocaColaLata from "@/assets/bebidas/coca-cola-lata.jpg";
 import aguaComGas from "@/assets/bebidas/agua-com-gas.jpg";
 import aguaSemGas from "@/assets/bebidas/agua-sem-gas.jpg";
+import aguaDeCoco from "@/assets/agua-de-coco.jpg.asset.json";
 
 export interface Produto {
   id: string;

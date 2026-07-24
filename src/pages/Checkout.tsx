@@ -46,8 +46,8 @@ const isNomeValido = (value: string) => {
 
 const normalizarTelefone = (telefone: string) => {
   const digitos = (telefone || "").replace(/\D/g, "");
-  if (digitos.length === 11 && digitos.startsWith("34")) return digitos.slice(2);
-  if (digitos.length === 13 && digitos.startsWith("0034")) return digitos.slice(4);
+  if (/^[6789]\d{8}$/.test(digitos)) return `34${digitos}`;
+  if (digitos.length === 13 && digitos.startsWith("0034")) return digitos.slice(2);
   return digitos;
 };
 

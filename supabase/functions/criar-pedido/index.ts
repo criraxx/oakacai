@@ -35,13 +35,21 @@ interface PedidoData {
 }
 
 const normalizarTelefone = (telefone: string | undefined | null): string => {
-  return (telefone || '').replace(/\D/g, '')
+  const digitos = (telefone || '').replace(/\D/g, '')
+
+  // Espanha: se vier no formato nacional do formulário (9 dígitos), grava com DDI 34.
+  if (/^[6789]\d{8}$/.test(digitos)) return `34${digitos}`
+
+  // Espanha com prefixo internacional 0034 → 34.
+  if (digitos.length === 13 && digitos.startsWith('0034')) return digitos.slice(2)
+
+  return digitos
 }
 
 const telefoneValido = (telefone: string): boolean => {
-  // Aceita qualquer telefone do mundo: mínimo 6 dígitos (números curtos locais),
-  // máximo 15 dígitos (padrão E.164 internacional).
-  return telefone.length >= 6 && telefone.length <= 15
+  // Aceita números internacionais já normalizados e formatos nacionais comuns.
+  // O limite superior cobre E.164 (15) + variações com zeros/tronco antes da normalização.
+  return telefone.length >= 5 && telefone.length <= 20
 }
 
 
@@ -51,8 +59,11 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Configuração Supabase ausente')
+    }
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     const body = await req.json() as PedidoData

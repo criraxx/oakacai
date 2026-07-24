@@ -146,13 +146,13 @@ const Identificacao = () => {
           ¿Para quién es el pedido?
         </h2>
         <p className="text-sm text-muted-foreground mb-6">
-          Tus datos para confirmar y enviar por WhatsApp.
+          Tus datos para confirmar el pedido y contactarte.
         </p>
 
         <div className="space-y-5">
           <FloatInput
             id="tel"
-            label="WhatsApp"
+            label="Teléfono móvil"
             value={telefone}
             onChange={(v) => setTelefone(formatTelefone(v))}
             placeholder="600 00 00 00"

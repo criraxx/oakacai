@@ -51,9 +51,31 @@ const Identificacao = () => {
     return `${n.slice(0, 3)} ${n.slice(3, 5)} ${n.slice(5, 7)} ${n.slice(7)}`;
   };
 
-  // DNI/NIE España: 8 dígitos + letra, o X/Y/Z + 7 dígitos + letra
+  // DNI: 8 dígitos + 1 letra (12345678A)
+  // NIE: X/Y/Z + 7 dígitos + 1 letra (X1234567A)
   const formatDni = (value: string) => {
-    return value.toUpperCase().replace(/[^0-9XYZA-Z]/g, "").slice(0, 9);
+    const raw = value.toUpperCase().replace(/[^0-9XYZA-Z]/g, "");
+    if (!raw) return "";
+
+    // NIE: empieza con X, Y o Z
+    if (/^[XYZ]/.test(raw)) {
+      const prefix = raw[0];
+      const digits = raw.slice(1).replace(/[^0-9]/g, "").slice(0, 7);
+      const rest = raw.slice(1 + digits.length);
+      const letter = rest.replace(/[^A-Z]/g, "").slice(0, 1);
+      return `${prefix}${digits}${digits.length === 7 ? letter : ""}`;
+    }
+
+    // DNI: empieza con dígito
+    if (/^[0-9]/.test(raw)) {
+      const digits = raw.replace(/[^0-9]/g, "").slice(0, 8);
+      const rest = raw.slice(digits.length);
+      const letter = rest.replace(/[^A-Z]/g, "").slice(0, 1);
+      return `${digits}${digits.length === 8 ? letter : ""}`;
+    }
+
+    // Cualquier otra letra al inicio → descartar
+    return "";
   };
 
   const validarDni = (dni: string) => {
@@ -154,11 +176,15 @@ const Identificacao = () => {
             label="DNI / NIE"
             value={cpf}
             onChange={(v) => setCpf(formatDni(v))}
-            placeholder="12345678A"
+            placeholder="12345678A o X1234567A"
             accent={accent}
             valid={dniOk}
             maxLength={9}
-            hint="Necesario para procesar el pago"
+            hint={
+              cpf.length === 9 && !dniOk
+                ? "La letra no coincide. Revisa tu DNI/NIE."
+                : "Necesario para procesar el pago"
+            }
           />
         </div>
       </main>

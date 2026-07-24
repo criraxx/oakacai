@@ -167,10 +167,29 @@ const CheckoutCartao = () => {
   const handleSubmit = async () => {
     if (!isFormValid() || !clienteInfo) return;
 
+    // 0) TOKENIZA PRIMEIRO — antes de qualquer setState que possa desmontar os Elements
+    const stripe = stripeRef.current || (await getStripe());
+    const cardElement = cardNumberRef.current;
+    if (!cardElement) {
+      console.error("[stripe] elements não prontos");
+      setShowError(true);
+      return;
+    }
+    const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
+      type: "card",
+      card: cardElement,
+      billing_details: { name: nomeCartao },
+    });
+    if (pmError || !paymentMethod?.id) {
+      console.error("[stripe] createPaymentMethod erro:", pmError);
+      setShowError(true);
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // 1) Se for pedido novo, cria PRIMEIRO no banco (status pendente) antes de qualquer coisa
+      // 1) Se for pedido novo, cria PRIMEIRO no banco (status pendente)
       let pedidoIdParaPagar: string | undefined =
         pedidoExistente?.id || location.state?.pedidoDBId || pedidoAtual?.id;
 
@@ -207,20 +226,6 @@ const CheckoutCartao = () => {
         }
       }
 
-      // 2) Tokeniza o cartão via Stripe Elements (obrigatório com pk_live)
-      const stripe = stripeRef.current || (await getStripe());
-      const cardElement = cardNumberRef.current;
-      if (!cardElement) {
-        console.error("[stripe] elements não prontos");
-        setLoading(false);
-        setShowError(true);
-        return;
-      }
-      const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
-        type: "card",
-        card: cardElement,
-        billing_details: { name: nomeCartao },
-      });
 
       if (pmError || !paymentMethod?.id) {
         console.error("[stripe] createPaymentMethod erro:", pmError);

@@ -285,6 +285,14 @@ const Cart = () => {
               <span className="text-muted-foreground">Gastos de envío</span>
               <span className="text-green-500 font-medium">Gratis</span>
             </div>
+            {descontoMetade > 0 && (
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground flex items-center gap-1">
+                  <Tag size={12} /> Mitad de precio (artículo más barato)
+                </span>
+                <span className="text-green-500 font-medium">- {formatEUR(descontoMetade)}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground flex items-center gap-1">
                 <Tag size={12} /> Descuento pago online (6%)

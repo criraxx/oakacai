@@ -433,6 +433,14 @@ export const todosProdutos: Produto[] = [
     categoria: "Bebidas"
   },
   {
+    id: "agua-de-coco",
+    image: aguaDeCoco.url,
+    title: "AGUA DE COCO",
+    description: "Agua de coco natural 330ml",
+    price: 2.50,
+    categoria: "Bebidas"
+  },
+  {
     id: "agua-com-gas",
     image: aguaComGas,
     title: "AGUA CON GAS",

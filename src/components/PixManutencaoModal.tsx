@@ -73,7 +73,7 @@ const PixManutencaoModal = ({
 
           <h3 className="text-card-foreground font-bold text-lg leading-tight mb-1.5">
             Paga con tarjeta y consigue{" "}
-            <span className="text-accent">un 8% de descuento</span>
+            <span className="text-accent">un 6% de descuento</span>
           </h3>
           <p className="text-card-foreground/60 text-xs leading-relaxed mb-4">
             Como disculpa por la indisponibilidad del pago online, hemos habilitado un descuento
@@ -89,7 +89,7 @@ const PixManutencaoModal = ({
               </span>
             </div>
             <div className="flex items-center justify-between text-xs">
-              <span className="text-accent font-medium">Descuento con tarjeta (8%)</span>
+              <span className="text-accent font-medium">Descuento con tarjeta (6%)</span>
               <span className="text-accent font-medium">
                 - {economia.toFixed(2).replace(".", ",")} €
               </span>
@@ -117,7 +117,7 @@ const PixManutencaoModal = ({
           className="w-full py-3.5 bg-accent text-accent-foreground font-semibold rounded-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
         >
           <CreditCard className="w-5 h-5" />
-          Pagar con tarjeta con 8% de descuento
+          Pagar con tarjeta con 6% de descuento
           <ArrowRight className="w-4 h-4" />
         </button>
         <button

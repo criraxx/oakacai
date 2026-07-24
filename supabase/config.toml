@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.brgateway-webhook]
 verify_jwt = false
+
+[functions.create-ironpay-card-payment]
+verify_jwt = false

@@ -137,8 +137,6 @@ const Checkout = () => {
         if (data?.whatsapp_numero) {
           setNumeroWhatsAppAtivo(data.whatsapp_numero);
         }
-        // Pago online desativado permanentemente — sempre modo cartão
-        setModoCartaoApenas(true);
       } catch (error) {
         console.error("Erro ao buscar config:", error);
       }
@@ -343,26 +341,19 @@ const Checkout = () => {
   const handleRepagamentoSubmit = async () => {
     if (!pedidoExistente) return;
 
-    if (modoCartaoApenas && formData.formaPagamento === "pix") {
-      setShowPixManutencao(true);
-      return;
-    }
-
-    if (formData.formaPagamento === "cartao") {
-      navigate("/checkout-cartao", {
-        state: {
-          pedidoExistente: {
-            id: pedidoExistente.id,
-            numero_pedido: pedidoExistente.numero_pedido,
-            cliente_nome: pedidoExistente.cliente_nome,
-            cliente_telefone: pedidoExistente.cliente_telefone,
-            cliente_cpf: pedidoExistente.cliente_cpf || "",
-            total: pedidoTotal,
-          },
+    navigate("/checkout-cartao", {
+      state: {
+        pedidoExistente: {
+          id: pedidoExistente.id,
+          numero_pedido: pedidoExistente.numero_pedido,
+          cliente_nome: pedidoExistente.cliente_nome,
+          cliente_telefone: pedidoExistente.cliente_telefone,
+          cliente_cpf: pedidoExistente.cliente_cpf || "",
+          total: pedidoTotal,
         },
-      });
-      return;
-    }
+      },
+    });
+  };
 
     setLoading(true);
     try {

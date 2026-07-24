@@ -12,7 +12,7 @@ const PromoComboSection = () => {
           image={acaiCombo500}
           title="Combo premium — 2 açaís + 4 complementos gratis"
           description="Llévate 2 açaís con nuestra base súper cremosa. Elige el tamaño (300 ml o 500 ml) dentro del producto."
-          price="Desde 49,90 €"
+          price="Desde 9,90 €"
           badge="Más vendido"
         />
       </div>

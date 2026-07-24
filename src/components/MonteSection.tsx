@@ -12,7 +12,7 @@ const MonteSection = () => {
           image={acaiPuro}
           title="Açaí puro — monta a tu gusto"
           description="Elige el tamaño (300 ml, 500 ml, 700 ml o 1 L) y potencia con todos los adicionales que quieras."
-          price="Desde 25,90 €"
+          price="Desde 6,90 €"
         />
       </div>
     </section>

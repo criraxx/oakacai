@@ -18,8 +18,7 @@ import acaiDiamanteNegro from "@/assets/acai-diamante-negro.jpg";
 import balde22l from "@/assets/balde-22l.jpg";
 import picoleTrufado from "@/assets/picole-trufado.jpg";
 import cocaColaLata from "@/assets/bebidas/coca-cola-lata.jpg";
-import aguaComGas from "@/assets/bebidas/agua-com-gas.jpg";
-import aguaSemGas from "@/assets/bebidas/agua-sem-gas.jpg";
+import aguaMineral from "@/assets/agua-mineral.png.asset.json";
 import aguaDeCoco from "@/assets/agua-de-coco.jpg.asset.json";
 
 export interface Produto {
@@ -441,19 +440,12 @@ export const todosProdutos: Produto[] = [
     categoria: "Bebidas"
   },
   {
-    id: "agua-com-gas",
-    image: aguaComGas,
-    title: "AGUA CON GAS",
-    description: "Agua mineral con gas 500ml",
-    price: 1.90,
-    categoria: "Bebidas"
-  },
-  {
-    id: "agua-sem-gas",
-    image: aguaSemGas,
-    title: "AGUA SIN GAS",
-    description: "Agua mineral sin gas 500ml",
-    price: 1.50,
+    id: "agua-mineral",
+    image: aguaMineral.url,
+    title: "AGUA MINERAL",
+    description: "Agua mineral sin gas 330ml",
+    price: 2.00,
     categoria: "Bebidas"
   }
 ];
+

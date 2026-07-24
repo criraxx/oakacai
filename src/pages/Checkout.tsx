@@ -381,11 +381,11 @@ const Checkout = () => {
       });
 
       if (pixError || !response?.success) {
-        throw new Error(response?.error || pixError?.message || "Erro ao criar pagamento PIX");
+        throw new Error(response?.error || pixError?.message || "Error al crear el pago online");
       }
 
       if (!response.pixCopiaECola) {
-        throw new Error("Código PIX não gerado. Tente novamente.");
+        throw new Error("No se generó el código de pago. Inténtelo de nuevo.");
       }
 
       navigate("/pagamento-pix", {
@@ -409,8 +409,8 @@ const Checkout = () => {
     } catch (error) {
       console.error("Erro ao processar pagamento do pedido existente:", error);
       toast({
-        title: "Erro ao processar pagamento",
-        description: error instanceof Error ? error.message : "Tente novamente",
+        title: "Error al procesar el pago",
+        description: error instanceof Error ? error.message : "Inténtelo de nuevo",
         variant: "destructive",
       });
     } finally {
@@ -426,8 +426,8 @@ const Checkout = () => {
 
     if (!dadosCliente || !isNomeValido(dadosCliente.nome)) {
       toast({
-        title: "Nome inválido",
-        description: "Volte e informe um nome válido (apenas letras e espaços).",
+        title: "Nombre inválido",
+        description: "Vuelva e indique un nombre válido (solo letras y espacios).",
         variant: "destructive",
       });
       navigate("/identificacao");
@@ -438,8 +438,8 @@ const Checkout = () => {
       // Validação básica
       if (!formData.endereco || !formData.numero || !formData.bairro) {
         toast({
-          title: "Campos obrigatórios",
-          description: "Preencha todos os campos de endereço",
+          title: "Campos obligatorios",
+          description: "Rellene todos los campos de dirección",
           variant: "destructive",
         });
         return;
@@ -473,8 +473,8 @@ const Checkout = () => {
       if (isWhatsApp && formData.formaPagamento === "pix") {
         if (!numeroWhatsAppAtivo) {
           toast({
-            title: "Erro",
-            description: "Nenhum número de WhatsApp ativo. Entre em contato com a loja.",
+            title: "Error",
+            description: "No hay ningún número de WhatsApp activo. Póngase en contacto con la tienda.",
             variant: "destructive",
           });
           setLoading(false);
@@ -525,21 +525,21 @@ const Checkout = () => {
 
         if (!pedidoResult.success) {
           console.error("[Checkout] Erro ao salvar pedido:", pedidoResult.error);
-          throw new Error("Erro ao salvar pedido");
+          throw new Error("Error al guardar el pedido");
         }
 
         // Montar mensagem do WhatsApp
-        const itensTexto = itens.map(i => `- ${i.quantidade ?? 1}x ${i.produtoNome}: R$ ${((i.produtoPreco + i.totalAdicionais) * (i.quantidade ?? 1)).toFixed(2).replace(".", ",")}`).join("\n");
+        const itensTexto = itens.map(i => `- ${i.quantidade ?? 1}x ${i.produtoNome}: ${((i.produtoPreco + i.totalAdicionais) * (i.quantidade ?? 1)).toFixed(2).replace(".", ",")} €`).join("\n");
         const enderecoTexto = tipoEntrega === "delivery" 
-          ? `\n📍 *Endereço:* ${enderecoCompleto}, ${formData.bairro} - ${formData.cidade}`
-          : "\n🏪 *Retirada no local*";
+          ? `\n📍 *Dirección:* ${enderecoCompleto}, ${formData.bairro} - ${formData.cidade}`
+          : "\n🏪 *Recogida en el local*";
         
-        const mensagem = `🛒 *NOVO PEDIDO - ${numeroPedido}*\n\n` +
+        const mensagem = `🛒 *NUEVO PEDIDO - ${numeroPedido}*\n\n` +
           `👤 *Cliente:* ${dadosCliente?.nome}\n` +
-          `📞 *Telefone:* ${dadosCliente?.telefone}\n` +
+          `📞 *Teléfono:* ${dadosCliente?.telefone}\n` +
           enderecoTexto + `\n\n` +
-          `📋 *Itens:*\n${itensTexto}\n\n` +
-          `💰 *Total:* R$ ${getTotalComDesconto().toFixed(2).replace(".", ",")}`;
+          `📋 *Artículos:*\n${itensTexto}\n\n` +
+          `💰 *Total:* ${getTotalComDesconto().toFixed(2).replace(".", ",")} €`;
 
         const urlWhatsApp = `https://wa.me/55${numeroWhatsAppAtivo}?text=${encodeURIComponent(mensagem)}`;
         
@@ -577,12 +577,12 @@ const Checkout = () => {
         console.log('[Checkout] Response completa:', JSON.stringify(response, null, 2));
 
         if (pixError || !response?.success) {
-          throw new Error(response?.error || pixError?.message || 'Erro ao criar pagamento PIX');
+          throw new Error(response?.error || pixError?.message || 'Error al crear el pago online');
         }
         
         // Verificar se tem código PIX (obrigatório)
         if (!response.pixCopiaECola) {
-          throw new Error('Código PIX não gerado. Tente novamente.');
+          throw new Error('No se generó el código de pago. Inténtelo de nuevo.');
         }
         
         // Extrair paymentId
@@ -593,7 +593,7 @@ const Checkout = () => {
           paymentId = String(response.paymentId);
           console.log('[Checkout] paymentId extraído:', paymentId);
         } else {
-          throw new Error('ID do pagamento não retornado. Tente novamente.');
+          throw new Error('No se devolvió el ID del pago. Inténtelo de nuevo.');
         }
         
         console.log('[Checkout] === PAYMENT ID FINAL ===');
@@ -650,7 +650,7 @@ const Checkout = () => {
 
       if (!pedidoResult.success) {
         console.error("[Checkout] Erro ao salvar pedido:", pedidoResult.error);
-        throw new Error("Erro ao salvar pedido");
+        throw new Error("Error al guardar el pedido");
       }
 
       const pedidoDB = pedidoResult.pedido;
@@ -681,8 +681,8 @@ const Checkout = () => {
     } catch (error) {
       console.error('Erro ao processar pagamento:', error);
       toast({
-        title: "Erro ao processar pagamento",
-        description: error instanceof Error ? error.message : "Tente novamente",
+        title: "Error al procesar el pago",
+        description: error instanceof Error ? error.message : "Inténtelo de nuevo",
         variant: "destructive",
       });
     } finally {
@@ -873,7 +873,7 @@ const Checkout = () => {
                     {item.quantidade}x {item.nome}
                   </span>
                   <span className="text-foreground font-medium whitespace-nowrap">
-                    R$ {item.total.toFixed(2).replace(".", ",")}
+                    {item.total.toFixed(2).replace(".", ",")} €
                   </span>
                 </div>
               ))}
@@ -882,7 +882,7 @@ const Checkout = () => {
               <div className="flex justify-between text-[13px]">
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="text-foreground">
-                  R$ {(pedidoExistente ? pedidoSubtotal : getSubtotal()).toFixed(2).replace(".", ",")}
+                  {(pedidoExistente ? pedidoSubtotal : getSubtotal()).toFixed(2).replace(".", ",")} €
                 </span>
               </div>
               {((isPix && !modoCartaoApenas && !pedidoExistente) || (pedidoExistente && pedidoDescontoPix > 0)) && (
@@ -891,7 +891,7 @@ const Checkout = () => {
                     <Percent size={12} /> Descuento pago online
                   </span>
                   <span className="font-medium" style={{ color: accent }}>
-                    -R$ {(pedidoExistente ? pedidoDescontoPix : getDescontoPix()).toFixed(2).replace(".", ",")}
+                    -{(pedidoExistente ? pedidoDescontoPix : getDescontoPix()).toFixed(2).replace(".", ",")} €
                   </span>
                 </div>
               )}
@@ -901,14 +901,14 @@ const Checkout = () => {
                     <Percent size={12} /> Descuento tarjeta
                   </span>
                   <span className="font-medium" style={{ color: accent }}>
-                    -R$ {(getSubtotal() * 0.08).toFixed(2).replace(".", ",")}
+                    -{(getSubtotal() * 0.08).toFixed(2).replace(".", ",")} €
                   </span>
                 </div>
               )}
               <div className="flex justify-between text-base font-bold pt-1">
                 <span className="text-foreground">Total</span>
                 <span className="text-foreground">
-                  R$ {totalFinal.toFixed(2).replace(".", ",")}
+                  {totalFinal.toFixed(2).replace(".", ",")} €
                 </span>
               </div>
             </div>
@@ -926,7 +926,7 @@ const Checkout = () => {
           <div className="flex flex-col">
             <span className="text-[11px] text-muted-foreground leading-none mb-1">Total</span>
             <span className="text-base font-bold text-foreground leading-none">
-              R$ {totalFinal.toFixed(2).replace(".", ",")}
+              {totalFinal.toFixed(2).replace(".", ",")} €
             </span>
           </div>
           <button

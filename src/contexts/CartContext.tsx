@@ -209,19 +209,35 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     return getSubtotalSemPromocional() >= 25 && !temItemPromocional();
   };
 
-  // Entrega sempre grátis
-  const getTotal = () => {
-    return getSubtotal();
+  // Desconto "mitad de precio" — cheapest unit vai pela metade quando subtotal (sem promocional) >= 25 €
+  const getDescontoMetadePreco = () => {
+    const elegiveis = itens.filter((i) => !i.isPromocional);
+    if (elegiveis.length === 0) return 0;
+    const subtotalSemPromo = getSubtotalSemPromocional();
+    if (subtotalSemPromo < 25) return 0;
+    const menorUnitario = elegiveis.reduce((min, item) => {
+      const preco = Number.isFinite(Number(item.produtoPreco)) ? Number(item.produtoPreco) : 0;
+      const add = Number.isFinite(Number(item.totalAdicionais)) ? Number(item.totalAdicionais) : 0;
+      const unit = preco + add;
+      return unit > 0 && unit < min ? unit : min;
+    }, Infinity);
+    if (!Number.isFinite(menorUnitario)) return 0;
+    return menorUnitario / 2;
   };
 
-  // Desconto de 6% para PIX
+  // Entrega sempre grátis
+  const getTotal = () => {
+    return getSubtotal() - getDescontoMetadePreco();
+  };
+
+  // Desconto de 6% para PIX (aplicado sobre total já com metade)
   const getDescontoPix = () => {
-    return getSubtotal() * 0.06;
+    return getTotal() * 0.06;
   };
 
   // Total com desconto PIX
   const getTotalComDesconto = () => {
-    return getSubtotal() - getDescontoPix();
+    return getTotal() - getDescontoPix();
   };
 
   const finalizarPedido = (dadosEntrega: DadosEntrega): Pedido => {

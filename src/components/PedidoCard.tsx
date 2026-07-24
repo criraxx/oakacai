@@ -158,7 +158,7 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
   };
 
   const handlePagarAgora = () => {
-    navigate("/checkout", {
+    navigate("/checkout-cartao", {
       state: {
         pedidoExistente: {
           id: pedido.id,
@@ -167,14 +167,6 @@ const PedidoCard = ({ pedido }: PedidoCardProps) => {
           cliente_telefone: pedido.cliente_telefone,
           cliente_cpf: pedido.cliente_cpf || "",
           total: pedido.total,
-          subtotal: pedido.subtotal,
-          desconto_pix: pedido.desconto_pix || 0,
-          forma_pagamento: pedido.forma_pagamento,
-          tipo_entrega: pedido.tipo_entrega,
-          endereco_completo: pedido.endereco_completo,
-          bairro: pedido.bairro,
-          cidade: pedido.cidade,
-          itens: pedido.itens || itens,
         },
       },
     });

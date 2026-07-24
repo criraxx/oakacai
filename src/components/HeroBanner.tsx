@@ -4,7 +4,7 @@ const HeroBanner = () => {
   return (
     <div className="w-full">
       <img
-        src={heroBanner}
+        src={heroBanner.url}
         alt="Oak Açaí"
         className="w-full h-auto object-cover"
       />

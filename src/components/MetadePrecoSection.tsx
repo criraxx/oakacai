@@ -81,7 +81,7 @@ const MetadePrecoSection = () => {
       )}
 
       <div className="px-4 space-y-2">
-        {produtosElegiveis.map((product) => {
+        {produtosParaMostrar.map((product) => {
           const precoPromocional = product.price / 2;
           
           return (

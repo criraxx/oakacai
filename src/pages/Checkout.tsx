@@ -603,33 +603,17 @@ const Checkout = () => {
           </h2>
           <div className="space-y-2">
             <PaymentOption
-              active={formData.formaPagamento === "pix" && !modoCartaoApenas}
-              disabled={modoCartaoApenas}
-              onClick={() => {
-                if (modoCartaoApenas) return setShowPixManutencao(true);
-                handleInputChange("formaPagamento", "pix");
-              }}
-              accent={accent}
-              icon={<QrCode size={20} />}
-              title="Pago online"
-              subtitle={modoCartaoApenas ? "En mantenimiento" : "Aprobación inmediata"}
-              badge={!modoCartaoApenas ? "6% OFF" : undefined}
-              fastTag={!modoCartaoApenas}
-            />
-            <PaymentOption
               active={formData.formaPagamento === "cartao"}
               onClick={() => handleInputChange("formaPagamento", "cartao")}
               accent={accent}
               icon={<CreditCard size={20} />}
               title="Tarjeta de crédito"
               subtitle="Débito o crédito"
-              badge={modoCartaoApenas ? "6% OFF" : undefined}
+              badge="6% OFF"
             />
           </div>
           <p className="text-muted-foreground text-[11px] mt-3 ml-1">
-            {modoCartaoApenas
-              ? "Pago online en mantenimiento. Tarjeta con 6% de descuento."
-              : "Pago online con 6% de descuento en el total."}
+            Pago con tarjeta con 6% de descuento automático.
           </p>
         </section>
 

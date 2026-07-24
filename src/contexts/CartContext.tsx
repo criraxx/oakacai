@@ -56,6 +56,7 @@ interface CartContextType {
   getSubtotalSemPromocional: () => number; // subtotal sem itens promocionais
   getTotal: () => number;
   getDescontoPix: () => number;
+  getDescontoMetadePreco: () => number;
   getTotalComDesconto: () => number;
   pedidoAtual: Pedido | null;
   finalizarPedido: (dadosEntrega: DadosEntrega) => Pedido;

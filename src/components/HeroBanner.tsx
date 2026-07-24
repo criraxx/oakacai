@@ -1,11 +1,10 @@
-import { useBranding } from "@/hooks/useBranding";
+import heroBanner from "@/assets/hero-oak-banner.png";
 
 const HeroBanner = () => {
-  const { banner_url } = useBranding();
   return (
     <div className="w-full">
       <img
-        src={banner_url}
+        src={heroBanner}
         alt="Oak Açaí"
         className="w-full h-auto object-cover"
       />

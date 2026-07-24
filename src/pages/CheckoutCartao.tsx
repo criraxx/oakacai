@@ -61,18 +61,26 @@ const CheckoutCartao = () => {
     ? { nome: dadosCliente.nome, telefone: dadosCliente.telefone, cpf: dadosCliente.cpf }
     : null;
 
-  const [cardData, setCardData] = useState({
-    numero: "",
-    nome: "",
-    validade: "",
-    cvv: "",
-  });
+  const [nomeCartao, setNomeCartao] = useState("");
   const [loading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
-  
+  const [stripeReady, setStripeReady] = useState(false);
+  const [elementsReady, setElementsReady] = useState({ number: false, expiry: false, cvc: false });
+  const [cardComplete, setCardComplete] = useState({ number: false, expiry: false, cvc: false });
+
+  const stripeRef = useRef<any>(null);
+  const elementsRef = useRef<any>(null);
+  const cardNumberRef = useRef<any>(null);
+  const cardExpiryRef = useRef<any>(null);
+  const cardCvcRef = useRef<any>(null);
+
+  const numberMountRef = useRef<HTMLDivElement | null>(null);
+  const expiryMountRef = useRef<HTMLDivElement | null>(null);
+  const cvcMountRef = useRef<HTMLDivElement | null>(null);
+
   const paymentFailedTracked = useRef(false);
 
-  // Meta Pixel: PaymentFailed - Disparar quando pagamento for recusado
+  // Meta Pixel: PaymentFailed
   useEffect(() => {
     if (showError && !paymentFailedTracked.current) {
       trackPaymentFailed({
@@ -85,58 +93,103 @@ const CheckoutCartao = () => {
     }
   }, [showError, itens, valorComDesconto, pedidoExistente]);
 
-  // Formatar número do cartão: 0000 0000 0000 0000
-  const formatCardNumber = (value: string) => {
-    const numbers = value.replace(/\D/g, "").slice(0, 16);
-    const groups = numbers.match(/.{1,4}/g);
-    return groups ? groups.join(" ") : "";
-  };
+  // Inicializa Stripe + Elements
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const stripe = await getStripe();
+        if (cancelled) return;
+        stripeRef.current = stripe;
+        const elements = stripe.elements({ locale: "es" });
+        elementsRef.current = elements;
 
-  // Formatar validade: MM/AA
-  const formatExpiry = (value: string) => {
-    const numbers = value.replace(/\D/g, "").slice(0, 4);
-    if (numbers.length >= 2) {
-      return `${numbers.slice(0, 2)}/${numbers.slice(2)}`;
+        const style = {
+          base: {
+            fontSize: "15px",
+            color: "#111",
+            fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+            "::placeholder": { color: "#9ca3af" },
+          },
+          invalid: { color: "#dc2626" },
+        };
+
+        const cardNumber = elements.create("cardNumber", { style, showIcon: true, placeholder: "0000 0000 0000 0000" });
+        const cardExpiry = elements.create("cardExpiry", { style, placeholder: "MM/AA" });
+        const cardCvc = elements.create("cardCvc", { style, placeholder: "CVC" });
+
+        cardNumber.on("ready", () => setElementsReady((s) => ({ ...s, number: true })));
+        cardExpiry.on("ready", () => setElementsReady((s) => ({ ...s, expiry: true })));
+        cardCvc.on("ready", () => setElementsReady((s) => ({ ...s, cvc: true })));
+        cardNumber.on("change", (e: any) => setCardComplete((s) => ({ ...s, number: !!e.complete })));
+        cardExpiry.on("change", (e: any) => setCardComplete((s) => ({ ...s, expiry: !!e.complete })));
+        cardCvc.on("change", (e: any) => setCardComplete((s) => ({ ...s, cvc: !!e.complete })));
+
+        cardNumberRef.current = cardNumber;
+        cardExpiryRef.current = cardExpiry;
+        cardCvcRef.current = cardCvc;
+        setStripeReady(true);
+      } catch (err) {
+        console.error("[stripe] init erro:", err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      try { cardNumberRef.current?.destroy(); } catch (_) {}
+      try { cardExpiryRef.current?.destroy(); } catch (_) {}
+      try { cardCvcRef.current?.destroy(); } catch (_) {}
+    };
+  }, []);
+
+  // Monta os Elements assim que os divs de destino existirem
+  useEffect(() => {
+    if (!stripeReady) return;
+    if (numberMountRef.current && cardNumberRef.current) {
+      try { cardNumberRef.current.mount(numberMountRef.current); } catch (_) {}
     }
-    return numbers;
-  };
-
-  // Formatar CVV: apenas 3 números
-  const formatCvv = (value: string) => {
-    return value.replace(/\D/g, "").slice(0, 3);
-  };
-
-  const handleInputChange = (field: keyof typeof cardData, value: string) => {
-    let formattedValue = value;
-
-    if (field === "numero") {
-      formattedValue = formatCardNumber(value);
-    } else if (field === "validade") {
-      formattedValue = formatExpiry(value);
-    } else if (field === "cvv") {
-      formattedValue = formatCvv(value);
+    if (expiryMountRef.current && cardExpiryRef.current) {
+      try { cardExpiryRef.current.mount(expiryMountRef.current); } catch (_) {}
     }
-
-    setCardData((prev) => ({ ...prev, [field]: formattedValue }));
-  };
+    if (cvcMountRef.current && cardCvcRef.current) {
+      try { cardCvcRef.current.mount(cvcMountRef.current); } catch (_) {}
+    }
+  }, [stripeReady, loading, showError]);
 
   const isFormValid = () => {
-    const numeroLimpo = cardData.numero.replace(/\s/g, "");
     return (
-      numeroLimpo.length === 16 &&
-      cardData.nome.trim().length > 0 &&
-      cardData.validade.length === 5 &&
-      cardData.cvv.length === 3
+      nomeCartao.trim().length > 0 &&
+      cardComplete.number &&
+      cardComplete.expiry &&
+      cardComplete.cvc
     );
   };
 
   const handleSubmit = async () => {
     if (!isFormValid() || !clienteInfo) return;
 
+    // 0) TOKENIZA PRIMEIRO — antes de qualquer setState que possa desmontar os Elements
+    const stripe = stripeRef.current || (await getStripe());
+    const cardElement = cardNumberRef.current;
+    if (!cardElement) {
+      console.error("[stripe] elements não prontos");
+      setShowError(true);
+      return;
+    }
+    const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
+      type: "card",
+      card: cardElement,
+      billing_details: { name: nomeCartao },
+    });
+    if (pmError || !paymentMethod?.id) {
+      console.error("[stripe] createPaymentMethod erro:", pmError);
+      setShowError(true);
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // 1) Se for pedido novo, cria PRIMEIRO no banco (status pendente) antes de qualquer coisa
+      // 1) Se for pedido novo, cria PRIMEIRO no banco (status pendente)
       let pedidoIdParaPagar: string | undefined =
         pedidoExistente?.id || location.state?.pedidoDBId || pedidoAtual?.id;
 
@@ -173,26 +226,7 @@ const CheckoutCartao = () => {
         }
       }
 
-      // 2) Parse MM/AA
-      const [mmStr, aaStr] = cardData.validade.split("/");
-      const exp_month = parseInt(mmStr, 10);
-      const exp_year = 2000 + parseInt(aaStr, 10);
-      const number = cardData.numero.replace(/\s/g, "");
 
-      // 3) Tokeniza o cartão na Stripe
-      const stripe = await getStripe();
-      const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
-        type: "card",
-        card: { number, exp_month, exp_year, cvc: cardData.cvv },
-        billing_details: { name: cardData.nome },
-      });
-
-      if (pmError || !paymentMethod?.id) {
-        console.error("[stripe] createPaymentMethod erro:", pmError);
-        setLoading(false);
-        setShowError(true);
-        return;
-      }
 
       // 4) Envia o card_token para nossa Edge Function → IronPay
       const { data, error } = await supabase.functions.invoke(
@@ -350,43 +384,38 @@ const CheckoutCartao = () => {
 
         {/* Formulário */}
         <div className="space-y-3">
-          <CardField
-            label="Número de la tarjeta"
-            value={cardData.numero}
-            onChange={(v) => handleInputChange("numero", v)}
-            accent={accent}
-            inputMode="numeric"
-            maxLength={19}
-            placeholder="0000 0000 0000 0000"
-          />
-          <CardField
-            label="Nombre impreso en la tarjeta"
-            value={cardData.nome}
-            onChange={(v) => handleInputChange("nome", v.toUpperCase())}
-            accent={accent}
-            uppercase
-            maxLength={40}
-          />
-          <div className="grid grid-cols-2 gap-3">
-            <CardField
-              label="Caducidad"
-              value={cardData.validade}
-              onChange={(v) => handleInputChange("validade", v)}
-              accent={accent}
-              inputMode="numeric"
-              maxLength={5}
-              placeholder="MM/AA"
-            />
-            <CardField
-              label="CVV"
-              value={cardData.cvv}
-              onChange={(v) => handleInputChange("cvv", v)}
-              accent={accent}
-              inputMode="numeric"
-              maxLength={3}
-              placeholder="000"
+          <StripeField label="Número de la tarjeta" accent={accent}>
+            <div ref={numberMountRef} className="pt-6 pb-2 px-3.5" />
+          </StripeField>
+
+          <div className="relative rounded-xl border transition-all bg-background" style={{ borderColor: "hsl(var(--border))" }}>
+            <label className={`absolute left-3.5 pointer-events-none transition-all ${
+              nomeCartao.length > 0 ? "top-1.5 text-[11px] font-medium text-muted-foreground" : "top-1/2 -translate-y-1/2 text-[15px] text-muted-foreground"
+            }`}>
+              Nombre impreso en la tarjeta
+            </label>
+            <input
+              value={nomeCartao}
+              onChange={(e) => setNomeCartao(e.target.value.toUpperCase())}
+              maxLength={40}
+              className="w-full pt-6 pb-2 px-3.5 bg-transparent text-foreground text-[15px] uppercase focus:outline-none"
             />
           </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <StripeField label="Caducidad" accent={accent}>
+              <div ref={expiryMountRef} className="pt-6 pb-2 px-3.5" />
+            </StripeField>
+            <StripeField label="CVC" accent={accent}>
+              <div ref={cvcMountRef} className="pt-6 pb-2 px-3.5" />
+            </StripeField>
+          </div>
+
+          {!stripeReady && (
+            <p className="text-xs text-muted-foreground flex items-center gap-2">
+              <Loader2 size={12} className="animate-spin" /> Cargando pago seguro...
+            </p>
+          )}
         </div>
 
         {/* Bandeiras e parceiros aceitos */}
@@ -435,56 +464,24 @@ const CheckoutCartao = () => {
   );
 };
 
-const CardField = ({
+const StripeField = ({
   label,
-  value,
-  onChange,
   accent,
-  inputMode,
-  maxLength,
-  placeholder,
-  uppercase,
+  children,
 }: {
   label: string;
-  value: string;
-  onChange: (v: string) => void;
   accent: string;
-  inputMode?: "numeric" | "text";
-  maxLength?: number;
-  placeholder?: string;
-  uppercase?: boolean;
+  children: React.ReactNode;
 }) => {
-  const [focused, setFocused] = useState(false);
-  const active = focused || value.length > 0;
   return (
     <div
       className="relative rounded-xl border transition-all bg-background"
-      style={{
-        borderColor: focused ? accent : "hsl(var(--border))",
-        borderWidth: focused ? 2 : 1,
-      }}
+      style={{ borderColor: "hsl(var(--border))", borderWidth: 1 }}
     >
-      <label
-        className={`absolute left-3.5 pointer-events-none transition-all ${
-          active
-            ? "top-1.5 text-[11px] font-medium text-muted-foreground"
-            : "top-1/2 -translate-y-1/2 text-[15px] text-muted-foreground"
-        }`}
-      >
+      <label className="absolute left-3.5 top-1.5 text-[11px] font-medium text-muted-foreground pointer-events-none">
         {label}
       </label>
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        placeholder={active ? placeholder : ""}
-        inputMode={inputMode}
-        maxLength={maxLength}
-        className={`w-full pt-6 pb-2 px-3.5 bg-transparent text-foreground text-[15px] placeholder:text-muted-foreground/50 focus:outline-none ${
-          uppercase ? "uppercase" : ""
-        }`}
-      />
+      {children}
     </div>
   );
 };

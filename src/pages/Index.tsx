@@ -11,7 +11,7 @@ import RoletaSection from "@/components/RoletaSection";
 import TrufadosSection from "@/components/TrufadosSection";
 import TradicionaisSection from "@/components/TradicionaisSection";
 import BaldeSection from "@/components/BaldeSection";
-import PicoleSection from "@/components/PicoleSection";
+
 import BebidasSection from "@/components/BebidasSection";
 import BottomNavigation from "@/components/BottomNavigation";
 import CategoryTabs from "@/components/CategoryTabs";
@@ -42,7 +42,6 @@ const Index = () => {
     "Trufados",
     "Tradicionales",
     "Cubo",
-    "Polos Trufados",
     "Bebidas",
   ];
 
@@ -56,8 +55,6 @@ const Index = () => {
         return <TradicionaisSection />;
       case "Cubo":
         return <BaldeSection />;
-      case "Polos Trufados":
-        return <PicoleSection />;
       case "Bebidas":
         return <BebidasSection />;
       default:
@@ -70,7 +67,6 @@ const Index = () => {
             <TrufadosSection />
             <TradicionaisSection />
             <BaldeSection />
-            <PicoleSection />
             <BebidasSection />
           </>
         );

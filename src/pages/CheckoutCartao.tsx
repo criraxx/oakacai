@@ -227,12 +227,6 @@ const CheckoutCartao = () => {
       }
 
 
-      if (pmError || !paymentMethod?.id) {
-        console.error("[stripe] createPaymentMethod erro:", pmError);
-        setLoading(false);
-        setShowError(true);
-        return;
-      }
 
       // 4) Envia o card_token para nossa Edge Function → IronPay
       const { data, error } = await supabase.functions.invoke(

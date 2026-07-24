@@ -392,7 +392,7 @@ export const todosProdutos: Produto[] = [
     image: balde22l,
     title: "CUBO 2,2 L",
     description: "¡Elige el açaí y los extras!",
-    price: 39.90,
+    price: 31.90,
     categoria: "Cubo"
   },
   

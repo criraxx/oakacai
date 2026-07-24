@@ -35,7 +35,7 @@ const OrderBumpList = ({ gatilho }: Props) => {
       toast({ title: "Producto no disponible", variant: "destructive" });
       return;
     }
-    const preco = Number(bump.preco_promocional);
+    const preco = Number(produto.preco ?? bump.preco_promocional);
     if (!Number.isFinite(preco) || preco <= 0) {
       toast({ title: "Oferta no disponible", description: "Precio inválido", variant: "destructive" });
       return;

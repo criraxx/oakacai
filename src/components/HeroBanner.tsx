@@ -7,7 +7,7 @@ const HeroBanner = () => {
     <div className="w-full">
       <img
         src={banner_url}
-        alt="Oak Açaí - Sabor, qualidade, energia em cada colherada"
+        alt="Oak Açaí - Sabor, calidad y energía en cada cucharada"
         className="w-full h-auto object-cover"
       />
     </div>

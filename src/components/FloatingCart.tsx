@@ -12,9 +12,9 @@ const FloatingCart = () => {
   if (itens.length === 0) return null;
 
   const formatPrice = (price: number) => {
-    return price.toLocaleString("pt-BR", {
+    return price.toLocaleString("es-ES", {
       style: "currency",
-      currency: "BRL",
+      currency: "EUR",
     });
   };
 
@@ -35,7 +35,7 @@ const FloatingCart = () => {
               >
                 <div className="p-4 max-h-60 overflow-y-auto">
                   <h3 className="font-semibold text-foreground mb-3 text-sm">
-                    Itens no carrinho ({itens.reduce((acc, item) => acc + (item.quantidade ?? 1), 0)})
+                    Artículos en el carrito ({itens.reduce((acc, item) => acc + (item.quantidade ?? 1), 0)})
                   </h3>
                   <div className="space-y-3">
                     {itens.map((item) => (
@@ -102,7 +102,7 @@ const FloatingCart = () => {
               onClick={() => navigate("/carrinho")}
               className="bg-muted text-foreground font-semibold px-5 py-2.5 rounded-lg press-effect hover:bg-muted/80 transition-colors text-sm"
             >
-              Ver carrinho
+              Ver carrito
             </button>
           </div>
         </div>

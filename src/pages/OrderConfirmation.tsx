@@ -23,13 +23,13 @@ const OrderConfirmation = () => {
   const { cor_borda_logo } = useBranding();
   const accent = cor_borda_logo || "#F5E6D3";
 
-  // Meta Pixel: Purchase - Disparar quando chegar na página de confirmação
+  // Meta Pixel: Purchase
   useEffect(() => {
     if (!purchaseTracked.current && pedido) {
       const formaPagamentoMap: Record<string, string> = {
-        pix: "PIX",
-        cartao: "Cartão",
-        dinheiro: "Dinheiro",
+        pix: "Pago online",
+        cartao: "Tarjeta",
+        dinheiro: "Efectivo",
       };
 
       trackPurchase({
@@ -59,30 +59,30 @@ const OrderConfirmation = () => {
       });
 
       purchaseTracked.current = true;
-      console.log("[MetaPixel] Purchase disparado na página de confirmação");
-      console.log("[GA4] Purchase disparado na página de confirmação");
+      console.log("[MetaPixel] Purchase disparado en la página de confirmación");
+      console.log("[GA4] Purchase disparado en la página de confirmación");
     }
   }, [pedido]);
 
   if (!pedido) {
     return (
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col items-center justify-center px-6">
-        <p className="text-foreground text-center mb-4">Nenhum pedido encontrado</p>
+        <p className="text-foreground text-center mb-4">No se ha encontrado ningún pedido</p>
         <button
           onClick={() => navigate("/")}
           className="px-6 py-3.5 font-semibold rounded-xl transition-colors active:scale-[0.98]"
           style={{ background: accent, color: "#000" }}
         >
-          Voltar ao início
+          Volver al inicio
         </button>
       </div>
     );
   }
 
   const formaPagamentoLabel = {
-    pix: "PIX",
-    cartao: "Cartão na entrega",
-    dinheiro: "Dinheiro",
+    pix: "Pago online",
+    cartao: "Tarjeta a la entrega",
+    dinheiro: "Efectivo",
   };
 
   const isPix = pedido.dadosEntrega.formaPagamento === "pix";
@@ -95,20 +95,19 @@ const OrderConfirmation = () => {
           <button
             onClick={() => navigate(-1)}
             className="w-9 h-9 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
-            aria-label="Voltar"
+            aria-label="Volver"
           >
             <ArrowLeft size={20} />
           </button>
-          <h1 className="text-foreground font-semibold text-base">Resumo do pedido</h1>
+          <h1 className="text-foreground font-semibold text-base">Resumen del pedido</h1>
           <span className="ml-auto text-xs text-muted-foreground font-medium">3/3</span>
         </div>
-        {/* Progress bar */}
         <div className="h-1 bg-muted">
           <div className="h-full transition-all" style={{ width: "100%", background: accent }} />
         </div>
       </header>
 
-      {/* Conteúdo */}
+      {/* Contenido */}
       <main className="flex-1 px-4 pt-6 pb-6 space-y-4">
         {/* Sucesso */}
         <div className="text-center py-2">
@@ -119,10 +118,10 @@ const OrderConfirmation = () => {
             <CheckCircle size={44} style={{ color: accent }} />
           </div>
           <h2 className="text-[22px] font-bold text-foreground leading-tight mb-1">
-            Pedido Confirmado!
+            ¡Pedido confirmado!
           </h2>
           <p className="text-sm text-muted-foreground mb-3">
-            Seu pedido foi recebido com sucesso
+            Tu pedido se ha recibido correctamente
           </p>
           <span
             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
@@ -133,18 +132,18 @@ const OrderConfirmation = () => {
           </span>
         </div>
 
-        {/* Tempo estimado */}
+        {/* Tiempo estimado */}
         <InfoCard
           icon={<Clock size={20} style={{ color: accent }} />}
-          title="Tempo estimado"
+          title="Tiempo estimado"
           text="30 - 45 minutos"
           accent={accent}
         />
 
-        {/* Endereço de entrega */}
+        {/* Dirección */}
         <InfoCard
           icon={<MapPin size={20} style={{ color: accent }} />}
-          title="Entregar em"
+          title="Entregar en"
           text={
             <>
               {pedido.dadosEntrega.endereco}, {pedido.dadosEntrega.numero}
@@ -157,7 +156,7 @@ const OrderConfirmation = () => {
           accent={accent}
         />
 
-        {/* Contato */}
+        {/* Contacto */}
         <InfoCard
           icon={<Phone size={20} style={{ color: accent }} />}
           title={pedido.dadosEntrega.nome}
@@ -165,9 +164,9 @@ const OrderConfirmation = () => {
           accent={accent}
         />
 
-        {/* Itens do pedido */}
+        {/* Artículos del pedido */}
         <section className="rounded-2xl border border-border bg-background p-4">
-          <h3 className="text-foreground font-semibold text-sm mb-3">Itens do pedido</h3>
+          <h3 className="text-foreground font-semibold text-sm mb-3">Artículos del pedido</h3>
           <div className="space-y-3">
             {pedido.itens.map((item) => (
               <div key={item.id} className="flex gap-3">
@@ -181,19 +180,18 @@ const OrderConfirmation = () => {
                     {item.produtoNome}
                   </p>
                   <p className="text-muted-foreground text-xs mt-0.5">
-                    {item.quantidade ?? 1}x R${" "}
-                    {(item.produtoPreco + item.totalAdicionais).toFixed(2).replace(".", ",")}
+                    {item.quantidade ?? 1}x{" "}
+                    {(item.produtoPreco + item.totalAdicionais).toFixed(2).replace(".", ",")} €
                   </p>
                 </div>
                 <div className="text-right">
                   <p className="text-foreground text-sm font-semibold">
-                    R${" "}
                     {(
                       (item.produtoPreco + item.totalAdicionais) *
                       (item.quantidade ?? 1)
                     )
                       .toFixed(2)
-                      .replace(".", ",")}
+                      .replace(".", ",")}{" "}€
                   </p>
                 </div>
               </div>
@@ -201,14 +199,14 @@ const OrderConfirmation = () => {
           </div>
         </section>
 
-        {/* Resumo de pagamento */}
+        {/* Resumen de pago */}
         <section className="rounded-2xl border border-border bg-background p-4">
-          <h3 className="text-foreground font-semibold text-sm mb-3">Pagamento</h3>
+          <h3 className="text-foreground font-semibold text-sm mb-3">Pago</h3>
 
           <div className="flex justify-between text-sm mb-2">
             <span className="text-muted-foreground">Subtotal</span>
             <span className="text-foreground">
-              R$ {pedido.subtotal.toFixed(2).replace(".", ",")}
+              {pedido.subtotal.toFixed(2).replace(".", ",")} €
             </span>
           </div>
 
@@ -216,10 +214,10 @@ const OrderConfirmation = () => {
             <div className="flex justify-between text-sm mb-2">
               <span className="text-green-600 flex items-center gap-1">
                 <Percent size={14} />
-                Desconto PIX (6%)
+                Descuento pago online (6%)
               </span>
               <span className="text-green-600 font-medium">
-                -R$ {pedido.descontoPix.toFixed(2).replace(".", ",")}
+                -{pedido.descontoPix.toFixed(2).replace(".", ",")} €
               </span>
             </div>
           )}
@@ -227,27 +225,27 @@ const OrderConfirmation = () => {
           <div className="flex justify-between text-base font-semibold border-t border-border pt-3 mt-3">
             <span className="text-foreground">Total</span>
             <span style={{ color: accent === "#F5E6D3" ? "#000" : accent }}>
-              R$ {pedido.total.toFixed(2).replace(".", ",")}
+              {pedido.total.toFixed(2).replace(".", ",")} €
             </span>
           </div>
 
           <div className="mt-3 pt-3 border-t border-border">
             <p className="text-muted-foreground text-xs">
-              Forma de pagamento:{" "}
+              Método de pago:{" "}
               <span className="text-foreground font-medium">
                 {formaPagamentoLabel[pedido.dadosEntrega.formaPagamento]}
               </span>
             </p>
             {pedido.dadosEntrega.formaPagamento === "dinheiro" && pedido.dadosEntrega.troco && (
               <p className="text-muted-foreground text-xs mt-1">
-                Troco para: R$ {pedido.dadosEntrega.troco.toFixed(2).replace(".", ",")}
+                Cambio para: {pedido.dadosEntrega.troco.toFixed(2).replace(".", ",")} €
               </p>
             )}
           </div>
         </section>
       </main>
 
-      {/* Footer Fixo */}
+      {/* Footer Fijo */}
       <footer className="sticky bottom-0 bg-background border-t border-border">
         <div className="px-4 py-3">
           <button
@@ -256,7 +254,7 @@ const OrderConfirmation = () => {
             style={{ background: accent, color: "#000" }}
           >
             <Home size={18} />
-            Voltar ao início
+            Volver al inicio
           </button>
         </div>
       </footer>

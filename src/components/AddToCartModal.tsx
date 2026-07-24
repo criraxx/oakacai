@@ -34,7 +34,7 @@ const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
       <DialogContent
         className="max-w-sm mx-auto p-0 overflow-hidden border-0 rounded-3xl bg-background shadow-2xl [&>button]:hidden"
       >
-        <DialogTitle className="sr-only">Produto adicionado ao carrinho</DialogTitle>
+        <DialogTitle className="sr-only">Producto añadido al carrito</DialogTitle>
 
         {/* Faixa superior decorativa com verde suave */}
         <div
@@ -45,7 +45,7 @@ const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
         >
           <button
             onClick={onClose}
-            aria-label="Fechar"
+            aria-label="Cerrar"
             className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
           >
             <X className="w-4 h-4 text-black" strokeWidth={2.5} />
@@ -71,10 +71,10 @@ const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
             className="text-xs font-bold uppercase tracking-widest mb-1"
             style={{ color: "#16a34a" }}
           >
-            Tudo certo
+            Todo listo
           </p>
           <h2 className="text-xl font-bold text-foreground text-center mb-4">
-            Adicionado ao carrinho!
+            ¡Añadido al carrito!
           </h2>
 
           {/* Card do produto */}
@@ -108,7 +108,7 @@ const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
               }}
             >
               <ShoppingBag size={18} strokeWidth={2.5} />
-              Ir para o carrinho
+              Ir al carrito
               <ArrowRight
                 size={16}
                 className="transition-transform group-hover:translate-x-0.5"
@@ -119,7 +119,7 @@ const AddToCartModal = ({ isOpen, onClose, produto }: AddToCartModalProps) => {
               onClick={handleContinuarComprando}
               className="w-full py-3 rounded-2xl font-medium text-foreground/80 hover:text-foreground hover:bg-muted/60 transition-colors text-sm"
             >
-              Continuar comprando
+              Seguir comprando
             </button>
           </div>
         </div>

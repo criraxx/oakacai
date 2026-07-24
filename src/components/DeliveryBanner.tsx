@@ -5,7 +5,7 @@ const DeliveryBanner = () => {
       <div className="rounded-xl overflow-hidden">
         <img 
           src={deliveryBanner} 
-          alt="Entrega grátis em todas as regiões" 
+          alt="Envío gratis en todas las zonas" 
           className="w-2/3 mx-auto h-auto object-cover"
         />
       </div>

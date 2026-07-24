@@ -23,7 +23,7 @@ const Index = () => {
   const [showDownsell, setShowDownsell] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
-  // Dispara downsell quando o usuário volta para a home tendo abandonado o PIX
+  // Dispara downsell cuando el usuario vuelve al inicio tras abandonar el pago
   useEffect(() => {
     let flag = false;
     try { flag = sessionStorage.getItem("oak_pix_flow") === "1"; } catch {}
@@ -37,26 +37,26 @@ const Index = () => {
 
 
   const categories = [
-    "Promoção Combo Premium!",
-    "Monte Seu Copo Do Seu Jeito",
+    "¡Promoción Combo Premium!",
+    "Monta tu vaso a tu gusto",
     "Trufados",
-    "Tradicionais",
-    "Balde",
-    "Picolé Trufado",
+    "Tradicionales",
+    "Cubo",
+    "Polos Trufados",
     "Bebidas",
   ];
 
   const renderSections = () => {
     switch (activeCategory) {
-      case "Monte Seu Copo Do Seu Jeito":
+      case "Monta tu vaso a tu gusto":
         return <MonteSection />;
       case "Trufados":
         return <TrufadosSection />;
-      case "Tradicionais":
+      case "Tradicionales":
         return <TradicionaisSection />;
-      case "Balde":
+      case "Cubo":
         return <BaldeSection />;
-      case "Picolé Trufado":
+      case "Polos Trufados":
         return <PicoleSection />;
       case "Bebidas":
         return <BebidasSection />;

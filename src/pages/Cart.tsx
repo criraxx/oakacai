@@ -27,7 +27,7 @@ const Cart = () => {
   const navigate = useNavigate();
   const { cor_borda_logo } = useBranding();
   const accent = cor_borda_logo || "#F5E6D3";
-  const { itens, removerItem, limparCarrinho, adicionarItem, incrementarQuantidade, decrementarQuantidade, getSubtotal, getTotal } = useCart();
+  const { itens, removerItem, limparCarrinho, adicionarItem, incrementarQuantidade, decrementarQuantidade, getSubtotal, getTotal, getDescontoMetadePreco } = useCart();
 
   const getNomeComplemento = (complementoId: string): string => {
     for (const secao of todasSecoes) {
@@ -91,8 +91,10 @@ const Cart = () => {
   }
 
   const subtotal = getSubtotal();
-  const descontoPix = subtotal * 0.06;
-  const total = getTotal() - descontoPix;
+  const descontoMetade = getDescontoMetadePreco();
+  const subtotalComMetade = subtotal - descontoMetade;
+  const descontoPix = subtotalComMetade * 0.06;
+  const total = subtotalComMetade - descontoPix;
 
 
   return (
@@ -283,6 +285,14 @@ const Cart = () => {
               <span className="text-muted-foreground">Gastos de envío</span>
               <span className="text-green-500 font-medium">Gratis</span>
             </div>
+            {descontoMetade > 0 && (
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground flex items-center gap-1">
+                  <Tag size={12} /> Mitad de precio (artículo más barato)
+                </span>
+                <span className="text-green-500 font-medium">- {formatEUR(descontoMetade)}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground flex items-center gap-1">
                 <Tag size={12} /> Descuento pago online (6%)

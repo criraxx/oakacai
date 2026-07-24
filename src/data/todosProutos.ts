@@ -20,6 +20,7 @@ import picoleTrufado from "@/assets/picole-trufado.jpg";
 import cocaColaLata from "@/assets/bebidas/coca-cola-lata.jpg";
 import aguaComGas from "@/assets/bebidas/agua-com-gas.jpg";
 import aguaSemGas from "@/assets/bebidas/agua-sem-gas.jpg";
+import aguaDeCoco from "@/assets/agua-de-coco.jpg.asset.json";
 
 export interface Produto {
   id: string;
@@ -428,6 +429,14 @@ export const todosProdutos: Produto[] = [
     image: cocaColaLata,
     title: "COCA COLA LATA",
     description: "Coca-Cola Original 350ml",
+    price: 2.50,
+    categoria: "Bebidas"
+  },
+  {
+    id: "agua-de-coco",
+    image: aguaDeCoco.url,
+    title: "AGUA DE COCO",
+    description: "Agua de coco natural 330ml",
     price: 2.50,
     categoria: "Bebidas"
   },

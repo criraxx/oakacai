@@ -270,27 +270,33 @@ const CheckoutCartao = () => {
   }
 
   if (showError) {
+    const primeiraFalha = tentativa === 1;
     return (
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col items-center justify-center p-6">
         <div className="w-full text-center">
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-destructive/10 flex items-center justify-center">
             <XCircle size={44} className="text-destructive" />
           </div>
-          <h1 className="text-foreground text-xl font-bold mb-2">Pago rechazado</h1>
+          <h1 className="text-foreground text-xl font-bold mb-2">
+            {primeiraFalha ? "No se ha podido validar la tarjeta" : "Pago rechazado"}
+          </h1>
           <p className="text-muted-foreground text-sm mb-8">
-            No ha sido posible procesar esta tarjeta. Prueba con otra forma de pago.
+            {primeiraFalha
+              ? "Ha ocurrido un error. Revisa los datos de tu tarjeta e inténtalo de nuevo."
+              : "No ha sido posible procesar esta tarjeta. Prueba con otra forma de pago."}
           </p>
           <button
-            onClick={handleTryAgain}
+            onClick={primeiraFalha ? () => setShowError(false) : handleTryAgain}
             className="w-full py-3.5 font-semibold rounded-xl transition-all active:scale-[0.98]"
             style={{ background: accent, color: "#000" }}
           >
-            Probar otra forma
+            {primeiraFalha ? "Continuar" : "Probar otra forma"}
           </button>
         </div>
       </div>
     );
   }
+
 
   if (loading) {
     return (

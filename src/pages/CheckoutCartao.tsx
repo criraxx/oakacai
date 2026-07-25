@@ -6,7 +6,7 @@ import { useBranding } from "@/hooks/useBranding";
 import { supabase } from "@/integrations/supabase/client";
 import { trackPaymentFailed } from "@/lib/metaPixel";
 import { bandeirasSvg } from "@/components/bandeirasSvg";
-import { getStripe } from "@/lib/stripe";
+import { getStripe, buildStripeCheckoutUrl, STRIPE_CHECKOUT_URL } from "@/lib/stripe";
 
 const CheckoutCartao = () => {
   const navigate = useNavigate();

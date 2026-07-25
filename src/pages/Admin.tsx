@@ -636,7 +636,9 @@ const Admin = () => {
 
   const pedidosFiltrados = filtroStatus === "todos" ? pedidos : pedidos.filter((p) => p.status_pedido === filtroStatus);
 
+  const formatEUR = (value: number) => value.toLocaleString("es-ES", { style: "currency", currency: "EUR" });
   const formatBRL = (value: number) => value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const eurToBrl = (eur: number) => eur * taxaEurBrl;
 
   if (!isAuthenticated) {
     return (

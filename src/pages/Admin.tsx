@@ -786,11 +786,14 @@ const Admin = () => {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-bold text-primary">{formatBRL(Number(pedido.total))}</p>
+                          <p className="text-lg font-bold text-primary">{formatEUR(Number(pedido.total))}</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            Cobrado: {formatBRL(eurToBrl(Number(pedido.total)))}
+                          </p>
                           <p className="text-xs text-muted-foreground">
                             {pedido.status_pagamento === "confirmado"
-                              ? `Total pagado: ${formatBRL(Number(pedido.total))}`
-                              : `Total a pagar: ${formatBRL(Number(pedido.total))}`}
+                              ? `Total pagado: ${formatEUR(Number(pedido.total))}`
+                              : `Total a pagar: ${formatEUR(Number(pedido.total))}`}
                           </p>
                           <p className="text-xs text-muted-foreground uppercase">{pedido.forma_pagamento}</p>
                         </div>

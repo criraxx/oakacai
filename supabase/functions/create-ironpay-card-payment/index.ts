@@ -50,6 +50,25 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    const body = await req.json();
+
+    // ---- Consulta de status (usado no polling do 3DS) ----
+    if (body?.action === 'status') {
+      const { data: pedido } = await supabase
+        .from('pedidos')
+        .select('status_pagamento, observacoes')
+        .eq('id', body.pedidoId)
+        .maybeSingle();
+      return new Response(
+        JSON.stringify({
+          success: true,
+          status_pagamento: pedido?.status_pagamento || 'pendente',
+          observacoes: pedido?.observacoes || null,
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
     const {
       valor,
       nome,
@@ -60,7 +79,7 @@ Deno.serve(async (req) => {
       card_token,
       descricao,
       regiao,
-    } = await req.json();
+    } = body;
 
     // Seleciona credenciais por região (BR ou ES). Fallback pros nomes antigos.
     const regionKey = (regiao || 'br').toString().toLowerCase() === 'es' ? 'ES' : 'BR';

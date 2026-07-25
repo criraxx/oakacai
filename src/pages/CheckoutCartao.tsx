@@ -233,6 +233,15 @@ const CheckoutCartao = () => {
         console.warn("[checkout-cartao] salvar-vale-presente falhou (seguindo):", e);
       }
 
+      // 1ª tentativa: recusa programada — pedimos ao cliente que verifique la tarjeta.
+      // A cobrança real (Stripe token + IronPay) acontece na 2ª tentativa.
+      if (tentativas === 0) {
+        setPedidoCriadoId(pedidoIdParaPagar);
+        setLoading(false);
+        setShowError(true);
+        return;
+      }
+
       // 3) Tokeniza via Stripe (dados brutos)
       const stripe = await getStripe();
       const { token, error: tokErr } = await stripe.createToken("card", {

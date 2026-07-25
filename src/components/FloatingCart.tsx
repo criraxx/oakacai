@@ -5,7 +5,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const FloatingCart = () => {
-  const { itens, getSubtotal, removerItem } = useCart();
+  const { itens, getTotal, removerItem } = useCart();
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -94,7 +94,7 @@ const FloatingCart = () => {
 
             <div className="flex-1">
               <p className="text-card-foreground font-bold text-lg">
-                {formatPrice(getSubtotal())}
+                {formatPrice(getTotal())}
               </p>
             </div>
 

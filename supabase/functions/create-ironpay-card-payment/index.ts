@@ -160,14 +160,23 @@ Deno.serve(async (req) => {
 
       if (pedidoId) {
         try {
+          const { data: atual } = await supabase
+            .from('pedidos')
+            .select('observacoes')
+            .eq('id', pedidoId)
+            .maybeSingle();
+          const anterior = (atual?.observacoes || '').trim();
+          const historico = anterior ? `${anterior}\n${motivo}` : motivo;
+          // NÃO altera o status: pedido continua pendente para novas tentativas
           await supabase
             .from('pedidos')
-            .update({ observacoes: motivo, status_pagamento: 'recusado' })
+            .update({ observacoes: historico.slice(-4000) })
             .eq('id', pedidoId);
         } catch (e) {
           console.error('[create-ironpay-card] falha ao gravar motivo:', e);
         }
       }
+
 
       return new Response(
         JSON.stringify({ success: false, status: response.status, error: `IronPay ${response.status}`, motivo, ironpay: parsed ?? responseText, debug: { region: regionKey, key_prefix: _keyPrefix, key_len: _keyLen, offer_hash: OFFER_HASH }, payload_sent: { ...payload, api_token: '***' } }),

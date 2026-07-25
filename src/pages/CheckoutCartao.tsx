@@ -103,6 +103,12 @@ const CheckoutCartao = () => {
     }
   }, [showError, itens, valorComDesconto, pedidoExistente]);
 
+  // Conta as recusas: 1ª → pedir para verificar a tarjeta; 2ª → checkout Stripe
+  useEffect(() => {
+    if (showError) setTentativas((t) => t + 1);
+  }, [showError]);
+
+
   // Polling do status durante o challenge 3DS
   useEffect(() => {
     if (!threeDs?.transactionHash) return;

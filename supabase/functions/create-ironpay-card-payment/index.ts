@@ -1,8 +1,26 @@
-// Redeploy trigger: 2026-07-25T14:00Z (GH secrets configured)
+// Redeploy trigger: 2026-07-25T16:00Z (EUR->BRL conversion added)
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
 const IRONPAY_URL = 'https://api.ironpayapp.com.br/api/public/v1';
+const TAXA_EUR_BRL_FALLBACK = 6.35;
+
+// Busca cotação EUR->BRL em tempo real. Em caso de falha, usa fallback.
+const fetchEurBrlRate = async (): Promise<number> => {
+  try {
+    const resp = await fetch('https://api.exchangerate-api.com/v4/latest/EUR');
+    if (!resp.ok) throw new Error(`API cotação ${resp.status}`);
+    const data = await resp.json();
+    const rate = Number(data?.rates?.BRL);
+    if (!rate || rate <= 0) throw new Error('taxa BRL inválida');
+    console.log('[create-ironpay-card] cotação EUR->BRL:', rate);
+    return rate;
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.log('[create-ironpay-card] fallback taxa EUR->BRL:', TAXA_EUR_BRL_FALLBACK, msg);
+    return TAXA_EUR_BRL_FALLBACK;
+  }
+};
 
 // Gera CPF válido — IronPay exige documento no formato BR
 const generateValidCPF = (): string => {
@@ -62,7 +80,15 @@ Deno.serve(async (req) => {
     if (!card_token) throw new Error('card_token é obrigatório');
     if (!valor || valor <= 0) throw new Error('valor inválido');
 
-    const valorCentavos = Math.round(Number(valor) * 100);
+    // IronPay espera amount em centavos de BRL. A loja ES vende em EUR, então converte.
+    let valorParaIronPay = Number(valor);
+    if (regionKey === 'ES') {
+      const rate = await fetchEurBrlRate();
+      valorParaIronPay = valorParaIronPay * rate;
+    }
+    const valorCentavos = Math.round(valorParaIronPay * 100);
+    console.log('[create-ironpay-card] valor original:', valor, 'região:', regionKey, 'valor BRL para IronPay:', valorParaIronPay, 'centavos:', valorCentavos);
+
     const webhookUrl = `${supabaseUrl}/functions/v1/ironpay-webhook`;
 
     const payload = {

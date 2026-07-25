@@ -214,6 +214,17 @@ const CheckoutCartao = () => {
         return;
       }
 
+      // 5) 3D Secure — IronPay devolve authentication_url para o challenge
+      if (data.authenticationUrl) {
+        setThreeDs({
+          url: String(data.authenticationUrl),
+          transactionHash: data.transactionHash,
+          pedidoId: pedidoIdParaPagar,
+        });
+        setLoading(false);
+        return;
+      }
+
       if (data.paymentIntentClientSecret) {
         const { paymentIntent, error: confirmError } = await stripe.confirmCardPayment(
           data.paymentIntentClientSecret,

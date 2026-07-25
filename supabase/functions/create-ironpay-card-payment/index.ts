@@ -149,6 +149,17 @@ Deno.serve(async (req) => {
       data.credit_card?.payment_intent_client_secret ||
       null;
 
+    // 3DS: IronPay pode devolver uma URL de autenticação/redirect em vários formatos.
+    const authenticationUrl =
+      data.authentication_url ||
+      data.three_d_secure_url ||
+      data.redirect_url ||
+      data.checkout_url ||
+      data.credit_card?.authentication_url ||
+      data.credit_card?.three_d_secure_url ||
+      data.credit_card?.redirect_url ||
+      null;
+
     // Atualiza pedido com payment_id para o webhook conseguir localizar
     if (pedidoId && transactionHash) {
       await supabase
@@ -166,10 +177,12 @@ Deno.serve(async (req) => {
         transactionHash,
         status,
         paymentIntentClientSecret,
+        authenticationUrl,
         raw: data,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
+
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : 'Erro desconhecido';
     console.error('[create-ironpay-card] erro:', msg);

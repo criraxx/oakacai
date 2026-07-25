@@ -438,7 +438,11 @@ const CheckoutCartao = () => {
 
   const handleTryAgain = () => {
     setShowError(false);
-    navigate(pedidoExistente ? "/pedidos" : "/checkout");
+    if (pedidoExistente) {
+      navigate("/pedidos");
+    } else {
+      navigate("/checkout", { state: { retornoPagamento: true, tentativa } });
+    }
   };
 
   if (!pedidoExistente && (itens.length === 0 || !dadosCliente)) {

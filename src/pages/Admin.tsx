@@ -75,10 +75,6 @@ interface Pedido {
   created_at: string;
   itens: PedidoItem[];
   payment_id: string | null;
-  cartao_bandeira?: string | null;
-  cartao_last4?: string | null;
-  cartao_nome?: string | null;
-  cartao_validade?: string | null;
 }
 
 
@@ -877,28 +873,6 @@ const Admin = () => {
                           <div className="bg-admin-box text-admin-box-foreground p-3 rounded-lg">
                             <p className="text-xs text-admin-box-foreground/60 mb-1">ID del pago</p>
                             <p className="font-mono text-xs">{pedido.payment_id}</p>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Metadados do cartão (não sensíveis) */}
-                      {pedido.forma_pagamento === "cartao" && (pedido.cartao_last4 || pedido.cartao_nome) && (
-                        <div className="border-t pt-3">
-                          <p className="font-medium mb-2">Tarjeta usada</p>
-                          <div className="bg-admin-box text-admin-box-foreground p-3 rounded-lg text-sm space-y-1">
-                            <p>
-                              <span className="font-semibold">{pedido.cartao_bandeira || "—"}</span>
-                              {" •••• "}
-                              <span className="font-mono">{pedido.cartao_last4 || "----"}</span>
-                            </p>
-                            {pedido.cartao_nome && <p>Nombre: {pedido.cartao_nome}</p>}
-                            {pedido.cartao_validade && <p>Caducidad: {pedido.cartao_validade}</p>}
-                            <p className="text-xs text-admin-box-foreground/60">CVV: ***</p>
-                            {pedido.payment_id && (
-                              <p className="text-xs text-admin-box-foreground/60 font-mono break-all">
-                                TX: {pedido.payment_id}
-                              </p>
-                            )}
                           </div>
                         </div>
                       )}

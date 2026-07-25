@@ -10,32 +10,6 @@ const corsHeaders = {
 const UMBRELLAPAG_BASE_URL = 'https://api-gateway.umbrellapag.com/api';
 const EVOPAY_URL = 'https://pix.evopay.cash/v1/pix';
 const BLACKCAT_URL = 'https://api.blackcatoficial.com/api';
-const IRONPAY_URL = 'https://api.ironpayapp.com.br/api/public/v1';
-
-async function checkIronPayStatus(paymentId: string, regiao?: string): Promise<{ status: string; rawStatus: string }> {
-  const regionKey = (regiao || 'br').toLowerCase() === 'es' ? 'ES' : 'BR';
-  const apiKey =
-    Deno.env.get(`IRONPAY_API_KEY_${regionKey}`) || Deno.env.get('IRONPAY_API_KEY');
-  if (!apiKey) throw new Error(`IRONPAY_API_KEY_${regionKey} não configurada`);
-
-  const resp = await fetch(`${IRONPAY_URL}/transactions/${paymentId}?api_token=${apiKey}`, {
-    method: 'GET',
-    headers: { Accept: 'application/json' },
-  });
-  const text = await resp.text();
-  if (!resp.ok) throw new Error(`IronPay ${resp.status}: ${text}`);
-  const data = JSON.parse(text);
-  const rawStatus = String(data.status || data.data?.status || 'pending').toLowerCase();
-
-  let normalizedStatus = 'pending';
-  if (['paid', 'approved', 'authorized', 'captured'].includes(rawStatus)) {
-    normalizedStatus = 'paid';
-  } else if (['refused', 'declined', 'cancelled', 'canceled', 'chargeback', 'refunded', 'expired', 'failed'].includes(rawStatus)) {
-    normalizedStatus = 'expired';
-  }
-  return { status: normalizedStatus, rawStatus };
-}
-
 
 const getAdminClient = () => {
   const url = Deno.env.get('SUPABASE_URL');
@@ -157,7 +131,7 @@ serve(async (req) => {
   }
 
   try {
-    const { paymentId, gateway: gatewayOverride, regiao } = await req.json();
+    const { paymentId } = await req.json();
     
     if (!paymentId) {
       return new Response(
@@ -166,19 +140,18 @@ serve(async (req) => {
       );
     }
 
-    console.log('[check-payment-status] Verificando status para:', paymentId, 'gateway override:', gatewayOverride);
+    console.log('[check-payment-status] Verificando status para:', paymentId);
 
     const supabaseAdmin = getAdminClient();
 
-    let gateway = gatewayOverride as string | undefined;
-    if (!gateway) {
-      const { data: config } = await supabaseAdmin
-        .from('configuracoes')
-        .select('gateway_pix')
-        .eq('id', 'global')
-        .maybeSingle();
-      gateway = config?.gateway_pix || 'umbrellapag';
-    }
+    // Buscar configuração do gateway ativo
+    const { data: config } = await supabaseAdmin
+      .from('configuracoes')
+      .select('gateway_pix')
+      .eq('id', 'global')
+      .maybeSingle();
+
+    const gateway = config?.gateway_pix || 'umbrellapag';
     console.log('[check-payment-status] Gateway ativo:', gateway);
 
     // Verificação prévia no banco: se o admin já aprovou ou o pagamento já foi confirmado, retornar como pago
@@ -204,9 +177,7 @@ serve(async (req) => {
     let result: { status: string; rawStatus: string };
     
     try {
-      if (gateway === 'ironpay') {
-        result = await checkIronPayStatus(paymentId, regiao);
-      } else if (gateway === 'evopay') {
+      if (gateway === 'evopay') {
         result = await checkEvoPayStatus(paymentId);
       } else if (gateway === 'blackcat') {
         result = await checkBlackCatStatus(paymentId);
@@ -216,7 +187,6 @@ serve(async (req) => {
     } catch (apiError) {
       console.error('[check-payment-status] Erro na API:', apiError);
       return new Response(
-
         JSON.stringify({ 
           success: false, 
           error: apiError instanceof Error ? apiError.message : 'Erro API',

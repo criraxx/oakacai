@@ -90,8 +90,10 @@ Deno.serve(async (req) => {
     console.log('[create-ironpay-card] IronPay response:', response.status, responseText);
 
     if (!response.ok) {
+      let parsed: unknown = null;
+      try { parsed = JSON.parse(responseText); } catch (_) {}
       return new Response(
-        JSON.stringify({ success: false, error: `IronPay ${response.status}: ${responseText}` }),
+        JSON.stringify({ success: false, status: response.status, error: `IronPay ${response.status}`, ironpay: parsed ?? responseText, payload_sent: { ...payload, api_token: '***' } }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       );
     }

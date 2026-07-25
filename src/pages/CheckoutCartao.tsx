@@ -251,7 +251,7 @@ const CheckoutCartao = () => {
             cpf: clienteInfo.cpf,
             email: `${normalizarTelefone(clienteInfo.telefone)}@cliente.local`,
             pedidoId: pedidoIdParaPagar,
-            card_token: token.id,
+            card_token: cardToken,
           },
         },
       );

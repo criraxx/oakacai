@@ -16,10 +16,10 @@ import acaiSonhoValsa from "@/assets/acai-sonho-valsa.jpg";
 import acaiOuroBranco from "@/assets/acai-ouro-branco.jpg";
 import acaiDiamanteNegro from "@/assets/acai-diamante-negro.jpg";
 import balde22l from "@/assets/balde-22l.jpg";
-import cocaColaLata from "@/assets/coca-cola-lata.png.asset.json";
-import aguaMineral from "@/assets/agua-mineral.png.asset.json";
-import aguaConGas from "@/assets/agua-con-gas.png.asset.json";
-import aguaDeCoco from "@/assets/agua-de-coco.jpg.asset.json";
+import cocaColaLata from "@/assets/coca-cola-lata.png";
+import aguaMineral from "@/assets/agua-mineral.png";
+import aguaConGas from "@/assets/agua-con-gas.png";
+import aguaDeCoco from "@/assets/agua-de-coco.jpg";
 
 export interface Produto {
   id: string;
@@ -399,7 +399,7 @@ export const todosProdutos: Produto[] = [
   // Bebidas
   {
     id: "coca-cola-lata",
-    image: cocaColaLata.url,
+    image: cocaColaLata,
     title: "COCA COLA LATA",
     description: "Coca-Cola Lata Original 330ml",
     price: 2.50,
@@ -407,7 +407,7 @@ export const todosProdutos: Produto[] = [
   },
   {
     id: "agua-de-coco",
-    image: aguaDeCoco.url,
+    image: aguaDeCoco,
     title: "AGUA DE COCO",
     description: "Agua de Coco Natural 330ml",
     price: 2.50,
@@ -415,7 +415,7 @@ export const todosProdutos: Produto[] = [
   },
   {
     id: "agua-mineral",
-    image: aguaMineral.url,
+    image: aguaMineral,
     title: "AGUA MINERAL",
     description: "Agua Mineral sin Gas 330ml",
     price: 2.00,
@@ -423,7 +423,7 @@ export const todosProdutos: Produto[] = [
   },
   {
     id: "agua-con-gas",
-    image: aguaConGas.url,
+    image: aguaConGas,
     title: "AGUA CON GAS",
     description: "Agua con Gas Ocean52 330ml",
     price: 10.00,

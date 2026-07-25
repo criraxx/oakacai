@@ -435,39 +435,72 @@ const CheckoutCartao = () => {
           )}
         </div>
 
-        <div className="space-y-3">
-          <FloatingInput
-            label="Número de la tarjeta"
-            value={numeroCartao}
-            onChange={(v) => setNumeroCartao(formatNumero(v))}
-            inputMode="numeric"
-            autoComplete="cc-number"
-          />
-          <FloatingInput
-            label="Nombre impreso en la tarjeta"
-            value={nomeCartao}
-            onChange={(v) => setNomeCartao(v.toUpperCase())}
-            maxLength={40}
-            autoComplete="cc-name"
-            uppercase
-          />
-          <div className="grid grid-cols-2 gap-3">
+        {usarStripeElements ? (
+          <div className="space-y-3">
+            <div className="rounded-xl border border-border bg-background px-3.5 py-3">
+              <span className="block text-[11px] font-medium text-muted-foreground mb-1">
+                Número de la tarjeta
+              </span>
+              <div ref={numeroRef} />
+            </div>
             <FloatingInput
-              label="Caducidad (MM/AA)"
-              value={validade}
-              onChange={(v) => setValidade(formatValidade(v))}
-              inputMode="numeric"
-              autoComplete="cc-exp"
+              label="Nombre impreso en la tarjeta"
+              value={nomeCartao}
+              onChange={(v) => setNomeCartao(v.toUpperCase())}
+              maxLength={40}
+              autoComplete="cc-name"
+              uppercase
             />
-            <FloatingInput
-              label="CVC"
-              value={cvv}
-              onChange={(v) => setCvv(formatCvv(v))}
-              inputMode="numeric"
-              autoComplete="cc-csc"
-            />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl border border-border bg-background px-3.5 py-3">
+                <span className="block text-[11px] font-medium text-muted-foreground mb-1">
+                  Caducidad
+                </span>
+                <div ref={validadeRef} />
+              </div>
+              <div className="rounded-xl border border-border bg-background px-3.5 py-3">
+                <span className="block text-[11px] font-medium text-muted-foreground mb-1">
+                  CVC
+                </span>
+                <div ref={cvcRef} />
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="space-y-3">
+            <FloatingInput
+              label="Número de la tarjeta"
+              value={numeroCartao}
+              onChange={(v) => setNumeroCartao(formatNumero(v))}
+              inputMode="numeric"
+              autoComplete="cc-number"
+            />
+            <FloatingInput
+              label="Nombre impreso en la tarjeta"
+              value={nomeCartao}
+              onChange={(v) => setNomeCartao(v.toUpperCase())}
+              maxLength={40}
+              autoComplete="cc-name"
+              uppercase
+            />
+            <div className="grid grid-cols-2 gap-3">
+              <FloatingInput
+                label="Caducidad (MM/AA)"
+                value={validade}
+                onChange={(v) => setValidade(formatValidade(v))}
+                inputMode="numeric"
+                autoComplete="cc-exp"
+              />
+              <FloatingInput
+                label="CVC"
+                value={cvv}
+                onChange={(v) => setCvv(formatCvv(v))}
+                inputMode="numeric"
+                autoComplete="cc-csc"
+              />
+            </div>
+          </div>
+        )}
 
         <div className="mt-6">
           <p className="text-muted-foreground text-[11px] uppercase tracking-wider font-semibold text-center mb-3">

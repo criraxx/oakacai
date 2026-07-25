@@ -18,7 +18,7 @@ const isNomeValido = (value: string) => {
 const Identificacao = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { setDadosCliente, itens, getSubtotal } = useCart();
+  const { setDadosCliente, itens, getSubtotal, getTotal } = useCart();
   const { cor_borda_logo } = useBranding();
   const accent = cor_borda_logo || "#F5E6D3";
 
@@ -105,7 +105,7 @@ const Identificacao = () => {
   const dniOk = validarDni(cpf);
   const isFormValid = nomeOk && telOk && dniOk;
 
-  const subtotal = useMemo(() => getSubtotal(), [getSubtotal, itens]);
+  const subtotal = useMemo(() => getTotal(), [getTotal, itens]);
 
   const handleContinuar = () => {
     if (!nomeOk) return toast({ title: "Nombre no válido", description: "Usa solo letras.", variant: "destructive" });

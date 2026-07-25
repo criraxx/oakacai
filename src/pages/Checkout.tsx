@@ -59,7 +59,7 @@ const Checkout = () => {
   const { toast } = useToast();
   const { cor_borda_logo } = useBranding();
   const accent = cor_borda_logo || "#F5E6D3";
-  const { itens, getSubtotal, getTotal, getDescontoPix, getTotalComDesconto, finalizarPedido, dadosCliente } = useCart();
+  const { itens, getSubtotal, getTotal, getDescontoMetadePreco, getDescontoPix, getTotalComDesconto, finalizarPedido, dadosCliente } = useCart();
 
 
 
@@ -451,7 +451,8 @@ const Checkout = () => {
 
   const totalFinal = pedidoExistente
     ? pedidoTotal
-    : getSubtotal();
+    : getTotal();
+  const descontoMetade = pedidoExistente ? 0 : getDescontoMetadePreco();
 
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
@@ -620,6 +621,16 @@ const Checkout = () => {
                   {(pedidoExistente ? pedidoSubtotal : getSubtotal()).toFixed(2).replace(".", ",")} €
                 </span>
               </div>
+              {descontoMetade > 0 && (
+                <div className="flex justify-between text-[13px]">
+                  <span className="text-foreground/70 flex items-center gap-1">
+                    <Percent size={12} /> 2ª unidad a mitad de precio
+                  </span>
+                  <span className="font-medium" style={{ color: accent }}>
+                    -{descontoMetade.toFixed(2).replace(".", ",")} €
+                  </span>
+                </div>
+              )}
               {pedidoExistente && pedidoDescontoPix > 0 && (
                 <div className="flex justify-between text-[13px]">
                   <span className="text-foreground/70 flex items-center gap-1">

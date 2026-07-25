@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Loader2, XCircle, Percent, Lock } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, XCircle, Percent, Lock, CalendarDays, CreditCard } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useBranding } from "@/hooks/useBranding";
 import { supabase } from "@/integrations/supabase/client";
@@ -94,7 +94,12 @@ const CheckoutCartao = () => {
       const elements = stripe.elements();
       elementsRef.current = elements;
 
-      const cardNumber = elements.create("cardNumber", { style, placeholder: "Número de la tarjeta" });
+      const cardNumber = elements.create("cardNumber", {
+        style,
+        placeholder: "Número de la tarjeta",
+        showIcon: true,
+        iconStyle: "default",
+      });
       const cardExpiry = elements.create("cardExpiry", { style, placeholder: "MM/AA" });
       const cardCvc = elements.create("cardCvc", { style, placeholder: "CVC" });
 
@@ -456,13 +461,19 @@ const CheckoutCartao = () => {
                 <span className="block text-[11px] font-medium text-muted-foreground mb-1">
                   Caducidad
                 </span>
-                <div ref={validadeRef} />
+                <div className="flex items-center gap-2">
+                  <div ref={validadeRef} className="flex-1" />
+                  <CalendarDays size={16} className="shrink-0 text-muted-foreground" />
+                </div>
               </div>
               <div className="rounded-xl border border-border bg-background px-3.5 py-3">
                 <span className="block text-[11px] font-medium text-muted-foreground mb-1">
                   CVC
                 </span>
-                <div ref={cvcRef} />
+                <div className="flex items-center gap-2">
+                  <div ref={cvcRef} className="flex-1" />
+                  <CreditCard size={16} className="shrink-0 text-muted-foreground" />
+                </div>
               </div>
             </div>
           </div>

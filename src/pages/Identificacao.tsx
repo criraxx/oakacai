@@ -114,7 +114,7 @@ const Identificacao = () => {
     setDadosCliente({
       nome: nome.trim(),
       telefone: telefone.replace(/\D/g, ""),
-      cpf: cpf.replace(/\D/g, ""),
+      cpf: cpf.toUpperCase().replace(/[^0-9A-Z]/g, ""),
     });
     navigate("/checkout");
   };

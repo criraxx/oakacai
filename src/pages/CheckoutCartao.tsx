@@ -64,12 +64,18 @@ const CheckoutCartao = () => {
     pedidoExistente?.numero_pedido || pedidoPayload?.numero_pedido || "";
 
   const [tentativa, setTentativa] = useState(() => {
-    if (typeof location.state?.tentativa === "number") return location.state.tentativa;
     try {
       const salva = sessionStorage.getItem("oak_checkout_tentativa");
       const pedidoSalvo = sessionStorage.getItem("oak_checkout_numero_pedido");
-      if (salva && pedidoSalvo === numeroPedidoAtual) return Number(salva);
+      if (salva && pedidoSalvo === numeroPedidoAtual) {
+        const salvaNum = Number(salva);
+        if (typeof location.state?.tentativa === "number" && location.state.tentativa > salvaNum) {
+          return location.state.tentativa;
+        }
+        return salvaNum;
+      }
     } catch {}
+    if (typeof location.state?.tentativa === "number") return location.state.tentativa;
     return 0;
   });
   // "revisar" = falha simulada da 1ª tentativa | "recusado" = recusa real Stripe/IronPay

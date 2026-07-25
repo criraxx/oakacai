@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
       )
     }
 
-    const telefoneLimpo = telefone.replace(/\D/g, '')
+    const telefoneLimpo = telefoneDigits
 
     // Auto-cancelar pedidos pendentes com mais de 5 horas
     const cincoHorasAtras = new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString()

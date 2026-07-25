@@ -194,6 +194,20 @@ Deno.serve(async (req) => {
         .eq('id', pedidoId);
     }
 
+    // Se a IronPay respondeu 200 mas com status de recusa, registra o motivo
+    const statusStr = String(status || '').toLowerCase();
+    if (pedidoId && statusStr && !['paid', 'approved', 'pending', 'waiting_payment', 'processing'].includes(statusStr)) {
+      const detalhe = data.refuse_reason || data.message || data.credit_card?.refuse_reason || statusStr;
+      await supabase
+        .from('pedidos')
+        .update({
+          observacoes: `[${new Date().toISOString()}] Recusado (status IronPay: ${statusStr}): ${String(detalhe).slice(0, 250)}`,
+          status_pagamento: 'recusado',
+        })
+        .eq('id', pedidoId);
+    }
+
+
     return new Response(
       JSON.stringify({
         success: true,

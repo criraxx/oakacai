@@ -70,7 +70,7 @@ const CheckoutCartao = () => {
   // na 2ª o pagamento vai pelo checkout hospedado da Stripe.
   const [tentativas, setTentativas] = useState(0);
   const numeroPedidoAtual =
-    pedidoExistente?.numero_pedido || pedidoPayload?.numero_pedido || pedidoAtual?.numero_pedido;
+    pedidoExistente?.numero_pedido || pedidoPayload?.numero_pedido;
 
   const paymentFailedTracked = useRef(false);
 

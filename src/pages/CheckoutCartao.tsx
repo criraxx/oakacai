@@ -60,13 +60,16 @@ const CheckoutCartao = () => {
   const [cvv, setCvv] = useState("");
   const [loading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
+  const numeroPedidoAtual =
+    pedidoExistente?.numero_pedido || pedidoPayload?.numero_pedido || pedidoAtual?.numero_pedido || "";
+
   const [tentativa, setTentativa] = useState(() => {
     try {
       const salva = sessionStorage.getItem("oak_checkout_tentativa");
-      return salva ? Number(salva) : 0;
-    } catch {
-      return 0;
-    }
+      const pedidoSalvo = sessionStorage.getItem("oak_checkout_numero_pedido");
+      if (salva && pedidoSalvo === numeroPedidoAtual) return Number(salva);
+    } catch {}
+    return 0;
   });
   // "revisar" = falha simulada da 1ª tentativa | "recusado" = recusa real Stripe/IronPay
   const [erroTipo, setErroTipo] = useState<"revisar" | "recusado">("recusado");

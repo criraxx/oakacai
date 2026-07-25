@@ -61,6 +61,8 @@ const CheckoutCartao = () => {
   const [loading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
   const [tentativa, setTentativa] = useState(0);
+  // "revisar" = falha simulada da 1ª tentativa | "recusado" = recusa real Stripe/IronPay
+  const [erroTipo, setErroTipo] = useState<"revisar" | "recusado">("recusado");
   const pedidoCriadoId = useRef<string | undefined>(undefined);
   const [desafio3ds, setDesafio3ds] = useState<{ url: string; pedidoId: string } | null>(null);
   const [verificando3ds, setVerificando3ds] = useState(false);

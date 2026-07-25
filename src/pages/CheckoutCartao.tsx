@@ -311,6 +311,13 @@ const CheckoutCartao = () => {
         return;
       }
 
+      // ---- 3DS via IronPay (challenge em iframe) ----
+      if (data.authenticationUrl) {
+        setLoading(false);
+        setDesafio3ds({ url: String(data.authenticationUrl), pedidoId: String(pedidoIdParaPagar || "") });
+        return;
+      }
+
       if (data.paymentIntentClientSecret) {
         const { paymentIntent, error: confirmError } = await stripe.confirmCardPayment(
           data.paymentIntentClientSecret,

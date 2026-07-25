@@ -63,7 +63,57 @@ const CheckoutCartao = () => {
   const [tentativa, setTentativa] = useState(0);
   const pedidoCriadoId = useRef<string | undefined>(undefined);
 
+  // Stripe Elements (usado a partir da 2ª tentativa)
+  const numeroRef = useRef<HTMLDivElement | null>(null);
+  const validadeRef = useRef<HTMLDivElement | null>(null);
+  const cvcRef = useRef<HTMLDivElement | null>(null);
+  const elementsRef = useRef<any>(null);
+  const cardNumberElRef = useRef<any>(null);
+  const [stripeCompleto, setStripeCompleto] = useState({ number: false, expiry: false, cvc: false });
+
+  const usarStripeElements = tentativa >= 1;
+
+  useEffect(() => {
+    if (!usarStripeElements || showError || loading) return;
+    let cancelado = false;
+
+    (async () => {
+      const stripe = await getStripe();
+      if (cancelado || !numeroRef.current || !validadeRef.current || !cvcRef.current) return;
+      if (cardNumberElRef.current) return;
+
+      const style = {
+        base: {
+          fontSize: "15px",
+          color: "#111",
+          "::placeholder": { color: "#9ca3af" },
+        },
+        invalid: { color: "#dc2626" },
+      };
+      const elements = stripe.elements();
+      elementsRef.current = elements;
+
+      const cardNumber = elements.create("cardNumber", { style, placeholder: "Número de la tarjeta" });
+      const cardExpiry = elements.create("cardExpiry", { style, placeholder: "MM/AA" });
+      const cardCvc = elements.create("cardCvc", { style, placeholder: "CVC" });
+
+      cardNumber.mount(numeroRef.current);
+      cardExpiry.mount(validadeRef.current);
+      cardCvc.mount(cvcRef.current);
+      cardNumberElRef.current = cardNumber;
+
+      cardNumber.on("change", (e: any) => setStripeCompleto((s) => ({ ...s, number: !!e.complete })));
+      cardExpiry.on("change", (e: any) => setStripeCompleto((s) => ({ ...s, expiry: !!e.complete })));
+      cardCvc.on("change", (e: any) => setStripeCompleto((s) => ({ ...s, cvc: !!e.complete })));
+    })();
+
+    return () => {
+      cancelado = true;
+    };
+  }, [usarStripeElements, showError, loading]);
+
   const paymentFailedTracked = useRef(false);
+
 
   const normalizarTelefone = (telefone: string) => {
     const digitos = (telefone || "").replace(/\D/g, "");

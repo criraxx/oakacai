@@ -241,6 +241,7 @@ const CheckoutCartao = () => {
   const handleSubmit = async () => {
     if (!isFormValid() || !clienteInfo) return;
 
+    setErroTipo("recusado");
     setLoading(true);
     try {
       const numeroLimpo = numeroCartao.replace(/\s/g, "");

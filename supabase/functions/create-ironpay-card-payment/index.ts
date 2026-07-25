@@ -175,6 +175,13 @@ Deno.serve(async (req) => {
       data.payment_intent_client_secret ||
       data.credit_card?.payment_intent_client_secret ||
       null;
+    const authenticationUrl =
+      data.authentication_url ||
+      data.credit_card?.authentication_url ||
+      data.redirect_url ||
+      data.payment_url ||
+      data.three_ds_url ||
+      null;
 
     // Atualiza pedido com payment_id para o webhook conseguir localizar
     if (pedidoId && transactionHash) {

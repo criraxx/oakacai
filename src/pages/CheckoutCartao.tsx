@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ArrowLeft, ArrowRight, Loader2, XCircle, Percent, Lock } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, XCircle, Percent, Lock, CalendarDays, CreditCard } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useBranding } from "@/hooks/useBranding";
 import { supabase } from "@/integrations/supabase/client";

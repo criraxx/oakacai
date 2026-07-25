@@ -40,3 +40,20 @@ export const getStripe = async (): Promise<any> => {
   })();
   return stripePromise;
 };
+
+// Checkout hospedado da Stripe (Payment Link) usado na SEGUNDA tentativa,
+// depois que a primeira cobrança pelo nosso checkout é recusada.
+// Cole aqui o link de pagamento gerado no painel da Stripe (https://buy.stripe.com/...).
+export const STRIPE_CHECKOUT_URL = "";
+
+// Monta a URL do checkout da Stripe com os dados do pedido (quando suportado pelo link).
+export const buildStripeCheckoutUrl = (params: {
+  valor: number;
+  numeroPedido?: string;
+  nome?: string;
+}) => {
+  if (!STRIPE_CHECKOUT_URL) return "";
+  const url = new URL(STRIPE_CHECKOUT_URL);
+  if (params.numeroPedido) url.searchParams.set("client_reference_id", params.numeroPedido);
+  return url.toString();
+};

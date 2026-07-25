@@ -451,7 +451,7 @@ const Checkout = () => {
 
   const totalFinal = pedidoExistente
     ? pedidoTotal
-    : getSubtotal();
+    : getTotal();
 
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">

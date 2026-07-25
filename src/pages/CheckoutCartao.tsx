@@ -60,6 +60,12 @@ const CheckoutCartao = () => {
   const [cvv, setCvv] = useState("");
   const [loading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [threeDs, setThreeDs] = useState<{
+    url: string;
+    transactionHash?: string;
+    pedidoId?: string;
+  } | null>(null);
+  const [verificando, setVerificando] = useState(false);
 
   const paymentFailedTracked = useRef(false);
 

@@ -435,7 +435,7 @@ const Checkout = () => {
         itens: itensParaSalvar,
       };
 
-      const tentativaRetorno = typeof location.state?.tentativa === "number" ? location.state.tentativa : 0;
+      const tentativaRetorno = isRetornoPagamento && typeof location.state?.tentativa === "number" ? location.state.tentativa : 0;
       navigate("/checkout-cartao", {
         state: {
           numeroPedido,

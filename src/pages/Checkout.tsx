@@ -621,6 +621,16 @@ const Checkout = () => {
                   {(pedidoExistente ? pedidoSubtotal : getSubtotal()).toFixed(2).replace(".", ",")} €
                 </span>
               </div>
+              {descontoMetade > 0 && (
+                <div className="flex justify-between text-[13px]">
+                  <span className="text-foreground/70 flex items-center gap-1">
+                    <Percent size={12} /> 2ª unidad a mitad de precio
+                  </span>
+                  <span className="font-medium" style={{ color: accent }}>
+                    -{descontoMetade.toFixed(2).replace(".", ",")} €
+                  </span>
+                </div>
+              )}
               {pedidoExistente && pedidoDescontoPix > 0 && (
                 <div className="flex justify-between text-[13px]">
                   <span className="text-foreground/70 flex items-center gap-1">

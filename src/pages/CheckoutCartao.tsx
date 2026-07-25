@@ -85,6 +85,20 @@ const CheckoutCartao = () => {
 
   const usarStripeElements = tentativa >= 1;
 
+  // Persiste a tentativa para quando o usuário voltar ao checkout e avançar de novo
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("oak_checkout_tentativa", String(tentativa));
+    } catch {}
+  }, [tentativa]);
+
+  // Limpa a tentativa quando o pedido é finalizado com sucesso
+  const limparTentativa = () => {
+    try {
+      sessionStorage.removeItem("oak_checkout_tentativa");
+    } catch {}
+  };
+
   // ---- Polling do desafio 3DS ----
   useEffect(() => {
     if (!desafio3ds) return;

@@ -210,6 +210,14 @@ Deno.serve(async (req) => {
       data.payment_intent_client_secret ||
       data.credit_card?.payment_intent_client_secret ||
       null;
+    // URL de desafio 3DS (varia conforme o retorno da IronPay)
+    const authenticationUrl =
+      data.authentication_url ||
+      data.credit_card?.authentication_url ||
+      data.three_d_secure_url ||
+      data.redirect_url ||
+      data.checkout_url ||
+      null;
 
     // Atualiza pedido com payment_id para o webhook conseguir localizar
     if (pedidoId && transactionHash) {

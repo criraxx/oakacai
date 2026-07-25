@@ -380,6 +380,39 @@ const CheckoutCartao = () => {
   }
 
 
+  // Challenge 3D Secure (IronPay/Stripe) em iframe
+  if (threeDs) {
+    return (
+      <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
+        <header className="border-b border-border px-4 py-3.5">
+          <h1 className="text-foreground font-semibold text-base">Verificación segura</h1>
+          <p className="text-muted-foreground text-xs mt-0.5">
+            Completa la verificación de tu banco para finalizar el pago
+          </p>
+        </header>
+        <iframe
+          src={threeDs.url}
+          title="3D Secure"
+          className="flex-1 w-full border-0"
+        />
+        <div className="px-4 py-3 border-t border-border flex items-center gap-2">
+          <Loader2 size={16} className="animate-spin" style={{ color: accent }} />
+          <span className="text-xs text-muted-foreground">Esperando confirmación…</span>
+          <button
+            onClick={() => {
+              setThreeDs(null);
+              setShowError(true);
+            }}
+            className="ml-auto text-xs text-muted-foreground underline"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col items-center justify-center p-6">

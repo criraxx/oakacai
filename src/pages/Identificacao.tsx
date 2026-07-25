@@ -18,7 +18,7 @@ const isNomeValido = (value: string) => {
 const Identificacao = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { setDadosCliente, itens, getSubtotal, getTotal } = useCart();
+  const { setDadosCliente, itens, getSubtotal } = useCart();
   const { cor_borda_logo } = useBranding();
   const accent = cor_borda_logo || "#F5E6D3";
 
@@ -105,7 +105,7 @@ const Identificacao = () => {
   const dniOk = validarDni(cpf);
   const isFormValid = nomeOk && telOk && dniOk;
 
-  const total = useMemo(() => getTotal(), [getTotal, itens]);
+  const subtotal = useMemo(() => getSubtotal(), [getSubtotal, itens]);
 
   const handleContinuar = () => {
     if (!nomeOk) return toast({ title: "Nombre no válido", description: "Usa solo letras.", variant: "destructive" });
@@ -114,7 +114,7 @@ const Identificacao = () => {
     setDadosCliente({
       nome: nome.trim(),
       telefone: telefone.replace(/\D/g, ""),
-      cpf: cpf.toUpperCase().replace(/[^0-9A-Z]/g, ""),
+      cpf: cpf.replace(/\D/g, ""),
     });
     navigate("/checkout");
   };
@@ -195,7 +195,7 @@ const Identificacao = () => {
           <div className="flex flex-col">
             <span className="text-[11px] text-muted-foreground leading-none mb-1">Total</span>
             <span className="text-base font-bold text-foreground leading-none">
-              {total.toFixed(2).replace(".", ",")} €
+              {subtotal.toFixed(2).replace(".", ",")} €
             </span>
           </div>
           <button

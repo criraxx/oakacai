@@ -100,7 +100,7 @@ Deno.serve(async (req) => {
         numero_pedido: body.numero_pedido,
         cliente_nome: body.cliente_nome.trim(),
         cliente_telefone: telefoneLimpo,
-        cliente_cpf: body.cliente_cpf?.toUpperCase().replace(/[^0-9A-Z]/g, '') || null,
+        cliente_cpf: body.cliente_cpf?.replace(/\D/g, '') || null,
         endereco_completo: body.endereco_completo || null,
         bairro: body.bairro || null,
         cidade: body.cidade || null,

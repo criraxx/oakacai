@@ -19,15 +19,14 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({})) as { telefone?: string }
     const { telefone } = body
 
-    const telefoneDigits = (telefone || '').replace(/\D/g, '')
-    if (!telefone || telefoneDigits.length < 6) {
+    if (!telefone || telefone.trim().length < 10) {
       return new Response(
         JSON.stringify({ error: 'Telefone inválido', pedidos: [] }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    const telefoneLimpo = telefoneDigits
+    const telefoneLimpo = telefone.replace(/\D/g, '')
 
     // Auto-cancelar pedidos pendentes com mais de 5 horas
     const cincoHorasAtras = new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString()

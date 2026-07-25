@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
     const { data: pedidos, error: pedidosError } = await supabase
       .from('pedidos')
       .select('id, numero_pedido, cliente_nome, cliente_telefone, cliente_cpf, total, subtotal, desconto_pix, forma_pagamento, tipo_entrega, status_pagamento, status_pedido, endereco_completo, bairro, cidade, created_at, payment_id')
-      .ilike('cliente_telefone', `%${telefoneLimpo}%`)
+      .ilike('cliente_telefone', `%${sufixo}%`)
       .order('created_at', { ascending: false })
       .limit(50)
 

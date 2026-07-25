@@ -60,6 +60,8 @@ Deno.serve(async (req) => {
       card_token,
       descricao,
       regiao,
+      action,
+      transactionHash: hashConsulta,
     } = await req.json();
 
     // Seleciona credenciais por região (BR ou ES). Fallback pros nomes antigos.

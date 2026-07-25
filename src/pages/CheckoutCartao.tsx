@@ -64,6 +64,7 @@ const CheckoutCartao = () => {
     pedidoExistente?.numero_pedido || pedidoPayload?.numero_pedido || "";
 
   const [tentativa, setTentativa] = useState(() => {
+    if (typeof location.state?.tentativa === "number") return location.state.tentativa;
     try {
       const salva = sessionStorage.getItem("oak_checkout_tentativa");
       const pedidoSalvo = sessionStorage.getItem("oak_checkout_numero_pedido");

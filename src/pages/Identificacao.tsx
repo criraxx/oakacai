@@ -18,7 +18,7 @@ const isNomeValido = (value: string) => {
 const Identificacao = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { setDadosCliente, itens, getSubtotal } = useCart();
+  const { setDadosCliente, itens, getSubtotal, getTotal } = useCart();
   const { cor_borda_logo } = useBranding();
   const accent = cor_borda_logo || "#F5E6D3";
 

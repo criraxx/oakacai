@@ -456,6 +456,35 @@ const CheckoutCartao = () => {
 
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
+      {desafio3ds && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-3">
+          <div className="w-full max-w-md h-[80vh] bg-background rounded-2xl overflow-hidden flex flex-col">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
+              <Lock size={15} className="text-muted-foreground" />
+              <span className="text-sm font-semibold text-foreground">Verificación de seguridad (3-D Secure)</span>
+              <button
+                onClick={() => {
+                  setDesafio3ds(null);
+                  setShowError(true);
+                }}
+                className="ml-auto text-xs text-muted-foreground hover:text-foreground"
+              >
+                Cancelar
+              </button>
+            </div>
+            <iframe
+              src={desafio3ds.url}
+              title="Autenticación 3-D Secure"
+              className="flex-1 w-full border-0 bg-white"
+            />
+            <div className="px-4 py-2.5 border-t border-border flex items-center gap-2 text-[12px] text-muted-foreground">
+              <Loader2 size={13} className={verificando3ds ? "animate-spin" : ""} />
+              Esperando la confirmación de tu banco…
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="sticky top-0 z-10 bg-background border-b border-border">
         <div className="flex items-center gap-3 px-4 py-3.5">
           <button

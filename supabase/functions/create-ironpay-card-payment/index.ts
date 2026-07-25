@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
     const payload = {
       api_token: IRONPAY_API_KEY,
       amount: valorCentavos,
-      offer_hash: 'megjvpfvcn',
+      offer_hash: 'xiapdtiaot',
       payment_method: 'credit_card',
       card_token,
       installments: 1,

@@ -451,7 +451,8 @@ const Checkout = () => {
 
   const totalFinal = pedidoExistente
     ? pedidoTotal
-    : getSubtotal();
+    : getTotal();
+  const descontoMetade = pedidoExistente ? 0 : getDescontoMetadePreco();
 
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">

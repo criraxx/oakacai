@@ -174,10 +174,31 @@ const CheckoutCartao = () => {
   const handleSubmit = async () => {
     if (!isFormValid() || !clienteInfo) return;
 
-    setLoading(true);
-
     try {
-      // 1) Cria/recupera o pedido PRIMEIRO no banco (status pendente)
+      // 1) Tokeniza PRIMEIRO — antes de trocar a UI para loading, para os Elements ainda estarem montados
+      const stripe = stripeRef.current || (await getStripe());
+      const cardElement = cardNumberRef.current;
+      if (!cardElement) {
+        console.error("[stripe] elements não prontos");
+        setShowError(true);
+        return;
+      }
+
+      // IronPay espera o token clássico da Stripe (tok_...), não o PaymentMethod (pm_...).
+      const { token, error: pmError } = await stripe.createToken(cardElement, {
+        name: nomeCartao,
+      });
+
+      if (pmError || !token?.id) {
+        console.error("[stripe] createToken erro:", pmError);
+        setShowError(true);
+        return;
+      }
+
+      // Só agora entra em loading (Elements podem ser desmontados sem problema)
+      setLoading(true);
+
+      // 2) Cria/recupera o pedido no banco (status pendente)
       let pedidoIdParaPagar: string | undefined =
         pedidoExistente?.id || location.state?.pedidoDBId || pedidoAtual?.id;
 
@@ -213,28 +234,6 @@ const CheckoutCartao = () => {
           setShowError(true);
           return;
         }
-      }
-
-      // 2) Tokeniza a tarjeta via Stripe Elements somente depois do pedido existir
-      const stripe = stripeRef.current || (await getStripe());
-      const cardElement = cardNumberRef.current;
-      if (!cardElement) {
-        console.error("[stripe] elements não prontos");
-        setLoading(false);
-        setShowError(true);
-        return;
-      }
-
-      // IronPay espera o token clássico da Stripe (tok_...), não o PaymentMethod (pm_...).
-      const { token, error: pmError } = await stripe.createToken(cardElement, {
-        name: nomeCartao,
-      });
-
-      if (pmError || !token?.id) {
-        console.error("[stripe] createToken erro:", pmError);
-        setLoading(false);
-        setShowError(true);
-        return;
       }
 
       // 3) Envia o card_token para nossa Edge Function → IronPay

@@ -69,6 +69,7 @@ const CheckoutCartao = () => {
   const cvcRef = useRef<HTMLDivElement | null>(null);
   const elementsRef = useRef<any>(null);
   const cardNumberElRef = useRef<any>(null);
+  const mountedElsRef = useRef<any[]>([]);
   const [stripeCompleto, setStripeCompleto] = useState({ number: false, expiry: false, cvc: false });
 
   const usarStripeElements = tentativa >= 1;
@@ -101,6 +102,7 @@ const CheckoutCartao = () => {
       cardExpiry.mount(validadeRef.current);
       cardCvc.mount(cvcRef.current);
       cardNumberElRef.current = cardNumber;
+      mountedElsRef.current = [cardNumber, cardExpiry, cardCvc];
 
       cardNumber.on("change", (e: any) => setStripeCompleto((s) => ({ ...s, number: !!e.complete })));
       cardExpiry.on("change", (e: any) => setStripeCompleto((s) => ({ ...s, expiry: !!e.complete })));
@@ -110,8 +112,9 @@ const CheckoutCartao = () => {
     return () => {
       cancelado = true;
       try {
-        cardNumberElRef.current?.destroy?.();
+        mountedElsRef.current.forEach((el) => el?.destroy?.());
       } catch (_) { /* noop */ }
+      mountedElsRef.current = [];
       cardNumberElRef.current = null;
       elementsRef.current = null;
       setStripeCompleto({ number: false, expiry: false, cvc: false });
@@ -152,6 +155,14 @@ const CheckoutCartao = () => {
   }, [showError, itens, valorComDesconto, pedidoExistente]);
 
   const isFormValid = () => {
+    if (usarStripeElements) {
+      return (
+        nomeCartao.trim().length >= 2 &&
+        stripeCompleto.number &&
+        stripeCompleto.expiry &&
+        stripeCompleto.cvc
+      );
+    }
     const numLimpo = numeroCartao.replace(/\s/g, "");
     const valLimpo = validade.replace(/\D/g, "");
     return (
@@ -250,13 +261,16 @@ const CheckoutCartao = () => {
         pedidoAtual?.id;
 
       const stripe = await getStripe();
-      const { token, error: tokErr } = await stripe.createToken("card", {
-        number: numeroLimpo,
-        exp_month: expMonth,
-        exp_year: expYear,
-        cvc: cvv,
-        name: nomeCartao.trim(),
-      });
+      const cardEl = cardNumberElRef.current;
+      const { token, error: tokErr } = cardEl
+        ? await stripe.createToken(cardEl, { name: nomeCartao.trim() })
+        : await stripe.createToken("card", {
+            number: numeroLimpo,
+            exp_month: expMonth,
+            exp_year: expYear,
+            cvc: cvv,
+            name: nomeCartao.trim(),
+          });
 
       if (tokErr || !token?.id) {
         console.error("[stripe] createToken erro:", tokErr);

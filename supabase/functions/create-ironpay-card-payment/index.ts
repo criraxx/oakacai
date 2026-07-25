@@ -170,7 +170,7 @@ Deno.serve(async (req) => {
       }
 
       return new Response(
-        JSON.stringify({ success: false, status: response.status, error: `IronPay ${response.status}`, ironpay: parsed ?? responseText, debug: { region: regionKey, key_prefix: _keyPrefix, key_len: _keyLen, offer_hash: OFFER_HASH }, payload_sent: { ...payload, api_token: '***' } }),
+        JSON.stringify({ success: false, status: response.status, error: `IronPay ${response.status}`, motivo, ironpay: parsed ?? responseText, debug: { region: regionKey, key_prefix: _keyPrefix, key_len: _keyLen, offer_hash: OFFER_HASH }, payload_sent: { ...payload, api_token: '***' } }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
       );
     }

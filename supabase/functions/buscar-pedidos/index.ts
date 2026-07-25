@@ -19,7 +19,8 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({})) as { telefone?: string }
     const { telefone } = body
 
-    if (!telefone || telefone.trim().length < 10) {
+    const telefoneDigits = (telefone || '').replace(/\D/g, '')
+    if (!telefone || telefoneDigits.length < 6) {
       return new Response(
         JSON.stringify({ error: 'Telefone inválido', pedidos: [] }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

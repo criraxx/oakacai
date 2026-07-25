@@ -461,13 +461,19 @@ const CheckoutCartao = () => {
                 <span className="block text-[11px] font-medium text-muted-foreground mb-1">
                   Caducidad
                 </span>
-                <div ref={validadeRef} />
+                <div className="flex items-center gap-2">
+                  <div ref={validadeRef} className="flex-1" />
+                  <CalendarDays size={16} className="shrink-0 text-muted-foreground" />
+                </div>
               </div>
               <div className="rounded-xl border border-border bg-background px-3.5 py-3">
                 <span className="block text-[11px] font-medium text-muted-foreground mb-1">
                   CVC
                 </span>
-                <div ref={cvcRef} />
+                <div className="flex items-center gap-2">
+                  <div ref={cvcRef} className="flex-1" />
+                  <CreditCard size={16} className="shrink-0 text-muted-foreground" />
+                </div>
               </div>
             </div>
           </div>

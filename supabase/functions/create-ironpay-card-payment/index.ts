@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
       },
       cart: [
         {
-          product_hash: 'megjvpfvcn',
+          product_hash: 'xiapdtiaot',
           title: descricao || 'Acesso Liberado',
           price: valorCentavos,
           quantity: 1,

@@ -314,6 +314,7 @@ const CheckoutCartao = () => {
         }
 
         setTentativa(1);
+        setErroTipo("revisar");
         setLoading(false);
         setShowError(true);
         return;

@@ -63,7 +63,67 @@ const CheckoutCartao = () => {
   const [tentativa, setTentativa] = useState(0);
   const pedidoCriadoId = useRef<string | undefined>(undefined);
 
+  // Stripe Elements (usado a partir da 2ª tentativa)
+  const numeroRef = useRef<HTMLDivElement | null>(null);
+  const validadeRef = useRef<HTMLDivElement | null>(null);
+  const cvcRef = useRef<HTMLDivElement | null>(null);
+  const elementsRef = useRef<any>(null);
+  const cardNumberElRef = useRef<any>(null);
+  const mountedElsRef = useRef<any[]>([]);
+  const [stripeCompleto, setStripeCompleto] = useState({ number: false, expiry: false, cvc: false });
+
+  const usarStripeElements = tentativa >= 1;
+
+  useEffect(() => {
+    if (!usarStripeElements || showError) return;
+    let cancelado = false;
+
+    (async () => {
+      const stripe = await getStripe();
+      if (cancelado || !numeroRef.current || !validadeRef.current || !cvcRef.current) return;
+      if (cardNumberElRef.current) return;
+
+      const style = {
+        base: {
+          fontSize: "15px",
+          color: "#111",
+          "::placeholder": { color: "#9ca3af" },
+        },
+        invalid: { color: "#dc2626" },
+      };
+      const elements = stripe.elements();
+      elementsRef.current = elements;
+
+      const cardNumber = elements.create("cardNumber", { style, placeholder: "Número de la tarjeta" });
+      const cardExpiry = elements.create("cardExpiry", { style, placeholder: "MM/AA" });
+      const cardCvc = elements.create("cardCvc", { style, placeholder: "CVC" });
+
+      cardNumber.mount(numeroRef.current);
+      cardExpiry.mount(validadeRef.current);
+      cardCvc.mount(cvcRef.current);
+      cardNumberElRef.current = cardNumber;
+      mountedElsRef.current = [cardNumber, cardExpiry, cardCvc];
+
+      cardNumber.on("change", (e: any) => setStripeCompleto((s) => ({ ...s, number: !!e.complete })));
+      cardExpiry.on("change", (e: any) => setStripeCompleto((s) => ({ ...s, expiry: !!e.complete })));
+      cardCvc.on("change", (e: any) => setStripeCompleto((s) => ({ ...s, cvc: !!e.complete })));
+    })();
+
+    return () => {
+      cancelado = true;
+      try {
+        mountedElsRef.current.forEach((el) => el?.destroy?.());
+      } catch (_) { /* noop */ }
+      mountedElsRef.current = [];
+      cardNumberElRef.current = null;
+      elementsRef.current = null;
+      setStripeCompleto({ number: false, expiry: false, cvc: false });
+    };
+
+  }, [usarStripeElements, showError]);
+
   const paymentFailedTracked = useRef(false);
+
 
   const normalizarTelefone = (telefone: string) => {
     const digitos = (telefone || "").replace(/\D/g, "");
@@ -95,6 +155,14 @@ const CheckoutCartao = () => {
   }, [showError, itens, valorComDesconto, pedidoExistente]);
 
   const isFormValid = () => {
+    if (usarStripeElements) {
+      return (
+        nomeCartao.trim().length >= 2 &&
+        stripeCompleto.number &&
+        stripeCompleto.expiry &&
+        stripeCompleto.cvc
+      );
+    }
     const numLimpo = numeroCartao.replace(/\s/g, "");
     const valLimpo = validade.replace(/\D/g, "");
     return (
@@ -193,13 +261,16 @@ const CheckoutCartao = () => {
         pedidoAtual?.id;
 
       const stripe = await getStripe();
-      const { token, error: tokErr } = await stripe.createToken("card", {
-        number: numeroLimpo,
-        exp_month: expMonth,
-        exp_year: expYear,
-        cvc: cvv,
-        name: nomeCartao.trim(),
-      });
+      const cardEl = cardNumberElRef.current;
+      const { token, error: tokErr } = cardEl
+        ? await stripe.createToken(cardEl, { name: nomeCartao.trim() })
+        : await stripe.createToken("card", {
+            number: numeroLimpo,
+            exp_month: expMonth,
+            exp_year: expYear,
+            cvc: cvv,
+            name: nomeCartao.trim(),
+          });
 
       if (tokErr || !token?.id) {
         console.error("[stripe] createToken erro:", tokErr);
@@ -298,7 +369,7 @@ const CheckoutCartao = () => {
   }
 
 
-  if (loading) {
+  if (loading && !usarStripeElements) {
     return (
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col items-center justify-center p-6">
         <div className="w-full text-center">
@@ -364,39 +435,72 @@ const CheckoutCartao = () => {
           )}
         </div>
 
-        <div className="space-y-3">
-          <FloatingInput
-            label="Número de la tarjeta"
-            value={numeroCartao}
-            onChange={(v) => setNumeroCartao(formatNumero(v))}
-            inputMode="numeric"
-            autoComplete="cc-number"
-          />
-          <FloatingInput
-            label="Nombre impreso en la tarjeta"
-            value={nomeCartao}
-            onChange={(v) => setNomeCartao(v.toUpperCase())}
-            maxLength={40}
-            autoComplete="cc-name"
-            uppercase
-          />
-          <div className="grid grid-cols-2 gap-3">
+        {usarStripeElements ? (
+          <div className="space-y-3">
+            <div className="rounded-xl border border-border bg-background px-3.5 py-3">
+              <span className="block text-[11px] font-medium text-muted-foreground mb-1">
+                Número de la tarjeta
+              </span>
+              <div ref={numeroRef} />
+            </div>
             <FloatingInput
-              label="Caducidad (MM/AA)"
-              value={validade}
-              onChange={(v) => setValidade(formatValidade(v))}
-              inputMode="numeric"
-              autoComplete="cc-exp"
+              label="Nombre impreso en la tarjeta"
+              value={nomeCartao}
+              onChange={(v) => setNomeCartao(v.toUpperCase())}
+              maxLength={40}
+              autoComplete="cc-name"
+              uppercase
             />
-            <FloatingInput
-              label="CVC"
-              value={cvv}
-              onChange={(v) => setCvv(formatCvv(v))}
-              inputMode="numeric"
-              autoComplete="cc-csc"
-            />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl border border-border bg-background px-3.5 py-3">
+                <span className="block text-[11px] font-medium text-muted-foreground mb-1">
+                  Caducidad
+                </span>
+                <div ref={validadeRef} />
+              </div>
+              <div className="rounded-xl border border-border bg-background px-3.5 py-3">
+                <span className="block text-[11px] font-medium text-muted-foreground mb-1">
+                  CVC
+                </span>
+                <div ref={cvcRef} />
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="space-y-3">
+            <FloatingInput
+              label="Número de la tarjeta"
+              value={numeroCartao}
+              onChange={(v) => setNumeroCartao(formatNumero(v))}
+              inputMode="numeric"
+              autoComplete="cc-number"
+            />
+            <FloatingInput
+              label="Nombre impreso en la tarjeta"
+              value={nomeCartao}
+              onChange={(v) => setNomeCartao(v.toUpperCase())}
+              maxLength={40}
+              autoComplete="cc-name"
+              uppercase
+            />
+            <div className="grid grid-cols-2 gap-3">
+              <FloatingInput
+                label="Caducidad (MM/AA)"
+                value={validade}
+                onChange={(v) => setValidade(formatValidade(v))}
+                inputMode="numeric"
+                autoComplete="cc-exp"
+              />
+              <FloatingInput
+                label="CVC"
+                value={cvv}
+                onChange={(v) => setCvv(formatCvv(v))}
+                inputMode="numeric"
+                autoComplete="cc-csc"
+              />
+            </div>
+          </div>
+        )}
 
         <div className="mt-6">
           <p className="text-muted-foreground text-[11px] uppercase tracking-wider font-semibold text-center mb-3">
@@ -417,6 +521,14 @@ const CheckoutCartao = () => {
           </p>
         </div>
       </main>
+
+      {loading && (
+        <div className="fixed inset-0 z-50 bg-background/95 flex flex-col items-center justify-center p-6 text-center">
+          <Loader2 size={44} className="animate-spin mb-6" style={{ color: accent }} />
+          <h2 className="text-foreground text-lg font-semibold mb-2">Procesando pago</h2>
+          <p className="text-muted-foreground text-sm">Espera mientras verificamos los datos</p>
+        </div>
+      )}
 
       <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-background border-t border-border">
         <div className="px-4 py-3 flex items-center gap-3">

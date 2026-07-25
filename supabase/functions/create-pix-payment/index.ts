@@ -620,3 +620,5 @@ Deno.serve(async (req) => {
     );
   }
 });
+
+// force redeploy 1784949100 - habilita dispatch credit_card

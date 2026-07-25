@@ -94,7 +94,12 @@ const CheckoutCartao = () => {
       const elements = stripe.elements();
       elementsRef.current = elements;
 
-      const cardNumber = elements.create("cardNumber", { style, placeholder: "Número de la tarjeta" });
+      const cardNumber = elements.create("cardNumber", {
+        style,
+        placeholder: "Número de la tarjeta",
+        showIcon: true,
+        iconStyle: "default",
+      });
       const cardExpiry = elements.create("cardExpiry", { style, placeholder: "MM/AA" });
       const cardCvc = elements.create("cardCvc", { style, placeholder: "CVC" });
 

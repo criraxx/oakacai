@@ -396,6 +396,11 @@ const Checkout = () => {
     try {
       const isRetornoPagamento = Boolean(location.state?.retornoPagamento);
       const numeroPedidoSalvo = typeof window !== "undefined" ? sessionStorage.getItem("oak_checkout_numero_pedido") : null;
+      // Pedido novo (não é retorno do pagamento): zera a persistência para começar da 1ª etapa.
+      if (!isRetornoPagamento && typeof window !== "undefined") {
+        sessionStorage.removeItem("oak_checkout_tentativa");
+        sessionStorage.removeItem("oak_checkout_numero_pedido");
+      }
       const numeroPedido = (isRetornoPagamento && numeroPedidoSalvo) ? numeroPedidoSalvo : `PED-${Date.now()}`;
       const enderecoCompleto = tipoEntrega === "delivery"
         ? `${formData.endereco}, ${formData.numero}${formData.complemento ? ` - ${formData.complemento}` : ""}`
@@ -430,7 +435,7 @@ const Checkout = () => {
         itens: itensParaSalvar,
       };
 
-      const tentativaRetorno = typeof location.state?.tentativa === "number" ? location.state.tentativa : 0;
+      const tentativaRetorno = isRetornoPagamento && typeof location.state?.tentativa === "number" ? location.state.tentativa : 0;
       navigate("/checkout-cartao", {
         state: {
           numeroPedido,

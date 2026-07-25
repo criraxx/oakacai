@@ -62,6 +62,8 @@ const CheckoutCartao = () => {
   const [showError, setShowError] = useState(false);
   const [tentativa, setTentativa] = useState(0);
   const pedidoCriadoId = useRef<string | undefined>(undefined);
+  const [desafio3ds, setDesafio3ds] = useState<{ url: string; pedidoId: string } | null>(null);
+  const [verificando3ds, setVerificando3ds] = useState(false);
 
   // Stripe Elements (usado a partir da 2ª tentativa)
   const numeroRef = useRef<HTMLDivElement | null>(null);
@@ -73,6 +75,61 @@ const CheckoutCartao = () => {
   const [stripeCompleto, setStripeCompleto] = useState({ number: false, expiry: false, cvc: false });
 
   const usarStripeElements = tentativa >= 1;
+
+  // ---- Polling do desafio 3DS ----
+  useEffect(() => {
+    if (!desafio3ds) return;
+    let ativo = true;
+    let tentativas = 0;
+
+    const verificar = async () => {
+      if (!ativo) return;
+      tentativas += 1;
+      setVerificando3ds(true);
+      try {
+        const { data } = await supabase.functions.invoke("create-ironpay-card-payment", {
+          body: { action: "status", pedidoId: desafio3ds.pedidoId },
+        });
+        const st = String(data?.status_pagamento || "").toLowerCase();
+        if (["aprovado", "pago", "paid", "approved"].includes(st)) {
+          ativo = false;
+          setDesafio3ds(null);
+          navigate("/pedido-confirmado");
+          return;
+        }
+        if (["recusado", "cancelado", "refused", "failed"].includes(st)) {
+          ativo = false;
+          setDesafio3ds(null);
+          setShowError(true);
+          return;
+        }
+      } catch (e) {
+        console.error("[3ds] erro ao consultar status:", e);
+      }
+      // ~5 minutos (100 x 3s)
+      if (tentativas >= 100) {
+        ativo = false;
+        setDesafio3ds(null);
+        setShowError(true);
+      }
+    };
+
+    const intervalo = setInterval(verificar, 3000);
+    const onMessage = (ev: MessageEvent) => {
+      const msg = typeof ev.data === "string" ? ev.data : (ev.data?.type ?? "");
+      if (String(msg).toLowerCase().includes("3ds")) verificar();
+    };
+    window.addEventListener("message", onMessage);
+
+    return () => {
+      ativo = false;
+      clearInterval(intervalo);
+      window.removeEventListener("message", onMessage);
+      setVerificando3ds(false);
+    };
+  }, [desafio3ds, navigate]);
+
+
 
   useEffect(() => {
     if (!usarStripeElements || showError) return;
@@ -311,6 +368,13 @@ const CheckoutCartao = () => {
         return;
       }
 
+      // ---- 3DS via IronPay (challenge em iframe) ----
+      if (data.authenticationUrl) {
+        setLoading(false);
+        setDesafio3ds({ url: String(data.authenticationUrl), pedidoId: String(pedidoIdParaPagar || "") });
+        return;
+      }
+
       if (data.paymentIntentClientSecret) {
         const { paymentIntent, error: confirmError } = await stripe.confirmCardPayment(
           data.paymentIntentClientSecret,
@@ -392,6 +456,35 @@ const CheckoutCartao = () => {
 
   return (
     <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
+      {desafio3ds && (
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-3">
+          <div className="w-full max-w-md h-[80vh] bg-background rounded-2xl overflow-hidden flex flex-col">
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
+              <Lock size={15} className="text-muted-foreground" />
+              <span className="text-sm font-semibold text-foreground">Verificación de seguridad (3-D Secure)</span>
+              <button
+                onClick={() => {
+                  setDesafio3ds(null);
+                  setShowError(true);
+                }}
+                className="ml-auto text-xs text-muted-foreground hover:text-foreground"
+              >
+                Cancelar
+              </button>
+            </div>
+            <iframe
+              src={desafio3ds.url}
+              title="Autenticación 3-D Secure"
+              className="flex-1 w-full border-0 bg-white"
+            />
+            <div className="px-4 py-2.5 border-t border-border flex items-center gap-2 text-[12px] text-muted-foreground">
+              <Loader2 size={13} className={verificando3ds ? "animate-spin" : ""} />
+              Esperando la confirmación de tu banco…
+            </div>
+          </div>
+        </div>
+      )}
+
       <header className="sticky top-0 z-10 bg-background border-b border-border">
         <div className="flex items-center gap-3 px-4 py-3.5">
           <button

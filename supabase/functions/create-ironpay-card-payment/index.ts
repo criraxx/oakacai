@@ -50,6 +50,25 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    const body = await req.json();
+
+    // ---- Consulta de status (usado no polling do 3DS) ----
+    if (body?.action === 'status') {
+      const { data: pedido } = await supabase
+        .from('pedidos')
+        .select('status_pagamento, observacoes')
+        .eq('id', body.pedidoId)
+        .maybeSingle();
+      return new Response(
+        JSON.stringify({
+          success: true,
+          status_pagamento: pedido?.status_pagamento || 'pendente',
+          observacoes: pedido?.observacoes || null,
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
     const {
       valor,
       nome,
@@ -60,7 +79,7 @@ Deno.serve(async (req) => {
       card_token,
       descricao,
       regiao,
-    } = await req.json();
+    } = body;
 
     // Seleciona credenciais por região (BR ou ES). Fallback pros nomes antigos.
     const regionKey = (regiao || 'br').toString().toLowerCase() === 'es' ? 'ES' : 'BR';
@@ -191,6 +210,14 @@ Deno.serve(async (req) => {
       data.payment_intent_client_secret ||
       data.credit_card?.payment_intent_client_secret ||
       null;
+    // URL de desafio 3DS (varia conforme o retorno da IronPay)
+    const authenticationUrl =
+      data.authentication_url ||
+      data.credit_card?.authentication_url ||
+      data.three_d_secure_url ||
+      data.redirect_url ||
+      data.checkout_url ||
+      null;
 
     // Atualiza pedido com payment_id para o webhook conseguir localizar
     if (pedidoId && transactionHash) {
@@ -228,6 +255,7 @@ Deno.serve(async (req) => {
         transactionHash,
         status,
         paymentIntentClientSecret,
+        authenticationUrl,
         raw: data,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },

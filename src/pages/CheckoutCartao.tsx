@@ -92,13 +92,17 @@ const CheckoutCartao = () => {
   useEffect(() => {
     try {
       sessionStorage.setItem("oak_checkout_tentativa", String(tentativa));
+      if (numeroPedidoAtual) {
+        sessionStorage.setItem("oak_checkout_numero_pedido", numeroPedidoAtual);
+      }
     } catch {}
-  }, [tentativa]);
+  }, [tentativa, numeroPedidoAtual]);
 
   // Limpa a tentativa quando o pedido é finalizado com sucesso
   const limparTentativa = () => {
     try {
       sessionStorage.removeItem("oak_checkout_tentativa");
+      sessionStorage.removeItem("oak_checkout_numero_pedido");
     } catch {}
   };
 

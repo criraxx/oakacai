@@ -117,6 +117,7 @@ const CheckoutCartao = () => {
         if (["aprovado", "pago", "paid", "approved"].includes(st)) {
           ativo = false;
           setDesafio3ds(null);
+          limparTentativa();
           navigate("/pedido-confirmado");
           return;
         }
@@ -417,6 +418,7 @@ const CheckoutCartao = () => {
       }
 
       setLoading(false);
+      limparTentativa();
       navigate("/pedido-confirmado");
     } catch (err) {
       console.error("[checkout-cartao] erro inesperado:", err);

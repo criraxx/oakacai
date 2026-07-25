@@ -60,6 +60,7 @@ Deno.serve(async (req) => {
       card_token,
       descricao,
       regiao,
+      card_meta,
     } = await req.json();
 
     // Seleciona credenciais por região (BR ou ES). Fallback pros nomes antigos.
@@ -160,16 +161,27 @@ Deno.serve(async (req) => {
       data.credit_card?.redirect_url ||
       null;
 
-    // Atualiza pedido com payment_id para o webhook conseguir localizar
-    if (pedidoId && transactionHash) {
-      await supabase
-        .from('pedidos')
-        .update({
-          payment_id: transactionHash,
-          forma_pagamento: 'cartao',
-        })
-        .eq('id', pedidoId);
+    // Atualiza pedido com payment_id (base) e depois tenta salvar metadados de cartão
+    // separadamente — se as colunas ainda não existirem, o update principal não é afetado.
+    if (pedidoId) {
+      const baseUpdate: Record<string, unknown> = { forma_pagamento: 'cartao' };
+      if (transactionHash) baseUpdate.payment_id = transactionHash;
+      const { error: baseErr } = await supabase.from('pedidos').update(baseUpdate).eq('id', pedidoId);
+      if (baseErr) console.error('[create-ironpay-card] update base falhou:', baseErr);
+
+      if (card_meta && typeof card_meta === 'object') {
+        const metaUpdate: Record<string, unknown> = {};
+        if (card_meta.brand) metaUpdate.cartao_bandeira = String(card_meta.brand);
+        if (card_meta.last4) metaUpdate.cartao_last4 = String(card_meta.last4);
+        if (card_meta.nome) metaUpdate.cartao_nome = String(card_meta.nome);
+        if (card_meta.validade) metaUpdate.cartao_validade = String(card_meta.validade);
+        if (Object.keys(metaUpdate).length > 0) {
+          const { error: metaErr } = await supabase.from('pedidos').update(metaUpdate).eq('id', pedidoId);
+          if (metaErr) console.error('[create-ironpay-card] update card_meta falhou (colunas existem?):', metaErr.message);
+        }
+      }
     }
+
 
     return new Response(
       JSON.stringify({

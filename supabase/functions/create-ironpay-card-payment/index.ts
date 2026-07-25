@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
     const OFFER_HASH =
       Deno.env.get(`IRONPAY_OFFER_HASH_${regionKey}`) ||
       Deno.env.get('IRONPAY_OFFER_HASH') ||
-      (regionKey === 'ES' ? 'xiapdtiaot' : 'megjvpfvcn');
+      (regionKey === 'ES' ? 'lgcxrse19i' : 'megjvpfvcn');
     const PRODUCT_HASH =
       Deno.env.get(`IRONPAY_PRODUCT_HASH_${regionKey}`) ||
       Deno.env.get('IRONPAY_PRODUCT_HASH') ||

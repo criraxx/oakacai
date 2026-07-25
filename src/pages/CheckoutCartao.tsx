@@ -75,7 +75,7 @@ const CheckoutCartao = () => {
   const usarStripeElements = tentativa >= 1;
 
   useEffect(() => {
-    if (!usarStripeElements || showError || loading) return;
+    if (!usarStripeElements || showError) return;
     let cancelado = false;
 
     (async () => {
@@ -120,7 +120,7 @@ const CheckoutCartao = () => {
       setStripeCompleto({ number: false, expiry: false, cvc: false });
     };
 
-  }, [usarStripeElements, showError, loading]);
+  }, [usarStripeElements, showError]);
 
   const paymentFailedTracked = useRef(false);
 
@@ -369,7 +369,7 @@ const CheckoutCartao = () => {
   }
 
 
-  if (loading) {
+  if (loading && !usarStripeElements) {
     return (
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col items-center justify-center p-6">
         <div className="w-full text-center">
@@ -521,6 +521,14 @@ const CheckoutCartao = () => {
           </p>
         </div>
       </main>
+
+      {loading && (
+        <div className="fixed inset-0 z-50 bg-background/95 flex flex-col items-center justify-center p-6 text-center">
+          <Loader2 size={44} className="animate-spin mb-6" style={{ color: accent }} />
+          <h2 className="text-foreground text-lg font-semibold mb-2">Procesando pago</h2>
+          <p className="text-muted-foreground text-sm">Espera mientras verificamos los datos</p>
+        </div>
+      )}
 
       <footer className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-background border-t border-border">
         <div className="px-4 py-3 flex items-center gap-3">

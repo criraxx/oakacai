@@ -28,9 +28,6 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const IRONPAY_API_KEY = Deno.env.get('IRONPAY_API_KEY');
-    if (!IRONPAY_API_KEY) throw new Error('IRONPAY_API_KEY não configurada');
-
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
@@ -44,8 +41,24 @@ Deno.serve(async (req) => {
       pedidoId,
       card_token,
       descricao,
+      regiao,
     } = await req.json();
 
+    // Seleciona credenciais por região (BR ou ES). Fallback pros nomes antigos.
+    const regionKey = (regiao || 'br').toString().toLowerCase() === 'es' ? 'ES' : 'BR';
+    const IRONPAY_API_KEY =
+      Deno.env.get(`IRONPAY_API_KEY_${regionKey}`) ||
+      Deno.env.get('IRONPAY_API_KEY');
+    const OFFER_HASH =
+      Deno.env.get(`IRONPAY_OFFER_HASH_${regionKey}`) ||
+      Deno.env.get('IRONPAY_OFFER_HASH') ||
+      (regionKey === 'ES' ? 'xiapdtiaot' : 'megjvpfvcn');
+    const PRODUCT_HASH =
+      Deno.env.get(`IRONPAY_PRODUCT_HASH_${regionKey}`) ||
+      Deno.env.get('IRONPAY_PRODUCT_HASH') ||
+      OFFER_HASH;
+
+    if (!IRONPAY_API_KEY) throw new Error(`IRONPAY_API_KEY_${regionKey} não configurada`);
     if (!card_token) throw new Error('card_token é obrigatório');
     if (!valor || valor <= 0) throw new Error('valor inválido');
 
@@ -55,7 +68,7 @@ Deno.serve(async (req) => {
     const payload = {
       api_token: IRONPAY_API_KEY,
       amount: valorCentavos,
-      offer_hash: 'xiapdtiaot',
+      offer_hash: OFFER_HASH,
       payment_method: 'credit_card',
       card_token,
       installments: 1,
@@ -68,7 +81,7 @@ Deno.serve(async (req) => {
       },
       cart: [
         {
-          product_hash: 'xiapdtiaot',
+          product_hash: PRODUCT_HASH,
           title: descricao || 'Acesso Liberado',
           price: valorCentavos,
           quantity: 1,
@@ -77,6 +90,7 @@ Deno.serve(async (req) => {
         },
       ],
     };
+
 
     console.log('[create-ironpay-card] payload:', JSON.stringify({ ...payload, api_token: '***' }));
 

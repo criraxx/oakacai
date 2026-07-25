@@ -77,6 +77,9 @@ Deno.serve(async (req) => {
       OFFER_HASH;
 
     if (!IRONPAY_API_KEY) throw new Error(`IRONPAY_API_KEY_${regionKey} não configurada`);
+    const _keyPrefix = IRONPAY_API_KEY.slice(0, 8);
+    const _keyLen = IRONPAY_API_KEY.length;
+    console.log('[create-ironpay-card] region:', regionKey, 'key_prefix:', _keyPrefix, 'key_len:', _keyLen, 'offer_hash:', OFFER_HASH);
     if (!card_token) throw new Error('card_token é obrigatório');
     if (!valor || valor <= 0) throw new Error('valor inválido');
 

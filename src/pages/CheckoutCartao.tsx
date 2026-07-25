@@ -332,6 +332,30 @@ const CheckoutCartao = () => {
     return null;
   }
 
+  if (showError && tentativas <= 1) {
+    return (
+      <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col items-center justify-center p-6">
+        <div className="w-full text-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-destructive/10 flex items-center justify-center">
+            <XCircle size={44} className="text-destructive" />
+          </div>
+          <h1 className="text-foreground text-xl font-bold mb-2">Verifica tu tarjeta</h1>
+          <p className="text-muted-foreground text-sm mb-8">
+            No hemos podido validar los datos. Revisa el número de la tarjeta, la fecha de
+            caducidad y el CVV, y vuelve a intentarlo.
+          </p>
+          <button
+            onClick={() => setShowError(false)}
+            className="w-full py-3.5 font-semibold rounded-xl transition-all active:scale-[0.98]"
+            style={{ background: accent, color: "#000" }}
+          >
+            Verificar y continuar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (showError) {
     return (
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col items-center justify-center p-6">
@@ -354,6 +378,7 @@ const CheckoutCartao = () => {
       </div>
     );
   }
+
 
   if (loading) {
     return (

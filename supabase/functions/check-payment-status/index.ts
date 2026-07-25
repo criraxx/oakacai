@@ -157,7 +157,7 @@ serve(async (req) => {
   }
 
   try {
-    const { paymentId } = await req.json();
+    const { paymentId, gateway: gatewayOverride, regiao } = await req.json();
     
     if (!paymentId) {
       return new Response(
@@ -166,18 +166,19 @@ serve(async (req) => {
       );
     }
 
-    console.log('[check-payment-status] Verificando status para:', paymentId);
+    console.log('[check-payment-status] Verificando status para:', paymentId, 'gateway override:', gatewayOverride);
 
     const supabaseAdmin = getAdminClient();
 
-    // Buscar configuração do gateway ativo
-    const { data: config } = await supabaseAdmin
-      .from('configuracoes')
-      .select('gateway_pix')
-      .eq('id', 'global')
-      .maybeSingle();
-
-    const gateway = config?.gateway_pix || 'umbrellapag';
+    let gateway = gatewayOverride as string | undefined;
+    if (!gateway) {
+      const { data: config } = await supabaseAdmin
+        .from('configuracoes')
+        .select('gateway_pix')
+        .eq('id', 'global')
+        .maybeSingle();
+      gateway = config?.gateway_pix || 'umbrellapag';
+    }
     console.log('[check-payment-status] Gateway ativo:', gateway);
 
     // Verificação prévia no banco: se o admin já aprovou ou o pagamento já foi confirmado, retornar como pago
@@ -203,7 +204,9 @@ serve(async (req) => {
     let result: { status: string; rawStatus: string };
     
     try {
-      if (gateway === 'evopay') {
+      if (gateway === 'ironpay') {
+        result = await checkIronPayStatus(paymentId, regiao);
+      } else if (gateway === 'evopay') {
         result = await checkEvoPayStatus(paymentId);
       } else if (gateway === 'blackcat') {
         result = await checkBlackCatStatus(paymentId);
@@ -213,6 +216,7 @@ serve(async (req) => {
     } catch (apiError) {
       console.error('[check-payment-status] Erro na API:', apiError);
       return new Response(
+
         JSON.stringify({ 
           success: false, 
           error: apiError instanceof Error ? apiError.message : 'Erro API',

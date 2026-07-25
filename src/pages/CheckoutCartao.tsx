@@ -67,6 +67,8 @@ const CheckoutCartao = () => {
   const [stripeReady, setStripeReady] = useState(false);
   const [elementsReady, setElementsReady] = useState({ number: false, expiry: false, cvc: false });
   const [cardComplete, setCardComplete] = useState({ number: false, expiry: false, cvc: false });
+  const [threeDS, setThreeDS] = useState<{ url: string; paymentId: string } | null>(null);
+
 
   const stripeRef = useRef<any>(null);
   const elementsRef = useRef<any>(null);
@@ -99,6 +101,50 @@ const CheckoutCartao = () => {
       paymentFailedTracked.current = true;
     }
   }, [showError, itens, valorComDesconto, pedidoExistente]);
+
+  // Polling do 3DS via IronPay: consulta status a cada 3s por até 5 min
+  useEffect(() => {
+    if (!threeDS) return;
+    let cancelled = false;
+    let attempts = 0;
+    const maxAttempts = 100; // 100 x 3s = 5 min
+
+    const poll = async () => {
+      if (cancelled) return;
+      attempts++;
+      try {
+        const { data } = await supabase.functions.invoke("check-payment-status", {
+          body: { paymentId: threeDS.paymentId, gateway: "ironpay", regiao: "es" },
+        });
+        if (cancelled) return;
+        if (data?.status === "paid") {
+          setThreeDS(null);
+          navigate("/pedido-confirmado");
+          return;
+        }
+        if (data?.status === "expired") {
+          setThreeDS(null);
+          setShowError(true);
+          return;
+        }
+      } catch (e) {
+        console.error("[3ds-poll] erro:", e);
+      }
+      if (attempts >= maxAttempts) {
+        setThreeDS(null);
+        setShowError(true);
+        return;
+      }
+      setTimeout(poll, 3000);
+    };
+
+    const t = setTimeout(poll, 3000);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [threeDS, navigate]);
+
 
   // Inicializa Stripe + Elements
   useEffect(() => {
@@ -266,7 +312,7 @@ const CheckoutCartao = () => {
         return;
       }
 
-      // 4) 3DS: se veio client_secret, confirmar no navegador
+      // 4) 3DS: se veio client_secret da Stripe, confirmar direto (Stripe abre o modal do banco)
       if (data.paymentIntentClientSecret) {
         const { paymentIntent, error: confirmError } = await stripe.confirmCardPayment(
           data.paymentIntentClientSecret,
@@ -277,6 +323,11 @@ const CheckoutCartao = () => {
           setShowError(true);
           return;
         }
+      } else if (data.authenticationUrl && data.transactionHash) {
+        // 4b) 3DS via IronPay: abrir iframe overlay e fazer polling do status
+        setLoading(false);
+        setThreeDS({ url: data.authenticationUrl, paymentId: data.transactionHash });
+        return;
       } else if (data.status && !["paid", "approved", "processing", "authorized"].includes(String(data.status))) {
         setLoading(false);
         setShowError(true);
@@ -285,6 +336,7 @@ const CheckoutCartao = () => {
 
       setLoading(false);
       navigate("/pedido-confirmado");
+
 
     } catch (err) {
       console.error("[checkout-cartao] erro inesperado:", err);
@@ -303,6 +355,43 @@ const CheckoutCartao = () => {
     navigate("/carrinho");
     return null;
   }
+
+  // Modal de 3DS (challenge do banco emissor via iframe)
+  if (threeDS) {
+    return (
+      <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-3">
+        <div className="w-full max-w-md h-[85vh] bg-background rounded-2xl overflow-hidden flex flex-col shadow-2xl">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+            <div className="flex items-center gap-2">
+              <Lock size={14} style={{ color: accent }} />
+              <span className="text-sm font-semibold text-foreground">Autenticación 3D Secure</span>
+            </div>
+            <button
+              onClick={() => { setThreeDS(null); setShowError(true); }}
+              className="text-muted-foreground hover:text-foreground p-1"
+              aria-label="Cerrar"
+            >
+              <XCircle size={20} />
+            </button>
+          </div>
+          <p className="text-[11px] text-muted-foreground px-4 py-2 border-b border-border">
+            Completa la verificación con tu banco. Esta ventana se cerrará automáticamente al confirmar el pago.
+          </p>
+          <iframe
+            src={threeDS.url}
+            title="3D Secure"
+            className="flex-1 w-full bg-white"
+            allow="payment *"
+          />
+          <div className="px-4 py-2 border-t border-border flex items-center gap-2 text-[11px] text-muted-foreground">
+            <Loader2 size={12} className="animate-spin" style={{ color: accent }} />
+            Esperando confirmación del banco...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
 
   // Tela de erro (Pagamento Recusado)
   if (showError) {

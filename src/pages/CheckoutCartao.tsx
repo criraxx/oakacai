@@ -109,7 +109,14 @@ const CheckoutCartao = () => {
 
     return () => {
       cancelado = true;
+      try {
+        cardNumberElRef.current?.destroy?.();
+      } catch (_) { /* noop */ }
+      cardNumberElRef.current = null;
+      elementsRef.current = null;
+      setStripeCompleto({ number: false, expiry: false, cvc: false });
     };
+
   }, [usarStripeElements, showError, loading]);
 
   const paymentFailedTracked = useRef(false);

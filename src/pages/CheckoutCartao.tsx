@@ -67,6 +67,8 @@ const CheckoutCartao = () => {
   const [stripeReady, setStripeReady] = useState(false);
   const [elementsReady, setElementsReady] = useState({ number: false, expiry: false, cvc: false });
   const [cardComplete, setCardComplete] = useState({ number: false, expiry: false, cvc: false });
+  const [threeDS, setThreeDS] = useState<{ url: string; paymentId: string } | null>(null);
+
 
   const stripeRef = useRef<any>(null);
   const elementsRef = useRef<any>(null);

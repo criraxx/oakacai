@@ -250,7 +250,7 @@ const CheckoutCartao = () => {
             email: `${normalizarTelefone(clienteInfo.telefone)}@cliente.local`,
             pedidoId: pedidoIdParaPagar,
             payment_method: "credit_card",
-            card_token: paymentMethod.id,
+            card_token: token.id,
           },
         },
       );

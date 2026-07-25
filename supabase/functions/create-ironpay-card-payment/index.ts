@@ -200,6 +200,7 @@ Deno.serve(async (req) => {
         transactionHash,
         status,
         paymentIntentClientSecret,
+        authenticationUrl,
         raw: data,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },

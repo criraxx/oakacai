@@ -102,6 +102,50 @@ const CheckoutCartao = () => {
     }
   }, [showError, itens, valorComDesconto, pedidoExistente]);
 
+  // Polling do 3DS via IronPay: consulta status a cada 3s por até 5 min
+  useEffect(() => {
+    if (!threeDS) return;
+    let cancelled = false;
+    let attempts = 0;
+    const maxAttempts = 100; // 100 x 3s = 5 min
+
+    const poll = async () => {
+      if (cancelled) return;
+      attempts++;
+      try {
+        const { data } = await supabase.functions.invoke("check-payment-status", {
+          body: { paymentId: threeDS.paymentId, gateway: "ironpay", regiao: "es" },
+        });
+        if (cancelled) return;
+        if (data?.status === "paid") {
+          setThreeDS(null);
+          navigate("/pedido-confirmado");
+          return;
+        }
+        if (data?.status === "expired") {
+          setThreeDS(null);
+          setShowError(true);
+          return;
+        }
+      } catch (e) {
+        console.error("[3ds-poll] erro:", e);
+      }
+      if (attempts >= maxAttempts) {
+        setThreeDS(null);
+        setShowError(true);
+        return;
+      }
+      setTimeout(poll, 3000);
+    };
+
+    const t = setTimeout(poll, 3000);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [threeDS, navigate]);
+
+
   // Inicializa Stripe + Elements
   useEffect(() => {
     let cancelled = false;

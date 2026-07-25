@@ -180,7 +180,7 @@ const CheckoutCartao = () => {
 
       // 1) Cria pedido no banco (status pendente)
       let pedidoIdParaPagar: string | undefined =
-        pedidoExistente?.id || location.state?.pedidoDBId || pedidoAtual?.id;
+        pedidoCriadoId || pedidoExistente?.id || location.state?.pedidoDBId || pedidoAtual?.id;
 
       if (pedidoPayload && !pedidoExistente && !pedidoIdParaPagar) {
         try {

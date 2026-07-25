@@ -117,6 +117,17 @@ const Admin = () => {
   const [corBordaLogo, setCorBordaLogo] = useState<string>("#F5E6D3");
   const [logoAtual, setLogoAtual] = useState<string | null>(null);
   const [bannerAtual, setBannerAtual] = useState<string | null>(null);
+  const [taxaEurBrl, setTaxaEurBrl] = useState<number>(6.35);
+
+  useEffect(() => {
+    fetch("https://api.exchangerate-api.com/v4/latest/EUR")
+      .then((r) => r.json())
+      .then((d) => {
+        const rate = Number(d?.rates?.BRL);
+        if (rate && rate > 0) setTaxaEurBrl(rate);
+      })
+      .catch(() => {});
+  }, []);
   const { toast } = useToast();
 
   const handleLogin = async () => {
@@ -625,7 +636,9 @@ const Admin = () => {
 
   const pedidosFiltrados = filtroStatus === "todos" ? pedidos : pedidos.filter((p) => p.status_pedido === filtroStatus);
 
+  const formatEUR = (value: number) => value.toLocaleString("es-ES", { style: "currency", currency: "EUR" });
   const formatBRL = (value: number) => value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  const eurToBrl = (eur: number) => eur * taxaEurBrl;
 
   if (!isAuthenticated) {
     return (
@@ -773,11 +786,14 @@ const Admin = () => {
                           </div>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-bold text-primary">{formatBRL(Number(pedido.total))}</p>
+                          <p className="text-lg font-bold text-primary">{formatEUR(Number(pedido.total))}</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            Cobrado: {formatBRL(eurToBrl(Number(pedido.total)))}
+                          </p>
                           <p className="text-xs text-muted-foreground">
                             {pedido.status_pagamento === "confirmado"
-                              ? `Total pagado: ${formatBRL(Number(pedido.total))}`
-                              : `Total a pagar: ${formatBRL(Number(pedido.total))}`}
+                              ? `Total pagado: ${formatEUR(Number(pedido.total))}`
+                              : `Total a pagar: ${formatEUR(Number(pedido.total))}`}
                           </p>
                           <p className="text-xs text-muted-foreground uppercase">{pedido.forma_pagamento}</p>
                         </div>
@@ -841,7 +857,7 @@ const Admin = () => {
                                   <p className="text-xs text-muted-foreground italic">Obs.: {item.observacoes}</p>
                                 )}
                               </div>
-                              <p className="font-medium">R$ {Number(item.total_item).toFixed(2)}</p>
+                              <p className="font-medium">{formatEUR(Number(item.total_item))}</p>
                             </div>
                           ))}
                         </div>

@@ -6,7 +6,7 @@ import { useBranding } from "@/hooks/useBranding";
 import { supabase } from "@/integrations/supabase/client";
 import { trackPaymentFailed } from "@/lib/metaPixel";
 import { bandeirasSvg } from "@/components/bandeirasSvg";
-import { getStripe } from "@/lib/stripe";
+import { getStripe, buildStripeCheckoutUrl, STRIPE_CHECKOUT_URL } from "@/lib/stripe";
 
 const CheckoutCartao = () => {
   const navigate = useNavigate();
@@ -66,6 +66,11 @@ const CheckoutCartao = () => {
     pedidoId?: string;
   } | null>(null);
   const [verificando, setVerificando] = useState(false);
+  // Nº de tentativas recusadas. Na 1ª pedimos para verificar a tarjeta;
+  // na 2ª o pagamento vai pelo checkout hospedado da Stripe.
+  const [tentativas, setTentativas] = useState(0);
+  const numeroPedidoAtual =
+    pedidoExistente?.numero_pedido || pedidoPayload?.numero_pedido;
 
   const paymentFailedTracked = useRef(false);
 
@@ -97,6 +102,12 @@ const CheckoutCartao = () => {
       paymentFailedTracked.current = true;
     }
   }, [showError, itens, valorComDesconto, pedidoExistente]);
+
+  // Conta as recusas: 1ª → pedir para verificar a tarjeta; 2ª → checkout Stripe
+  useEffect(() => {
+    if (showError) setTentativas((t) => t + 1);
+  }, [showError]);
+
 
   // Polling do status durante o challenge 3DS
   useEffect(() => {
@@ -155,8 +166,26 @@ const CheckoutCartao = () => {
     );
   };
 
+  const irParaStripeCheckout = () => {
+    const url = buildStripeCheckoutUrl({
+      valor: valorComDesconto,
+      numeroPedido: numeroPedidoAtual,
+      nome: clienteInfo?.nome,
+    });
+    if (!url) return false;
+    window.location.href = url;
+    return true;
+  };
+
   const handleSubmit = async () => {
     if (!isFormValid() || !clienteInfo) return;
+
+    // 2ª tentativa em diante: o pagamento é feito no checkout hospedado da Stripe
+    if (tentativas >= 1 && STRIPE_CHECKOUT_URL) {
+      setLoading(true);
+      if (irParaStripeCheckout()) return;
+      setLoading(false);
+    }
 
     setLoading(true);
     try {

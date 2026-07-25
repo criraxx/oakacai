@@ -61,7 +61,7 @@ const CheckoutCartao = () => {
   const [loading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
   const numeroPedidoAtual =
-    pedidoExistente?.numero_pedido || pedidoPayload?.numero_pedido || pedidoAtual?.numero_pedido || "";
+    pedidoExistente?.numero_pedido || pedidoPayload?.numero_pedido || "";
 
   const [tentativa, setTentativa] = useState(() => {
     try {

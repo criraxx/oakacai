@@ -60,6 +60,8 @@ const CheckoutCartao = () => {
   const [cvv, setCvv] = useState("");
   const [loading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [tentativa, setTentativa] = useState(0);
+  const pedidoCriadoId = useRef<string | undefined>(undefined);
 
   const paymentFailedTracked = useRef(false);
 

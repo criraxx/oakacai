@@ -80,7 +80,15 @@ Deno.serve(async (req) => {
     if (!card_token) throw new Error('card_token é obrigatório');
     if (!valor || valor <= 0) throw new Error('valor inválido');
 
-    const valorCentavos = Math.round(Number(valor) * 100);
+    // IronPay espera amount em centavos de BRL. A loja ES vende em EUR, então converte.
+    let valorParaIronPay = Number(valor);
+    if (regionKey === 'ES') {
+      const rate = await fetchEurBrlRate();
+      valorParaIronPay = valorParaIronPay * rate;
+    }
+    const valorCentavos = Math.round(valorParaIronPay * 100);
+    console.log('[create-ironpay-card] valor original:', valor, 'região:', regionKey, 'valor BRL para IronPay:', valorParaIronPay, 'centavos:', valorCentavos);
+
     const webhookUrl = `${supabaseUrl}/functions/v1/ironpay-webhook`;
 
     const payload = {

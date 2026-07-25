@@ -783,7 +783,14 @@ const Admin = () => {
                           <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
                             <Clock className="w-3 h-3" />
                             {format(new Date(pedido.created_at), "dd/MM/yyyy 'a las' HH:mm", { locale: ptBR })}
-                          </div>
+                          {pedido.observacoes && pedido.observacoes.includes("Recusado") && (
+                            <div className="mt-2 rounded-md border border-destructive/40 bg-destructive/10 px-2 py-1.5">
+                              <p className="text-xs font-semibold text-destructive">Motivo da recusa</p>
+                              <p className="text-xs text-destructive/90 break-words">{pedido.observacoes}</p>
+                            </div>
+                          )}
+                        </div>
+
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-bold text-primary">{formatEUR(Number(pedido.total))}</p>

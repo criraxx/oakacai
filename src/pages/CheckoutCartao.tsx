@@ -62,6 +62,8 @@ const CheckoutCartao = () => {
   const [showError, setShowError] = useState(false);
   const [tentativa, setTentativa] = useState(0);
   const pedidoCriadoId = useRef<string | undefined>(undefined);
+  const [desafio3ds, setDesafio3ds] = useState<{ url: string; pedidoId: string } | null>(null);
+  const [verificando3ds, setVerificando3ds] = useState(false);
 
   // Stripe Elements (usado a partir da 2ª tentativa)
   const numeroRef = useRef<HTMLDivElement | null>(null);

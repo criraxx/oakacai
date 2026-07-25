@@ -347,6 +347,7 @@ const Checkout = () => {
   const handleRepagamentoSubmit = async () => {
     if (!pedidoExistente) return;
 
+    const tentativaRetorno = typeof location.state?.tentativa === "number" ? location.state.tentativa : 0;
     navigate("/checkout-cartao", {
       state: {
         pedidoExistente: {
@@ -357,6 +358,7 @@ const Checkout = () => {
           cliente_cpf: pedidoExistente.cliente_cpf || "",
           total: pedidoTotal,
         },
+        tentativa: tentativaRetorno,
       },
     });
   };
@@ -426,11 +428,13 @@ const Checkout = () => {
         itens: itensParaSalvar,
       };
 
+      const tentativaRetorno = typeof location.state?.tentativa === "number" ? location.state.tentativa : 0;
       navigate("/checkout-cartao", {
         state: {
           numeroPedido,
           descontoCartao: 0,
           pedidoPayload,
+          tentativa: tentativaRetorno,
         },
       });
     } catch (error) {

@@ -206,6 +206,8 @@ const CheckoutCartao = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                   ...pedidoPayload,
+                  // número único por tentativa (evita duplicate key ao repetir o checkout)
+                  numero_pedido: `PED-${Date.now()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`,
                   cliente_telefone: normalizarTelefone(pedidoPayload.cliente_telefone),
                   status_pagamento: "pendente",
                   status_pedido: "pendente",

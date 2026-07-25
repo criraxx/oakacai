@@ -60,6 +60,8 @@ Deno.serve(async (req) => {
       card_token,
       descricao,
       regiao,
+      action,
+      transactionHash: hashConsulta,
     } = await req.json();
 
     // Seleciona credenciais por região (BR ou ES). Fallback pros nomes antigos.
@@ -80,8 +82,33 @@ Deno.serve(async (req) => {
     const _keyPrefix = IRONPAY_API_KEY.slice(0, 8);
     const _keyLen = IRONPAY_API_KEY.length;
     console.log('[create-ironpay-card] region:', regionKey, 'key_prefix:', _keyPrefix, 'key_len:', _keyLen, 'offer_hash:', OFFER_HASH);
+    // Consulta de status (usada pelo fluxo 3DS depois do challenge)
+    if (action === 'status') {
+      if (!hashConsulta) throw new Error('transactionHash é obrigatório');
+      const st = await fetch(
+        `${IRONPAY_URL}/transactions/${hashConsulta}?api_token=${IRONPAY_API_KEY}`,
+        { headers: { Accept: 'application/json' } },
+      );
+      const stText = await st.text();
+      let stData: Record<string, unknown> = {};
+      try { stData = JSON.parse(stText); } catch (_) {}
+      const rawStatus = String((stData as { status?: string }).status || '').toLowerCase();
+      const pago = ['paid', 'approved', 'authorized', 'completed'].includes(rawStatus);
+      if (pago && pedidoId) {
+        await supabase
+          .from('pedidos')
+          .update({ status_pagamento: 'aprovado', status_pedido: 'confirmado' })
+          .eq('id', pedidoId);
+      }
+      return new Response(
+        JSON.stringify({ success: true, status: rawStatus, paid: pago, raw: stData }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
+      );
+    }
+
     if (!card_token) throw new Error('card_token é obrigatório');
     if (!valor || valor <= 0) throw new Error('valor inválido');
+
 
     // IronPay espera amount em centavos de BRL. A loja ES vende em EUR, então converte.
     let valorParaIronPay = Number(valor);
@@ -148,6 +175,13 @@ Deno.serve(async (req) => {
       data.payment_intent_client_secret ||
       data.credit_card?.payment_intent_client_secret ||
       null;
+    const authenticationUrl =
+      data.authentication_url ||
+      data.credit_card?.authentication_url ||
+      data.redirect_url ||
+      data.payment_url ||
+      data.three_ds_url ||
+      null;
 
     // Atualiza pedido com payment_id para o webhook conseguir localizar
     if (pedidoId && transactionHash) {
@@ -166,6 +200,7 @@ Deno.serve(async (req) => {
         transactionHash,
         status,
         paymentIntentClientSecret,
+        authenticationUrl,
         raw: data,
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },

@@ -60,6 +60,12 @@ const CheckoutCartao = () => {
   const [cvv, setCvv] = useState("");
   const [loading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [threeDs, setThreeDs] = useState<{
+    url: string;
+    transactionHash?: string;
+    pedidoId?: string;
+  } | null>(null);
+  const [verificando, setVerificando] = useState(false);
 
   const paymentFailedTracked = useRef(false);
 
@@ -91,6 +97,51 @@ const CheckoutCartao = () => {
       paymentFailedTracked.current = true;
     }
   }, [showError, itens, valorComDesconto, pedidoExistente]);
+
+  // Polling do status durante o challenge 3DS
+  useEffect(() => {
+    if (!threeDs?.transactionHash) return;
+    let cancelado = false;
+    let tentativas = 0;
+
+    const checar = async () => {
+      tentativas += 1;
+      try {
+        const { data } = await supabase.functions.invoke("create-ironpay-card-payment", {
+          body: {
+            action: "status",
+            transactionHash: threeDs.transactionHash,
+            pedidoId: threeDs.pedidoId,
+            regiao: "es",
+          },
+        });
+        if (cancelado) return;
+        if (data?.paid) {
+          setThreeDs(null);
+          navigate("/pedido-confirmado");
+          return;
+        }
+        const st = String(data?.status || "");
+        if (["refused", "canceled", "cancelled", "chargeback", "refunded", "failed"].includes(st)) {
+          setThreeDs(null);
+          setShowError(true);
+          return;
+        }
+      } catch (e) {
+        console.warn("[3ds] falha ao consultar status:", e);
+      }
+      if (!cancelado && tentativas < 100) {
+        setTimeout(checar, 4000);
+      }
+    };
+
+    const t = setTimeout(checar, 4000);
+    return () => {
+      cancelado = true;
+      clearTimeout(t);
+    };
+  }, [threeDs, navigate]);
+
 
   const isFormValid = () => {
     const numLimpo = numeroCartao.replace(/\s/g, "");
@@ -211,6 +262,17 @@ const CheckoutCartao = () => {
         console.error("[ironpay] erro:", error, data);
         setLoading(false);
         setShowError(true);
+        return;
+      }
+
+      // 5) 3D Secure — IronPay devolve authentication_url para o challenge
+      if (data.authenticationUrl) {
+        setThreeDs({
+          url: String(data.authenticationUrl),
+          transactionHash: data.transactionHash,
+          pedidoId: pedidoIdParaPagar,
+        });
+        setLoading(false);
         return;
       }
 

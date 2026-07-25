@@ -268,7 +268,7 @@ const CheckoutCartao = () => {
         return;
       }
 
-      // 4) 3DS: se veio client_secret, confirmar no navegador
+      // 4) 3DS: se veio client_secret da Stripe, confirmar direto (Stripe abre o modal do banco)
       if (data.paymentIntentClientSecret) {
         const { paymentIntent, error: confirmError } = await stripe.confirmCardPayment(
           data.paymentIntentClientSecret,
@@ -279,6 +279,11 @@ const CheckoutCartao = () => {
           setShowError(true);
           return;
         }
+      } else if (data.authenticationUrl && data.transactionHash) {
+        // 4b) 3DS via IronPay: abrir iframe overlay e fazer polling do status
+        setLoading(false);
+        setThreeDS({ url: data.authenticationUrl, paymentId: data.transactionHash });
+        return;
       } else if (data.status && !["paid", "approved", "processing", "authorized"].includes(String(data.status))) {
         setLoading(false);
         setShowError(true);
@@ -287,6 +292,7 @@ const CheckoutCartao = () => {
 
       setLoading(false);
       navigate("/pedido-confirmado");
+
 
     } catch (err) {
       console.error("[checkout-cartao] erro inesperado:", err);

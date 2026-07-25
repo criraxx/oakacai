@@ -59,7 +59,7 @@ const Checkout = () => {
   const { toast } = useToast();
   const { cor_borda_logo } = useBranding();
   const accent = cor_borda_logo || "#F5E6D3";
-  const { itens, getSubtotal, getTotal, getDescontoPix, getTotalComDesconto, finalizarPedido, dadosCliente } = useCart();
+  const { itens, getSubtotal, getTotal, getDescontoMetadePreco, getDescontoPix, getTotalComDesconto, finalizarPedido, dadosCliente } = useCart();
 
 
 

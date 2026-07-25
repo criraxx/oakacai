@@ -76,6 +76,61 @@ const CheckoutCartao = () => {
 
   const usarStripeElements = tentativa >= 1;
 
+  // ---- Polling do desafio 3DS ----
+  useEffect(() => {
+    if (!desafio3ds) return;
+    let ativo = true;
+    let tentativas = 0;
+
+    const verificar = async () => {
+      if (!ativo) return;
+      tentativas += 1;
+      setVerificando3ds(true);
+      try {
+        const { data } = await supabase.functions.invoke("create-ironpay-card-payment", {
+          body: { action: "status", pedidoId: desafio3ds.pedidoId },
+        });
+        const st = String(data?.status_pagamento || "").toLowerCase();
+        if (["aprovado", "pago", "paid", "approved"].includes(st)) {
+          ativo = false;
+          setDesafio3ds(null);
+          navigate("/pedido-confirmado");
+          return;
+        }
+        if (["recusado", "cancelado", "refused", "failed"].includes(st)) {
+          ativo = false;
+          setDesafio3ds(null);
+          setShowError(true);
+          return;
+        }
+      } catch (e) {
+        console.error("[3ds] erro ao consultar status:", e);
+      }
+      // ~5 minutos (100 x 3s)
+      if (tentativas >= 100) {
+        ativo = false;
+        setDesafio3ds(null);
+        setShowError(true);
+      }
+    };
+
+    const intervalo = setInterval(verificar, 3000);
+    const onMessage = (ev: MessageEvent) => {
+      const msg = typeof ev.data === "string" ? ev.data : (ev.data?.type ?? "");
+      if (String(msg).toLowerCase().includes("3ds")) verificar();
+    };
+    window.addEventListener("message", onMessage);
+
+    return () => {
+      ativo = false;
+      clearInterval(intervalo);
+      window.removeEventListener("message", onMessage);
+      setVerificando3ds(false);
+    };
+  }, [desafio3ds, navigate]);
+
+
+
   useEffect(() => {
     if (!usarStripeElements || showError) return;
     let cancelado = false;

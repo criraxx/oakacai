@@ -195,7 +195,7 @@ const Identificacao = () => {
           <div className="flex flex-col">
             <span className="text-[11px] text-muted-foreground leading-none mb-1">Total</span>
             <span className="text-base font-bold text-foreground leading-none">
-              {subtotal.toFixed(2).replace(".", ",")} €
+              {total.toFixed(2).replace(".", ",")} €
             </span>
           </div>
           <button

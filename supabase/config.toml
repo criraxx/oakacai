@@ -8,3 +8,5 @@ verify_jwt = false
 
 [functions.create-ironpay-card-payment]
 verify_jwt = false
+[functions.buscar-config]
+verify_jwt = false

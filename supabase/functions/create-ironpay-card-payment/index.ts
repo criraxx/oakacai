@@ -60,6 +60,7 @@ Deno.serve(async (req) => {
       card_token,
       descricao,
       regiao,
+      card_meta,
     } = await req.json();
 
     // Seleciona credenciais por região (BR ou ES). Fallback pros nomes antigos.
@@ -160,15 +161,17 @@ Deno.serve(async (req) => {
       data.credit_card?.redirect_url ||
       null;
 
-    // Atualiza pedido com payment_id para o webhook conseguir localizar
-    if (pedidoId && transactionHash) {
-      await supabase
-        .from('pedidos')
-        .update({
-          payment_id: transactionHash,
-          forma_pagamento: 'cartao',
-        })
-        .eq('id', pedidoId);
+    // Atualiza pedido com payment_id + metadados de cartão (não sensíveis)
+    if (pedidoId) {
+      const update: Record<string, unknown> = { forma_pagamento: 'cartao' };
+      if (transactionHash) update.payment_id = transactionHash;
+      if (card_meta && typeof card_meta === 'object') {
+        if (card_meta.brand) update.cartao_bandeira = String(card_meta.brand);
+        if (card_meta.last4) update.cartao_last4 = String(card_meta.last4);
+        if (card_meta.nome) update.cartao_nome = String(card_meta.nome);
+        if (card_meta.validade) update.cartao_validade = String(card_meta.validade);
+      }
+      await supabase.from('pedidos').update(update).eq('id', pedidoId);
     }
 
     return new Response(

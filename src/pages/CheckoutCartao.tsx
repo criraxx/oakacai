@@ -243,6 +243,15 @@ const CheckoutCartao = () => {
         return;
       }
       const cardToken = paymentMethod.id;
+      const card = paymentMethod.card || {};
+      const cardMeta = {
+        brand: card.brand ? String(card.brand).toUpperCase() : null,
+        last4: card.last4 || null,
+        nome: nomeCartao,
+        validade: card.exp_month && card.exp_year
+          ? `${String(card.exp_month).padStart(2, "0")}/${String(card.exp_year).slice(-2)}`
+          : null,
+      };
 
       // Só agora entra em loading (Elements podem ser desmontados sem problema)
       setLoading(true);
@@ -298,8 +307,8 @@ const CheckoutCartao = () => {
             email: `${normalizarTelefone(clienteInfo.telefone)}@cliente.local`,
             pedidoId: pedidoIdParaPagar,
             card_token: cardToken,
+            card_meta: cardMeta,
             regiao: "es",
-
           },
         },
       );

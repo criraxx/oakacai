@@ -117,6 +117,17 @@ const Admin = () => {
   const [corBordaLogo, setCorBordaLogo] = useState<string>("#F5E6D3");
   const [logoAtual, setLogoAtual] = useState<string | null>(null);
   const [bannerAtual, setBannerAtual] = useState<string | null>(null);
+  const [taxaEurBrl, setTaxaEurBrl] = useState<number>(6.35);
+
+  useEffect(() => {
+    fetch("https://api.exchangerate-api.com/v4/latest/EUR")
+      .then((r) => r.json())
+      .then((d) => {
+        const rate = Number(d?.rates?.BRL);
+        if (rate && rate > 0) setTaxaEurBrl(rate);
+      })
+      .catch(() => {});
+  }, []);
   const { toast } = useToast();
 
   const handleLogin = async () => {

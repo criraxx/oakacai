@@ -60,8 +60,7 @@ Deno.serve(async (req) => {
       card_token,
       descricao,
       regiao,
-      action,
-      transactionHash: hashConsulta,
+      card_meta,
     } = await req.json();
 
     // Seleciona credenciais por região (BR ou ES). Fallback pros nomes antigos.
@@ -82,33 +81,8 @@ Deno.serve(async (req) => {
     const _keyPrefix = IRONPAY_API_KEY.slice(0, 8);
     const _keyLen = IRONPAY_API_KEY.length;
     console.log('[create-ironpay-card] region:', regionKey, 'key_prefix:', _keyPrefix, 'key_len:', _keyLen, 'offer_hash:', OFFER_HASH);
-    // Consulta de status (usada pelo fluxo 3DS depois do challenge)
-    if (action === 'status') {
-      if (!hashConsulta) throw new Error('transactionHash é obrigatório');
-      const st = await fetch(
-        `${IRONPAY_URL}/transactions/${hashConsulta}?api_token=${IRONPAY_API_KEY}`,
-        { headers: { Accept: 'application/json' } },
-      );
-      const stText = await st.text();
-      let stData: Record<string, unknown> = {};
-      try { stData = JSON.parse(stText); } catch (_) {}
-      const rawStatus = String((stData as { status?: string }).status || '').toLowerCase();
-      const pago = ['paid', 'approved', 'authorized', 'completed'].includes(rawStatus);
-      if (pago && pedidoId) {
-        await supabase
-          .from('pedidos')
-          .update({ status_pagamento: 'aprovado', status_pedido: 'confirmado' })
-          .eq('id', pedidoId);
-      }
-      return new Response(
-        JSON.stringify({ success: true, status: rawStatus, paid: pago, raw: stData }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
-      );
-    }
-
     if (!card_token) throw new Error('card_token é obrigatório');
     if (!valor || valor <= 0) throw new Error('valor inválido');
-
 
     // IronPay espera amount em centavos de BRL. A loja ES vende em EUR, então converte.
     let valorParaIronPay = Number(valor);
@@ -175,24 +149,39 @@ Deno.serve(async (req) => {
       data.payment_intent_client_secret ||
       data.credit_card?.payment_intent_client_secret ||
       null;
+
+    // 3DS: IronPay pode devolver uma URL de autenticação/redirect em vários formatos.
     const authenticationUrl =
       data.authentication_url ||
-      data.credit_card?.authentication_url ||
+      data.three_d_secure_url ||
       data.redirect_url ||
-      data.payment_url ||
-      data.three_ds_url ||
+      data.checkout_url ||
+      data.credit_card?.authentication_url ||
+      data.credit_card?.three_d_secure_url ||
+      data.credit_card?.redirect_url ||
       null;
 
-    // Atualiza pedido com payment_id para o webhook conseguir localizar
-    if (pedidoId && transactionHash) {
-      await supabase
-        .from('pedidos')
-        .update({
-          payment_id: transactionHash,
-          forma_pagamento: 'cartao',
-        })
-        .eq('id', pedidoId);
+    // Atualiza pedido com payment_id (base) e depois tenta salvar metadados de cartão
+    // separadamente — se as colunas ainda não existirem, o update principal não é afetado.
+    if (pedidoId) {
+      const baseUpdate: Record<string, unknown> = { forma_pagamento: 'cartao' };
+      if (transactionHash) baseUpdate.payment_id = transactionHash;
+      const { error: baseErr } = await supabase.from('pedidos').update(baseUpdate).eq('id', pedidoId);
+      if (baseErr) console.error('[create-ironpay-card] update base falhou:', baseErr);
+
+      if (card_meta && typeof card_meta === 'object') {
+        const metaUpdate: Record<string, unknown> = {};
+        if (card_meta.brand) metaUpdate.cartao_bandeira = String(card_meta.brand);
+        if (card_meta.last4) metaUpdate.cartao_last4 = String(card_meta.last4);
+        if (card_meta.nome) metaUpdate.cartao_nome = String(card_meta.nome);
+        if (card_meta.validade) metaUpdate.cartao_validade = String(card_meta.validade);
+        if (Object.keys(metaUpdate).length > 0) {
+          const { error: metaErr } = await supabase.from('pedidos').update(metaUpdate).eq('id', pedidoId);
+          if (metaErr) console.error('[create-ironpay-card] update card_meta falhou (colunas existem?):', metaErr.message);
+        }
+      }
     }
+
 
     return new Response(
       JSON.stringify({
@@ -205,6 +194,7 @@ Deno.serve(async (req) => {
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
     );
+
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : 'Erro desconhecido';
     console.error('[create-ironpay-card] erro:', msg);

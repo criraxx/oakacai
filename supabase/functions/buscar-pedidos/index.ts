@@ -19,17 +19,15 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({})) as { telefone?: string }
     const { telefone } = body
 
-    const telefoneLimpo = (telefone || '').replace(/\D/g, '')
-
-    if (telefoneLimpo.length < 6) {
+    const telefoneDigits = (telefone || '').replace(/\D/g, '')
+    if (!telefone || telefoneDigits.length < 6) {
       return new Response(
-        JSON.stringify({ error: 'Teléfono inválido', pedidos: [] }),
+        JSON.stringify({ error: 'Telefone inválido', pedidos: [] }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // Busca pelos últimos 9 dígitos (ignora DDI 34/55 gravado no banco)
-    const sufixo = telefoneLimpo.slice(-9)
+    const telefoneLimpo = telefoneDigits
 
     // Auto-cancelar pedidos pendentes com mais de 5 horas
     const cincoHorasAtras = new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString()
@@ -46,7 +44,7 @@ Deno.serve(async (req) => {
     const { data: pedidos, error: pedidosError } = await supabase
       .from('pedidos')
       .select('id, numero_pedido, cliente_nome, cliente_telefone, cliente_cpf, total, subtotal, desconto_pix, forma_pagamento, tipo_entrega, status_pagamento, status_pedido, endereco_completo, bairro, cidade, created_at, payment_id')
-      .ilike('cliente_telefone', `%${sufixo}%`)
+      .ilike('cliente_telefone', `%${telefoneLimpo}%`)
       .order('created_at', { ascending: false })
       .limit(50)
 

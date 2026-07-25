@@ -40,4 +40,3 @@ export const getStripe = async (): Promise<any> => {
   })();
   return stripePromise;
 };
-

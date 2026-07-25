@@ -356,6 +356,43 @@ const CheckoutCartao = () => {
     return null;
   }
 
+  // Modal de 3DS (challenge do banco emissor via iframe)
+  if (threeDS) {
+    return (
+      <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-3">
+        <div className="w-full max-w-md h-[85vh] bg-background rounded-2xl overflow-hidden flex flex-col shadow-2xl">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+            <div className="flex items-center gap-2">
+              <Lock size={14} style={{ color: accent }} />
+              <span className="text-sm font-semibold text-foreground">Autenticación 3D Secure</span>
+            </div>
+            <button
+              onClick={() => { setThreeDS(null); setShowError(true); }}
+              className="text-muted-foreground hover:text-foreground p-1"
+              aria-label="Cerrar"
+            >
+              <XCircle size={20} />
+            </button>
+          </div>
+          <p className="text-[11px] text-muted-foreground px-4 py-2 border-b border-border">
+            Completa la verificación con tu banco. Esta ventana se cerrará automáticamente al confirmar el pago.
+          </p>
+          <iframe
+            src={threeDS.url}
+            title="3D Secure"
+            className="flex-1 w-full bg-white"
+            allow="payment *"
+          />
+          <div className="px-4 py-2 border-t border-border flex items-center gap-2 text-[11px] text-muted-foreground">
+            <Loader2 size={12} className="animate-spin" style={{ color: accent }} />
+            Esperando confirmación del banco...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+
   // Tela de erro (Pagamento Recusado)
   if (showError) {
     return (

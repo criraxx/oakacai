@@ -166,26 +166,8 @@ const CheckoutCartao = () => {
     );
   };
 
-  const irParaStripeCheckout = () => {
-    const url = buildStripeCheckoutUrl({
-      valor: valorComDesconto,
-      numeroPedido: numeroPedidoAtual,
-      nome: clienteInfo?.nome,
-    });
-    if (!url) return false;
-    window.location.href = url;
-    return true;
-  };
-
   const handleSubmit = async () => {
     if (!isFormValid() || !clienteInfo) return;
-
-    // 2ª tentativa em diante: o pagamento é feito no checkout hospedado da Stripe
-    if (tentativas >= 1 && STRIPE_CHECKOUT_URL) {
-      setLoading(true);
-      if (irParaStripeCheckout()) return;
-      setLoading(false);
-    }
 
     setLoading(true);
     try {

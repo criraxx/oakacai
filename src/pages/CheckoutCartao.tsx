@@ -225,14 +225,13 @@ const CheckoutCartao = () => {
         return;
       }
 
-      const { paymentMethod, error: pmError } = await stripe.createPaymentMethod({
-        type: "card",
-        card: cardElement,
-        billing_details: { name: nomeCartao },
+      // IronPay espera o token clássico da Stripe (tok_...), não o PaymentMethod (pm_...).
+      const { token, error: pmError } = await stripe.createToken(cardElement, {
+        name: nomeCartao,
       });
 
-      if (pmError || !paymentMethod?.id) {
-        console.error("[stripe] createPaymentMethod erro:", pmError);
+      if (pmError || !token?.id) {
+        console.error("[stripe] createToken erro:", pmError);
         setLoading(false);
         setShowError(true);
         return;

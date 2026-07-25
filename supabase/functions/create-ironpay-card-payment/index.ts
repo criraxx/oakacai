@@ -1,3 +1,4 @@
+// Redeploy trigger: 2026-07-25T14:00Z (GH secrets configured)
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 

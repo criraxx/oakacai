@@ -394,7 +394,9 @@ const Checkout = () => {
     setLoading(true);
 
     try {
-      const numeroPedido = `PED-${Date.now()}`;
+      const isRetornoPagamento = Boolean(location.state?.retornoPagamento);
+      const numeroPedidoSalvo = typeof window !== "undefined" ? sessionStorage.getItem("oak_checkout_numero_pedido") : null;
+      const numeroPedido = (isRetornoPagamento && numeroPedidoSalvo) ? numeroPedidoSalvo : `PED-${Date.now()}`;
       const enderecoCompleto = tipoEntrega === "delivery"
         ? `${formData.endereco}, ${formData.numero}${formData.complemento ? ` - ${formData.complemento}` : ""}`
         : "";

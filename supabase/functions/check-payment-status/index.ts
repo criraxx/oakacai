@@ -10,6 +10,32 @@ const corsHeaders = {
 const UMBRELLAPAG_BASE_URL = 'https://api-gateway.umbrellapag.com/api';
 const EVOPAY_URL = 'https://pix.evopay.cash/v1/pix';
 const BLACKCAT_URL = 'https://api.blackcatoficial.com/api';
+const IRONPAY_URL = 'https://api.ironpayapp.com.br/api/public/v1';
+
+async function checkIronPayStatus(paymentId: string, regiao?: string): Promise<{ status: string; rawStatus: string }> {
+  const regionKey = (regiao || 'br').toLowerCase() === 'es' ? 'ES' : 'BR';
+  const apiKey =
+    Deno.env.get(`IRONPAY_API_KEY_${regionKey}`) || Deno.env.get('IRONPAY_API_KEY');
+  if (!apiKey) throw new Error(`IRONPAY_API_KEY_${regionKey} não configurada`);
+
+  const resp = await fetch(`${IRONPAY_URL}/transactions/${paymentId}?api_token=${apiKey}`, {
+    method: 'GET',
+    headers: { Accept: 'application/json' },
+  });
+  const text = await resp.text();
+  if (!resp.ok) throw new Error(`IronPay ${resp.status}: ${text}`);
+  const data = JSON.parse(text);
+  const rawStatus = String(data.status || data.data?.status || 'pending').toLowerCase();
+
+  let normalizedStatus = 'pending';
+  if (['paid', 'approved', 'authorized', 'captured'].includes(rawStatus)) {
+    normalizedStatus = 'paid';
+  } else if (['refused', 'declined', 'cancelled', 'canceled', 'chargeback', 'refunded', 'expired', 'failed'].includes(rawStatus)) {
+    normalizedStatus = 'expired';
+  }
+  return { status: normalizedStatus, rawStatus };
+}
+
 
 const getAdminClient = () => {
   const url = Deno.env.get('SUPABASE_URL');

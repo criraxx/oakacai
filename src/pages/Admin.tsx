@@ -857,7 +857,7 @@ const Admin = () => {
                                   <p className="text-xs text-muted-foreground italic">Obs.: {item.observacoes}</p>
                                 )}
                               </div>
-                              <p className="font-medium">R$ {Number(item.total_item).toFixed(2)}</p>
+                              <p className="font-medium">{formatEUR(Number(item.total_item))}</p>
                             </div>
                           ))}
                         </div>

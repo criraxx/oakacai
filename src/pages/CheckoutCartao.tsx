@@ -66,6 +66,7 @@ const CheckoutCartao = () => {
     pedidoId?: string;
   } | null>(null);
   const [verificando, setVerificando] = useState(false);
+  const [pedidoCriadoId, setPedidoCriadoId] = useState<string | undefined>(undefined);
   // Nº de tentativas recusadas. Na 1ª pedimos para verificar a tarjeta;
   // na 2ª o pagamento vai pelo checkout hospedado da Stripe.
   const [tentativas, setTentativas] = useState(0);

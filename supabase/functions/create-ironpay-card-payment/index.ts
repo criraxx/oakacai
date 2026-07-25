@@ -133,8 +133,42 @@ Deno.serve(async (req) => {
     console.log('[create-ironpay-card] IronPay response:', response.status, responseText);
 
     if (!response.ok) {
-      let parsed: unknown = null;
+      let parsed: any = null;
       try { parsed = JSON.parse(responseText); } catch (_) {}
+
+      // Registra o motivo da recusa no pedido para aparecer no admin
+      const motivoBruto =
+        parsed?.message ||
+        parsed?.error ||
+        parsed?.errors?.[0]?.message ||
+        (typeof parsed?.errors === 'object' ? JSON.stringify(parsed.errors) : null) ||
+        responseText?.slice(0, 300) ||
+        'Recusado sem detalhe';
+      const traduzir = (m: string): string => {
+        const t = m.toLowerCase();
+        if (t.includes('insufficient') || t.includes('saldo') || t.includes('funds')) return 'Cartão sem saldo / limite insuficiente';
+        if (t.includes('expired')) return 'Cartão expirado';
+        if (t.includes('cvv') || t.includes('cvc') || t.includes('security code')) return 'CVV inválido';
+        if (t.includes('do not honor') || t.includes('declined') || t.includes('recusad')) return 'Recusado pelo emissor do cartão';
+        if (t.includes('token')) return 'Token do cartão inválido/expirado (problema de integração)';
+        if (t.includes('unauthorized') || t.includes('hash') || t.includes('api_token')) return 'Erro de credenciais/hash (problema de integração)';
+        if (t.includes('fraud') || t.includes('risk')) return 'Bloqueado por antifraude';
+        return m;
+      };
+      const motivo = `[${new Date().toISOString()}] Recusado (IronPay ${response.status}): ${traduzir(String(motivoBruto))} | detalhe: ${String(motivoBruto).slice(0, 200)}`;
+      console.log('[create-ironpay-card] motivo recusa:', motivo);
+
+      if (pedidoId) {
+        try {
+          await supabase
+            .from('pedidos')
+            .update({ observacoes: motivo, status_pagamento: 'recusado' })
+            .eq('id', pedidoId);
+        } catch (e) {
+          console.error('[create-ironpay-card] falha ao gravar motivo:', e);
+        }
+      }
+
       return new Response(
         JSON.stringify({ success: false, status: response.status, error: `IronPay ${response.status}`, ironpay: parsed ?? responseText, debug: { region: regionKey, key_prefix: _keyPrefix, key_len: _keyLen, offer_hash: OFFER_HASH }, payload_sent: { ...payload, api_token: '***' } }),
         { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } },
